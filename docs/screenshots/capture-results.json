@@ -1,0 +1,40 @@
+{
+  "captures": [
+    "overview-light.png",
+    "overview-dark.png",
+    "diagnostics-memory-only-light.png",
+    "diagnostics-memory-only-dark.png",
+    "diagnostics-memory-storage-light.png",
+    "diagnostics-memory-storage-dark.png",
+    "diagnostics-light.png",
+    "diagnostics-dark.png",
+    "diagnostic-running-light.png",
+    "diagnostic-running-dark.png",
+    "diagnostic-result-light.png",
+    "diagnostic-result-dark.png",
+    "history-light.png",
+    "history-dark.png",
+    "comparison-light.png",
+    "comparison-dark.png",
+    "memory-light.png",
+    "memory-dark.png",
+    "storage-light.png",
+    "storage-dark.png",
+    "cpu-light.png",
+    "cpu-dark.png",
+    "settings-light.png",
+    "settings-dark.png",
+    "about-light.png",
+    "about-dark.png",
+    "overview-with-history-light.png",
+    "overview-with-history-dark.png"
+  ],
+  "checks": {
+    "checkboxes": true,
+    "real_diagnostics": 2,
+    "comparison": true,
+    "system_theme": true,
+    "horizontal_overflow": false,
+    "browser_errors": []
+  }
+}

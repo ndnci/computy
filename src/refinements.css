@@ -1,0 +1,800 @@
+/* Readability, system theme controls and bidirectional layouts. */
+:root {
+  --muted: #6d7c70;
+  --soft: #86947e;
+}
+.nav-item {
+  font-size: 13px;
+}
+.sidebar-bottom > .nav-item {
+  font-size: 12px;
+}
+.nav-group-label,
+.eyebrow {
+  font-size: 10px;
+}
+.workspace-label {
+  font-size: 11px;
+}
+.button {
+  font-size: 12px;
+}
+.button.small,
+.text-button {
+  font-size: 11px;
+}
+.page-description {
+  font-size: 13px;
+}
+.hero-kicker {
+  font-size: 8px;
+}
+.hero-copy p {
+  font-size: 13px;
+  color: #728264;
+}
+.hero-copy .button {
+  font-size: 12px;
+}
+.hero-reassurance {
+  font-size: 10px;
+}
+.card-overline {
+  font-size: 9px;
+}
+.health-card h3 {
+  font-size: 15px;
+}
+.health-card > p {
+  font-size: 12px;
+  color: #7b896e;
+}
+.pending-label {
+  font-size: 9px;
+}
+.component-label {
+  font-size: 12px;
+  color: #718166;
+}
+.component-detail {
+  font-size: 11px;
+  color: #7b8a71;
+}
+.component-caption {
+  font-size: 9px;
+}
+.component-bottom > span:first-child {
+  font-size: 10px;
+  color: #7c8e6b;
+}
+.badge {
+  font-size: 10px;
+}
+.badge.muted,
+.badge.neutral {
+  color: #7c8b70;
+}
+.panel-header h2 {
+  font-size: 16px;
+}
+.panel-header p {
+  font-size: 12px;
+  color: #7a8b6a;
+}
+.history-blank h3 {
+  font-size: 14px;
+}
+.history-blank p {
+  font-size: 12px;
+  color: #7c8d6d;
+}
+.tip-kicker {
+  font-size: 9px;
+}
+.tip-card h3 {
+  font-size: 17px;
+}
+.tip-card p {
+  font-size: 12px;
+  color: #7a8b69;
+}
+.tip-card p {
+  max-width: 295px;
+}
+.tip-comparison {
+  margin-top: 17px;
+}
+.tip-comparison > span {
+  font-size: 8px;
+}
+.local-card b {
+  font-size: 12px;
+}
+.local-card p {
+  font-size: 11px;
+  color: #7b8d6b;
+}
+.local-card > span:last-child {
+  font-size: 9px;
+}
+.local-card .online-dot {
+  width: 5px;
+  height: 5px;
+}
+.main-footer {
+  font-size: 10px;
+}
+.made-by {
+  font-size: 10px;
+}
+.made-by b {
+  font-size: 10px;
+}
+.breadcrumb {
+  font-size: 12px;
+}
+.connection {
+  font-size: 11px;
+}
+.count-pill,
+.subtle-label {
+  font-size: 10px;
+}
+.transparency-line,
+.transparency-line p,
+.transparency-line > button {
+  font-size: 10px;
+}
+.transparency-line {
+  color: #7e8f6e;
+}
+.notice {
+  font-size: 12px;
+  color: #748666;
+}
+.field-label,
+.fields-grid > label {
+  font-size: 12px;
+}
+.fields-grid select,
+.text-input {
+  font-size: 12px;
+}
+.test-component-option b {
+  font-size: 13px;
+}
+.test-component-option input {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.table-checkbox input {
+  z-index: 1;
+}
+.test-component-option small {
+  font-size: 11px;
+  color: #788d65;
+}
+.profile b {
+  font-size: 12px;
+}
+.profile small {
+  font-size: 10px;
+}
+.profile-tag {
+  font-size: 8px;
+}
+.summary-panel > p,
+.scope-card p {
+  font-size: 12px;
+  color: #7c9068;
+}
+.run-summary-list > div {
+  font-size: 11px;
+}
+.summary-reassurance {
+  font-size: 9px;
+}
+.advanced-options > summary {
+  font-size: 12px;
+}
+.advanced-options > summary > span {
+  font-size: 10px;
+}
+.stat-card > span {
+  font-size: 12px;
+}
+.stat-card > p {
+  font-size: 11px;
+  color: #81936d;
+}
+.module-card > p {
+  font-size: 12px;
+}
+.spec-list > div {
+  font-size: 12px;
+}
+.spec-list dt {
+  color: #7b9069;
+}
+.inline-good {
+  font-size: 10px;
+}
+.notes-panel > p,
+.panel-notice,
+.explanation-steps p {
+  font-size: 12px;
+  color: #7d9169;
+}
+.no-results-inline {
+  font-size: 12px;
+}
+.machine-banner b {
+  font-size: 13px;
+}
+.machine-banner > div > span {
+  font-size: 11px;
+}
+.volume-card p,
+.volume-space {
+  font-size: 11px;
+}
+.sensor span {
+  font-size: 12px;
+}
+.sensor small {
+  font-size: 10px;
+}
+.history-table th {
+  font-size: 10px;
+}
+.history-table td,
+.table-date {
+  font-size: 12px;
+}
+.table-secondary {
+  font-size: 10px;
+}
+.report-name b {
+  font-size: 12px;
+}
+.report-name small {
+  font-size: 10px;
+}
+.search-input > input,
+.filter-select select {
+  font-size: 12px;
+}
+.history-toolbar > span {
+  font-size: 10px;
+}
+.selection-bar b {
+  font-size: 12px;
+}
+.selection-bar p {
+  font-size: 11px;
+}
+.check-title b {
+  font-size: 13px;
+}
+.check-title > span {
+  font-size: 12px;
+  color: #7c9168;
+}
+.metric-list > div {
+  font-size: 12px;
+}
+.limits {
+  font-size: 11px;
+  color: #81956d;
+}
+.limits > b,
+.raw-metrics {
+  font-size: 11px;
+}
+.report-intro p:not(.eyebrow) {
+  font-size: 12px;
+}
+.report-footnote {
+  font-size: 10px;
+}
+.offline-copy > p,
+.offline-platform-note,
+.offline-steps {
+  font-size: 12px;
+  color: #7d9268;
+}
+.offline-caveat,
+.preview-note {
+  font-size: 10px;
+}
+.offline-checkbox {
+  font-size: 12px;
+}
+.comparison-table tbody th,
+.comparison-table tbody td {
+  font-size: 12px;
+}
+.comparison-table .comparison-section th {
+  font-size: 11px;
+}
+.compare-legend,
+.compare-legend p {
+  font-size: 11px;
+}
+.comparison-table thead p,
+.compare-machine,
+.delta {
+  font-size: 11px;
+}
+.about-brand-panel p:not(.eyebrow),
+.about-values p,
+.method-row p,
+.about-limits p {
+  font-size: 12px;
+  color: #7d9269;
+}
+.about-values h3,
+.method-row h3,
+.about-limits h3 {
+  font-size: 14px;
+}
+.score-rules p {
+  font-size: 11px;
+}
+.score-rules b {
+  font-size: 12px;
+}
+.method-row a,
+.about-limits a,
+.about-signature {
+  font-size: 11px;
+}
+.setting-row b {
+  font-size: 13px;
+}
+.setting-row p,
+.privacy-settings p {
+  font-size: 12px;
+  color: #7a9066;
+}
+.setting-row small {
+  font-size: 11px;
+}
+.settings-fields {
+  gap: 20px;
+}
+.language-settings {
+  padding: 0 23px 25px;
+}
+.language-settings label {
+  font-size: 12px;
+  color: #7c9168;
+  display: block;
+  margin-bottom: 10px;
+}
+.language-settings select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 11px 13px;
+  border-radius: 7px;
+  min-width: 260px;
+  max-width: 100%;
+}
+.language-settings p {
+  font-size: 11px;
+  color: #8ba375;
+  margin-top: 12px;
+}
+.theme-option {
+  width: 220px;
+}
+.theme-option > span {
+  font-size: 12px;
+}
+.theme-option > small {
+  font-size: 10px;
+  color: #96ac7d;
+  padding: 7px 3px 2px;
+  display: block;
+}
+.system-preview {
+  background: linear-gradient(90deg, #f7f9f4 50%, #202a24 50%);
+}
+.system-preview::before {
+  background: linear-gradient(90deg, #e6eeda 50%, #34482d 50%);
+}
+.system-preview > span:nth-last-child(-n + 2) {
+  background: #34482d;
+  border-color: #496039;
+}
+.score {
+  direction: ltr;
+}
+.brand {
+  direction: ltr;
+}
+[data-theme='dark'] .hero-copy p,
+[data-theme='dark'] .tip-card p {
+  color: #b5c7a0;
+}
+[data-theme='dark'] .component-detail,
+[data-theme='dark'] .component-label,
+[data-theme='dark'] .component-bottom > span:first-child,
+[data-theme='dark'] .panel-header p,
+[data-theme='dark'] .check-title > span,
+[data-theme='dark'] .limits,
+[data-theme='dark'] .notes-panel > p,
+[data-theme='dark'] .panel-notice,
+[data-theme='dark'] .notice,
+[data-theme='dark'] .about-values p,
+[data-theme='dark'] .method-row p,
+[data-theme='dark'] .about-limits p,
+[data-theme='dark'] .offline-copy > p,
+[data-theme='dark'] .offline-platform-note,
+[data-theme='dark'] .offline-steps,
+[data-theme='dark'] .setting-row p,
+[data-theme='dark'] .privacy-settings p {
+  color: #adc29a;
+}
+[data-theme='dark'] .badge.muted,
+[data-theme='dark'] .badge.neutral {
+  color: #b3c69f;
+}
+[data-theme='dark'] .theme-option.selected .system-preview {
+  border-color: #78995d;
+}
+[data-theme='dark'] .checkbox-visual,
+[data-theme='dark'] .profile-radio {
+  background: #23311f;
+  border-color: #6d8954;
+}
+[data-theme='dark'] .selected .checkbox-visual {
+  background: #78975c;
+  border-color: #9bbd76;
+}
+[data-theme='dark'] .profile-radio > i {
+  background: #b7d68d;
+}
+[data-theme='dark'] .scope-card {
+  background: transparent;
+}
+[dir='rtl'] {
+  font-family: 'DM Sans Variable', 'Noto Sans Arabic', 'Noto Sans Hebrew', Tahoma, sans-serif;
+}
+[dir='rtl'] .sidebar {
+  right: 0;
+  left: auto;
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+[dir='rtl'] .main-shell {
+  margin-left: 0;
+  margin-right: 231px;
+}
+[dir='rtl'] .nav-item,
+[dir='rtl'] .component-card,
+[dir='rtl'] .profile,
+[dir='rtl'] .report-name,
+[dir='rtl'] .floating-job {
+  text-align: right;
+}
+[dir='rtl'] .nav-item.active::before {
+  left: auto;
+  right: -20px;
+  border-radius: 2px 0 0 2px;
+}
+[dir='rtl'] .nav-count,
+[dir='rtl'] .local-tag,
+[dir='rtl'] .card-arrow,
+[dir='rtl'] .running-percentage {
+  margin-left: 0;
+  margin-right: auto;
+}
+[dir='rtl'] .hero-copy {
+  padding-left: 0;
+  padding-right: 29px;
+}
+[dir='rtl'] .hero-art {
+  right: auto;
+  left: 3px;
+}
+[dir='rtl'] .hero-copy h2 {
+  line-height: 1.5;
+}
+[dir='rtl'] .main-footer > span:last-child {
+  margin-left: 0;
+  margin-right: auto;
+}
+[dir='rtl'] .history-table,
+[dir='rtl'] .comparison-table {
+  text-align: right;
+}
+[dir='rtl'] .history-table th:first-child,
+[dir='rtl'] .history-table td:first-child {
+  padding-left: 12px;
+  padding-right: 22px;
+}
+[dir='rtl'] .history-table th:last-child,
+[dir='rtl'] .history-table td:last-child {
+  padding-right: 12px;
+  padding-left: 16px;
+}
+[dir='rtl'] .spec-list dd,
+[dir='rtl'] .metric-list dd {
+  text-align: left;
+}
+[dir='rtl'] .check-details {
+  padding-left: 20px;
+  padding-right: 62px;
+}
+[dir='rtl'] .comparison-table th,
+[dir='rtl'] .comparison-table td {
+  border-right: 0;
+  border-left: 1px solid var(--border);
+}
+[dir='rtl'] .comparison-table th:last-child,
+[dir='rtl'] .comparison-table td:last-child {
+  border-left: 0;
+}
+[dir='rtl'] .floating-job {
+  right: 257px;
+  left: auto;
+}
+[dir='rtl'] .toast {
+  left: 30px;
+  right: auto;
+}
+[dir='rtl'] .breadcrumb > svg:not(:first-child),
+[dir='rtl'] .details-chevron {
+  transform: rotate(180deg);
+}
+[dir='rtl'] .check-card[open] .details-chevron {
+  transform: rotate(90deg);
+}
+[dir='rtl'] .language-settings select {
+  direction: rtl;
+}
+@media (max-width: 1250px) {
+  .component-bottom {
+    flex-wrap: wrap;
+  }
+  .component-bottom .badge {
+    font-size: 9px;
+  }
+  .hero-copy p {
+    font-size: 12px;
+  }
+  .spec-list > div {
+    font-size: 11px;
+  }
+  [dir='rtl'] .main-shell {
+    margin-right: 211px;
+  }
+  [dir='rtl'] .nav-item.active::before {
+    right: -16px;
+  }
+  [dir='rtl'] .hero-copy {
+    padding-right: 23px;
+  }
+  [dir='rtl'] .hero-art {
+    left: -24px;
+  }
+}
+@media (max-width: 1050px) {
+  .component-detail {
+    font-size: 10px;
+  }
+  .component-bottom > span:first-child {
+    font-size: 9px;
+  }
+  .hero-kicker {
+    font-size: 6px;
+  }
+  .hero-copy p {
+    font-size: 11px;
+  }
+  .page-description {
+    font-size: 12px;
+  }
+  .profile b {
+    font-size: 10px;
+  }
+  .profile small {
+    font-size: 9px;
+  }
+  [dir='rtl'] .main-shell {
+    margin-right: 188px;
+  }
+  [dir='rtl'] .nav-item.active::before {
+    right: -12px;
+  }
+  [dir='rtl'] .hero-copy {
+    padding-right: 22px;
+  }
+  [dir='rtl'] .hero-art {
+    left: -40px;
+  }
+}
+@media (max-width: 800px) {
+  .hero-copy p {
+    font-size: 11px;
+  }
+  .hero-copy h2 {
+    font-size: 25px;
+  }
+  .hero-kicker {
+    font-size: 5px;
+  }
+  .badge {
+    font-size: 9px;
+  }
+  .panel-header p {
+    font-size: 11px;
+  }
+  .history-blank p {
+    font-size: 12px;
+  }
+  .tip-comparison {
+    margin-top: 15px;
+    margin-left: 0;
+  }
+  .tip-card p {
+    max-width: none;
+  }
+  .theme-options {
+    gap: 12px;
+  }
+  .theme-option {
+    padding: 8px;
+  }
+  .theme-option > span {
+    font-size: 10px;
+  }
+  .theme-option > small {
+    font-size: 8px;
+  }
+  [dir='rtl'] .main-shell {
+    margin-right: 72px;
+  }
+  [dir='rtl'] .nav-item.active::before {
+    right: -10px;
+  }
+  [dir='rtl'] .hero-copy {
+    padding-right: 20px;
+  }
+  [dir='rtl'] .hero-art {
+    left: -52px;
+  }
+  [dir='rtl'] .floating-job {
+    right: 94px;
+  }
+  [dir='rtl'] .check-details {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}
+@media (max-width: 550px) {
+  .page-description {
+    font-size: 11px;
+  }
+  .hero-copy p {
+    font-size: 12px;
+  }
+  .hero-copy .button {
+    font-size: 11px;
+  }
+  .hero-reassurance {
+    font-size: 9px;
+  }
+  .hero-kicker {
+    font-size: 5px;
+  }
+  .component-label,
+  .component-detail {
+    font-size: 11px;
+  }
+  .component-bottom > span:first-child {
+    font-size: 9px;
+  }
+  .component-bottom .badge {
+    font-size: 8px;
+  }
+  .count-pill,
+  .subtle-label {
+    display: none;
+  }
+  .profile b {
+    font-size: 9px;
+  }
+  .profile small {
+    font-size: 8px;
+  }
+  .profile-tag {
+    font-size: 6px;
+  }
+  .language-settings {
+    padding: 0 18px 20px;
+  }
+  .language-settings select {
+    min-width: 100%;
+  }
+  .language-settings p {
+    font-size: 10px;
+  }
+  .theme-options {
+    gap: 8px;
+  }
+  .theme-option {
+    padding: 6px;
+  }
+  .theme-option > span {
+    font-size: 8px;
+    gap: 5px;
+  }
+  .theme-option > span > svg {
+    width: 13px;
+  }
+  .theme-option > small {
+    font-size: 7px;
+  }
+  .theme-preview {
+    padding-left: 20px;
+    padding-right: 6px;
+    gap: 3px;
+  }
+  .theme-preview > i {
+    width: 14px;
+  }
+  .theme-preview::before {
+    left: 20px;
+    right: 6px;
+  }
+  .transparency-line p,
+  .transparency-line > button {
+    font-size: 9px;
+  }
+  .main-footer {
+    font-size: 8px;
+  }
+  .check-title b,
+  .check-title > span {
+    font-size: 11px;
+  }
+  .check-card .badge {
+    font-size: 0;
+  }
+  [dir='rtl'] .hero-copy {
+    padding-right: 23px;
+  }
+  [dir='rtl'] .hero-art {
+    left: -5px;
+  }
+  [dir='rtl'] .health-card {
+    text-align: right;
+  }
+  [dir='rtl'] .health-ring {
+    margin: 0 0 0 12px;
+  }
+  [dir='rtl'] .health-card > p,
+  [dir='rtl'] .pending-label,
+  [dir='rtl'] .health-card > .text-button {
+    margin-left: 0;
+    margin-right: 99px;
+  }
+  [dir='rtl'] .component-bottom {
+    align-items: flex-start;
+  }
+  [dir='rtl'] .floating-job,
+  [dir='rtl'] .toast {
+    left: 15px;
+    right: 87px;
+  }
+}

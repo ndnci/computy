@@ -1,0 +1,13 @@
+#[cfg(feature = "cli")]
+pub mod cli;
+pub mod comparison;
+pub mod diagnostics;
+pub mod domain;
+pub mod inventory;
+#[cfg(feature = "cli")]
+pub mod mcp;
+pub mod offline;
+pub mod preferences;
+pub mod repository;
+pub mod service;
+pub mod transport;

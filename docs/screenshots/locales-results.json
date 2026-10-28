@@ -1,0 +1,38 @@
+{
+  "locales": [
+    "en",
+    "fr",
+    "es",
+    "pt-BR",
+    "de",
+    "it",
+    "nl",
+    "pl",
+    "ru",
+    "uk",
+    "tr",
+    "ar",
+    "hi",
+    "bn",
+    "ur",
+    "id",
+    "vi",
+    "th",
+    "ko",
+    "ja",
+    "zh-CN",
+    "zh-TW",
+    "fa",
+    "he",
+    "sw"
+  ],
+  "rtl": true,
+  "system_theme": true,
+  "explicit_theme": true,
+  "responsive_widths": [
+    1024,
+    768,
+    430
+  ],
+  "errors": []
+}

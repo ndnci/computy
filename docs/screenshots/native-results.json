@@ -1,0 +1,9 @@
+{
+  "native": "Tauri / WebKitGTK",
+  "actual_diagnostic": true,
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "errors": []
+}

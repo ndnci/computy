@@ -1,0 +1,17 @@
+node_modules
+native/target
+src-tauri/target
+src-tauri/gen
+.git
+.agents
+.codex
+.aws
+.env
+.env.*
+.computy
+dist
+release
+test-results
+playwright-report
+docs/screenshots
+*.log

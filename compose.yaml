@@ -1,0 +1,26 @@
+services:
+  dev:
+    build:
+      context: .
+      target: dev
+    ports:
+      - "127.0.0.1:1420:1420"
+    volumes:
+      - computy-data:/data
+    init: true
+    security_opt:
+      - no-new-privileges:true
+  verify:
+    build:
+      context: .
+      target: verify
+    command: ["sh", "-c", "cargo test --locked --manifest-path native/Cargo.toml && npm test && npm run build && cargo check --locked --manifest-path src-tauri/Cargo.toml"]
+  desktop-build:
+    build:
+      context: .
+      target: desktop-build
+    command: ["sh", "-c", "cp src-tauri/target/release/bundle/deb/*.deb /artifacts/"]
+    volumes:
+      - ./release:/artifacts
+volumes:
+  computy-data:

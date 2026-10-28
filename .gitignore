@@ -1,0 +1,11 @@
+node_modules/
+dist/
+release/
+native/target/
+src-tauri/target/
+src-tauri/gen/
+test-results/
+playwright-report/
+.computy/
+*.log
+.DS_Store

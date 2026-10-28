@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "Fenêtre locale de Computy. Les accès passent par les commandes Rust validées.",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}
