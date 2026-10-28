@@ -1,4 +1,5 @@
 import { t, tx, currentLocale, setLanguage, languages } from './i18n.mjs';
+import { version } from '../package.json';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -434,10 +435,12 @@ export default function App() {
           </nav>
           <div className="sidebar-bottom">
             <div className="local-card">
-              <span className="local-card-icon">
-                <LockKeyhole size={18} />
-              </span>
-              <b>{tx('Votre PC. Vos donn\xE9es.')}</b>
+              <div className="inline-icon-heading">
+                <span className="local-card-icon">
+                  <LockKeyhole size={18} />
+                </span>
+                <b>{tx('Votre PC. Vos donn\xE9es.')}</b>
+              </div>
               <p>
                 {tx('Les diagnostics restent')}
                 <br />
@@ -493,10 +496,11 @@ export default function App() {
                 className="icon-button refresh-button"
                 onClick={() => void refresh()}
                 disabled={refreshing || !!job?.running}
-                aria-label={tx('Actualiser le matériel')}
-                title={tx('Actualiser le matériel')}
+                aria-label={tx('Actualiser les informations')}
+                title={tx('Actualiser les informations')}
               >
                 <RefreshCw size={17} className={refreshing ? 'spin' : ''} />
+                <span>{tx('Actualiser les informations')}</span>
               </button>
               <div className="user-monogram" title={tx('Cet ordinateur')}>
                 {tx(inventory?.host_name.slice(0, 2).toUpperCase() || 'PC')}
@@ -542,7 +546,7 @@ export default function App() {
             </span>
             <span>
               {tx('Computy ')}
-              <b>{tx('0.1.0')}</b>
+              <b>{version}</b>
               <i />
               {tx(' Fait avec soin par ')}
               <a href="https://www.ndnci.com" target="_blank" rel="noreferrer">

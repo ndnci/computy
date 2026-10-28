@@ -4,6 +4,7 @@ pub mod comparison;
 pub mod diagnostics;
 pub mod domain;
 pub mod inventory;
+pub mod linux_boot;
 #[cfg(feature = "cli")]
 pub mod mcp;
 pub mod offline;
@@ -11,3 +12,4 @@ pub mod preferences;
 pub mod repository;
 pub mod service;
 pub mod transport;
+pub mod usb_boot;

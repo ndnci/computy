@@ -1,0 +1,956 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2021-2022 Martin Whitaker.
+// Copyright (C) 2026 Sam Demeulemeester.
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "heap.h"
+#include "memrw.h"
+#include "memsize.h"
+#include "pci.h"
+#include "usb.h"
+
+#include "string.h"
+#include "unistd.h"
+
+#include "ehci.h"
+
+//------------------------------------------------------------------------------
+// Constants
+//------------------------------------------------------------------------------
+
+// Values defined by the EHCI specification.
+
+// Basic limits
+
+#define EHCI_MAX_PFL_LENGTH     1024            // Maximum number of entries in periodic frame list
+
+// Extended capability IDs
+
+#define EHCI_EXT_CAP_OS_HANDOFF 0x01
+
+// USB Legacy Support extended capability registers (byte offsets from the capability pointer)
+
+#define EHCI_USBLEGSUP_BIOS     0x02            // HC BIOS Owned Semaphore
+#define EHCI_USBLEGSUP_OS       0x03            // HC OS Owned Semaphore
+#define EHCI_USBLEGCTLSTS       0x04            // Legacy Support Control/Status register
+
+// Host Controller Structural Parameters
+
+#define EHCI_HCS_PPC            0x00000010      // Port Power Control
+
+// USB Command register
+
+#define EHCI_USBCMD_R_S         0x00000001      // Run/Stop
+#define EHCI_USBCMD_HCR         0x00000002      // Host Controller Reset
+#define EHCI_USBCMD_PSE         0x00000010      // Periodic Schedule Enable
+#define EHCI_USBCMD_ASE         0x00000020      // Asynchronous Schedule Enable
+
+#define EHCI_USBCMD_FLS_1024    (0 << 2)        // Frame List Size = 1024
+#define EHCI_USBCMD_FLS_512     (1 << 2)        // Frame List Size = 512
+#define EHCI_USBCMD_FLS_256     (2 << 2)        // Frame List Size = 256
+
+#define EHCI_USBCMD_ITC(n)      ((n) << 16)     // Interrupt Threshold Control = n (n = 1,2,4,8,16,32,64)
+
+// USB Status register
+
+#define EHCI_USBSTS_INT         0x00000001      // Interrupt
+#define EHCI_USBSTS_ERR         0x00000002      // Error interrupt
+#define EHCI_USBSTS_PCD         0x00000004      // Port Change Detect
+#define EHCI_USBSTS_FLR         0x00000008      // Frame List Rollover
+#define EHCI_USBSTS_HSE         0x00000010      // Host System Error
+#define EHCI_USBSTS_AAI         0x00000020      // Asynchronous Advance Interrupt
+#define EHCI_USBSTS_HCH         0x00001000      // Host Controller Halted
+#define EHCI_USBSTS_ASE         0x00002000      // Asynchronous Schedule Empty
+#define EHCI_USBSTS_PSS         0x00004000      // Periodic Schedule Status
+#define EHCI_USBSTS_ASS         0x00008000      // Asynchronous Schedule Status
+
+// Port Status and Control register
+
+#define EHCI_PORT_SC_CCS        0x00000001      // Current Connect Status
+#define EHCI_PORT_SC_CCSC       0x00000002      // Current Connect Status Change
+#define EHCI_PORT_SC_PED        0x00000004      // Port Enable/Disable
+#define EHCI_PORT_SC_PEDC       0x00000008      // Port Enable/Disable Change
+#define EHCI_PORT_SC_OCA        0x00000010      // Over-Current Active
+#define EHCI_PORT_SC_OCAC       0x00000020      // Over-Current Active Change
+#define EHCI_PORT_SC_PR         0x00000100      // Port Reset
+#define EHCI_PORT_SC_PP         0x00001000      // Port Power
+#define EHCI_PORT_SC_PO         0x00002000      // Port Owner
+
+#define EHCI_PORT_SC_LS_MASK    0x00000c00      // Line Status
+#define EHCI_PORT_SC_LS_SE0     0x00000000      // Line Status is SE0
+#define EHCI_PORT_SC_LS_K       0x00000400      // Line Status is K-state
+#define EHCI_PORT_SC_LS_J       0x00000800      // Line Status is J-state
+#define EHCI_PORT_SC_LS_U       0x00000c00      // Line Status is undefined
+
+// Link Pointer
+
+#define EHCI_LP_TERMINATE       0x00000001      // Terminate (T) bit
+
+#define EHCI_LP_TYPE_ITD        (0 << 1)        // Type is Isochronous Transfer Descriptor
+#define EHCI_LP_TYPE_QH         (1 << 1)        // Type is Queue Head
+#define EHCI_LP_TYPE_SITD       (2 << 1)        // Type is Split Transaction Isochronous Transfer Descriptor
+#define EHCI_LP_TYPE_FSTN       (3 << 1)        // Type is Frame Span Traversal Node
+
+// Queue Element Transfer Descriptor data structure
+
+// - status member (8 bits)
+
+#define EHCI_QTD_PS             0x01            // Ping State
+#define EHCI_QTD_STS            0x02            // Split Transaction State
+#define EHCI_QTD_MMF            0x04            // Missed Micro-Frame
+#define EHCI_QTD_TR_ERR         0x08            // Transaction Error
+#define EHCI_QTD_BABBLE         0x10            // Babble Detected
+#define EHCI_QTD_DB_ERR         0x20            // Data Buffer Error
+#define EHCI_QTD_HALTED         0x40            // Halted
+#define EHCI_QTD_ACTIVE         0x80            // Active
+
+// - control member (8 bits)
+
+#define EHCI_QTD_PID_OUT        (0 << 0)        // PID Code is OUT
+#define EHCI_QTD_PID_IN         (1 << 0)        // PID Code is IN
+#define EHCI_QTD_PID_SETUP      (2 << 0)        // PID Code is SETUP
+
+#define EHCI_QTD_CERR(n)        ((n) << 2)      // Error Counter = n (n = 1..3)
+
+#define EHCI_QTD_CPAGE(n)       ((n) << 4)      // Current Page = n (n = 0..7)
+
+#define EHCI_QTD_IOC_N          (0 << 7)        // Interrupt On Completion is off
+#define EHCI_QTD_IOC_Y          (1 << 7)        // Interrupt On Completion is on
+
+// - data_length member (16 bits)
+
+#define EHCI_QTD_DT_MASK        0x8000
+
+#define EHCI_QTD_DT(n)          ((n) << 15)     // Data Toggle = n (n = 0,1)
+
+// Queue head data structure
+
+#define EHCI_QH_HRL             0x00008000      // Head of Reclamation List flag
+#define EHCI_QH_CTRL_EP         0x08000000      // Control Endpoint flag
+
+#define EHCI_QH_DTC(n)          ((n) << 14)     // Data Toggle Control (n = 0,1)
+
+#define EHCI_QH_HBPM(n)         ((n) << 30)     // High Bandwidth Pipe Multiplier = n (n = 1..3)
+
+// Port Speed values
+
+#define EHCI_FULL_SPEED         0
+#define EHCI_LOW_SPEED          1
+#define EHCI_HIGH_SPEED         2
+
+// Values specific to this driver.
+
+#define MAX_KEYBOARDS           8                   // per host controller
+
+#define EHCI_MAX_PORTS          15                  // HCSPARAMS N_PORTS is a 4-bit field
+
+#define WS_QHD_SIZE             (1 + MAX_KEYBOARDS) // Queue Head Descriptors
+#define WS_QTD_SIZE             (3 + MAX_KEYBOARDS) // Queue Transfer Descriptors
+
+#define MILLISEC                1000                // in microseconds
+
+//------------------------------------------------------------------------------
+// Types
+//------------------------------------------------------------------------------
+
+// Register sets defined by the EHCI specification.
+
+typedef struct {
+    uint8_t             cap_length;
+    uint8_t             reserved;
+    uint16_t            hci_version;
+    uint32_t            hcs_params;
+    uint32_t            hcc_params;
+    uint64_t            port_route;
+} ehci_cap_regs_t;
+
+typedef volatile struct {
+    uint32_t            usb_command;
+    uint32_t            usb_status;
+    uint32_t            usb_interrupt;
+    uint32_t            fr_index;
+    uint32_t            ctrl_ds_segment;
+    uint32_t            periodic_list_base;
+    uint32_t            async_list_addr;
+    uint32_t            reserved[9];
+    uint32_t            config_flag;
+    uint32_t            port_sc[];
+} ehci_op_regs_t;
+
+// Data structures defined by the EHCI specification.
+
+// NOTE: The ehci_qtd_t structure supports both the 32-bit and 64-bit variants. But we always allocate data
+// buffers in the first 4GB, so we can simply initialise the buffer pointer extensions to zero.
+typedef volatile struct {
+    uint32_t            next_qtd_ptr;
+    uint32_t            alt_next_qtd_ptr;
+    uint8_t             status;
+    uint8_t             control;
+    uint16_t            data_length;
+    uint32_t            buffer_ptr[5];
+    uint32_t            ext_buffer_ptr[5];
+    uint32_t            padding[3];
+} ehci_qtd_t  __attribute__ ((aligned (32)));
+
+typedef volatile struct {
+    uint32_t            next_qhd_ptr;
+    uint32_t            epcc[2];
+    uint32_t            current_qtd_ptr;
+    uint32_t            next_qtd_ptr;
+    uint32_t            alt_next_qtd_ptr;
+    uint8_t             status;
+    uint8_t             control;
+    uint16_t            data_length;
+    uint32_t            buffer_ptr[5];
+    uint32_t            ext_buffer_ptr[5];
+    uint32_t            padding[7];
+} ehci_qhd_t  __attribute__ ((aligned (32)));
+
+// Data structures specific to this implementation.
+
+typedef struct {
+    uintptr_t           hs_parent_data;
+    uint8_t             data_toggle;
+} ehci_bulk_ep_t;
+
+typedef struct {
+    hcd_workspace_t     base_ws;
+
+    // System memory data structures used by the host controller.
+    ehci_qhd_t          qhd[WS_QHD_SIZE]  __attribute__ ((aligned (32)));
+    ehci_qtd_t          qtd[WS_QTD_SIZE]  __attribute__ ((aligned (32)));
+
+    // Keyboard data transfer buffers.
+    hid_kbd_rpt_t       kbd_rpt[MAX_KEYBOARDS];
+
+    // Saved keyboard reports.
+    hid_kbd_rpt_t       prev_kbd_rpt[MAX_KEYBOARDS];
+
+    // Pointer to the host controller registers.
+    ehci_op_regs_t      *op_regs;
+
+    // Number of keyboards detected.
+    int                 num_keyboards;
+
+    // State needed to rescan the root ports after initialisation.
+    int                 num_hs_devices;
+    uint8_t             num_ports;
+    uint8_t             msd_port;   // 1-based root port owning the found drive, 0 if none
+    bool                i_have_companions;
+    bool                port_in_use[EHCI_MAX_PORTS];
+} workspace_t  __attribute__ ((aligned (256)));
+
+//------------------------------------------------------------------------------
+// Private Functions
+//------------------------------------------------------------------------------
+
+static int usb_to_ehci_speed(usb_speed_t usb_speed)
+{
+    switch (usb_speed) {
+      case USB_SPEED_LOW:
+        return EHCI_LOW_SPEED;
+      case USB_SPEED_FULL:
+        return EHCI_FULL_SPEED;
+      case USB_SPEED_HIGH:
+        return EHCI_HIGH_SPEED;
+      default:
+        return 0;
+    }
+}
+
+static int num_ehci_ports(uint32_t hcs_params)
+{
+    return (hcs_params >> 0) & 0xf;
+}
+
+static int num_ehci_companions(uint32_t hcs_params)
+{
+    return (hcs_params >> 12) & 0xf;
+}
+
+static int ehci_ext_cap_ptr(uint32_t hcc_params)
+{
+    return (hcc_params >> 8) & 0xff;
+}
+
+static bool reset_host_controller(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, read32(&op_regs->usb_command) | EHCI_USBCMD_HCR);
+
+    usleep(1*MILLISEC);  // some controllers need time to recover from reset
+
+    return wait_until_clr(&op_regs->usb_command, EHCI_USBCMD_HCR, 1000*MILLISEC);
+}
+
+static bool start_host_controller(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, EHCI_USBCMD_R_S | EHCI_USBCMD_FLS_1024 | EHCI_USBCMD_ITC(8));
+    return wait_until_clr(&op_regs->usb_status, EHCI_USBSTS_HCH, 1000*MILLISEC);
+}
+
+static bool halt_host_controller(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, read32(&op_regs->usb_command) & ~EHCI_USBCMD_R_S);
+    return wait_until_set(&op_regs->usb_status, EHCI_USBSTS_HCH, 1000*MILLISEC);
+}
+
+static void enable_periodic_schedule(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, read32(&op_regs->usb_command) | EHCI_USBCMD_PSE);
+}
+
+static void enable_async_schedule(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, read32(&op_regs->usb_command) | EHCI_USBCMD_ASE);
+}
+
+static bool disable_async_schedule(ehci_op_regs_t *op_regs)
+{
+    write32(&op_regs->usb_command, read32(&op_regs->usb_command) & ~EHCI_USBCMD_ASE);
+    return wait_until_clr(&op_regs->usb_status, EHCI_USBSTS_ASS, 1000*MILLISEC);
+}
+
+static bool reset_ehci_port(ehci_op_regs_t *op_regs, int port_idx)
+{
+    uint32_t port_status = read32(&op_regs->port_sc[port_idx]) & ~EHCI_PORT_SC_PED;
+    flush32(&op_regs->port_sc[port_idx], port_status |  EHCI_PORT_SC_PR);
+
+    usleep(50*MILLISEC);  // USB port reset time
+
+    write32(&op_regs->port_sc[port_idx], port_status & ~EHCI_PORT_SC_PR);
+    return wait_until_clr(&op_regs->port_sc[port_idx], EHCI_PORT_SC_PR, 5*MILLISEC);
+}
+
+static void disable_ehci_port(ehci_op_regs_t *op_regs, int port_idx)
+{
+    uint32_t port_status = read32(&op_regs->port_sc[port_idx]);
+    write32(&op_regs->port_sc[port_idx], port_status & ~EHCI_PORT_SC_PED);
+    (void)wait_until_clr(&op_regs->port_sc[port_idx], EHCI_PORT_SC_PED, 1000*MILLISEC);
+}
+
+static void release_ehci_port(ehci_op_regs_t *op_regs, int port_idx)
+{
+    uint32_t port_status = read32(&op_regs->port_sc[port_idx]);
+    write32(&op_regs->port_sc[port_idx], port_status | EHCI_PORT_SC_PO);
+}
+
+static void build_ehci_qtd(ehci_qtd_t *this_qtd, const ehci_qtd_t *final_qtd, uint8_t control, uint16_t dt,
+                           const void *buffer, size_t length)
+{
+    memset((void *)this_qtd, 0, sizeof(ehci_qtd_t));
+
+    if (this_qtd != final_qtd) {
+        this_qtd->next_qtd_ptr     = (uintptr_t)(this_qtd + 1);
+        this_qtd->alt_next_qtd_ptr = (uintptr_t)(final_qtd);
+    } else {
+        this_qtd->next_qtd_ptr     = EHCI_LP_TERMINATE;
+        this_qtd->alt_next_qtd_ptr = EHCI_LP_TERMINATE;
+    }
+    this_qtd->status        = EHCI_QTD_ACTIVE;
+    this_qtd->control       = EHCI_QTD_CPAGE(0) | EHCI_QTD_CERR(3) | control;
+    this_qtd->data_length   = dt | (length & 0x7fff);
+    this_qtd->buffer_ptr[0] = (uintptr_t)buffer;
+}
+
+static void build_ehci_qhd(ehci_qhd_t *qhd, const ehci_qtd_t *qtd, const usb_ep_t *ep, bool is_interrupt)
+{
+    memset((void *)qhd, 0, sizeof(ehci_qhd_t));
+
+    uint32_t endpoint_speed = usb_to_ehci_speed(ep->device_speed);
+
+    uint32_t parent_addr = (ep->driver_data >> 0) & 0x7f;
+    uint32_t parent_port = (ep->driver_data >> 8) & 0x7f;
+
+    qhd->next_qhd_ptr = (uintptr_t)qhd | EHCI_LP_TYPE_QH;
+
+    qhd->epcc[0] = ep->max_packet_size << 16
+                 | EHCI_QH_DTC(1)
+                 | endpoint_speed      << 12
+                 | ep->endpoint_num    << 8
+                 | ep->device_id       << 0;
+
+    qhd->epcc[1] = EHCI_QH_HBPM(1)
+                 | parent_port << 23
+                 | parent_addr << 16;
+
+    if (ep->device_speed < USB_SPEED_HIGH && ep->endpoint_num == 0) {
+        qhd->epcc[0] |= EHCI_QH_CTRL_EP;
+    }
+    if (is_interrupt) {
+        qhd->epcc[1] |= 0x01;   // s_mask
+        if (ep->device_speed < USB_SPEED_HIGH) {
+            qhd->epcc[1] |= 0x1c << 8;   // c_mask
+        }
+    } else {
+        qhd->epcc[0] |= EHCI_QH_HRL;
+    }
+
+    qhd->next_qtd_ptr = (uintptr_t)qtd;
+}
+
+// Clears a latched host system error and restarts the halted controller for recovery.
+static void restart_host_controller(const workspace_t *ws)
+{
+    ehci_op_regs_t *op_regs = ws->op_regs;
+
+    // start_host_controller rewrites USBCMD wholesale, so preserve the periodic schedule.
+    bool periodic_on = read32(&op_regs->usb_command) & EHCI_USBCMD_PSE;
+
+    write32(&op_regs->usb_status, EHCI_USBSTS_HSE | EHCI_USBSTS_ERR | EHCI_USBSTS_INT);
+    write32(&op_regs->async_list_addr, (uintptr_t)(ws->qhd));
+    (void)start_host_controller(op_regs);
+    if (periodic_on) {
+        enable_periodic_schedule(op_regs);
+    }
+    flush32(&op_regs->config_flag, 1);
+}
+
+static bool do_async_transfer(const workspace_t *ws, int num_tds)
+{
+    ehci_op_regs_t *op_regs = ws->op_regs;
+
+    // The controller only detects device errors; a device that NAKs forever would
+    // hang us, so also enforce a software timeout.
+    bool ok = true;
+    bool hc_died = false;
+    enable_async_schedule(op_regs);
+    for (int td_idx = 0; td_idx < num_tds && ok; td_idx++) {
+        const ehci_qtd_t *qtd = &ws->qtd[td_idx];
+        int timer = 5000 * MILLISEC / 10;
+        while (qtd->status & EHCI_QTD_ACTIVE) {
+            // A halted controller will never complete this qTD, so fail fast.
+            if (read32(&op_regs->usb_status) & (EHCI_USBSTS_HSE | EHCI_USBSTS_HCH)) {
+                ok = false;
+                hc_died = true;
+                break;
+            }
+            if (timer-- == 0) {
+                ok = false;
+                break;
+            }
+            usleep(10);
+        }
+        if (qtd->status & (EHCI_QTD_HALTED | EHCI_QTD_DB_ERR | EHCI_QTD_BABBLE | EHCI_QTD_TR_ERR | EHCI_QTD_MMF)) {
+            ok = false;
+        }
+    }
+    // This waits for the schedule to go idle, so it also stops a timed-out transfer.
+    disable_async_schedule(op_regs);
+    if (hc_died) {
+        restart_host_controller(ws);
+    }
+    return ok;
+}
+
+//------------------------------------------------------------------------------
+// Driver Methods
+//------------------------------------------------------------------------------
+
+static bool reset_root_hub_port(const usb_hcd_t *hcd, int port_num)
+{
+    const workspace_t *ws = (const workspace_t *)hcd->ws;
+
+    return reset_ehci_port(ws->op_regs, port_num - 1);
+}
+
+static bool assign_address(const usb_hcd_t *hcd, const usb_hub_t *hub, int port_num,
+                    usb_speed_t device_speed, int device_id, usb_ep_t *ep0)
+{
+    // Store the extra information needed by build_ehci_qhd().
+    usb_parent_t hs_parent = usb_hs_parent(hub, port_num, device_speed);
+    ep0->driver_data = hs_parent.port_num << 8 | hs_parent.device_id;
+
+    if (!assign_usb_address(hcd, hub, port_num, device_speed, device_id, ep0)) {
+        return false;
+    }
+
+    return true;
+}
+
+static bool setup_request(const usb_hcd_t *hcd, const usb_ep_t *ep, const usb_setup_pkt_t *setup_pkt)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+
+    build_ehci_qtd(&ws->qtd[0], &ws->qtd[1], EHCI_QTD_PID_SETUP, EHCI_QTD_DT(0), setup_pkt, sizeof(usb_setup_pkt_t));
+    build_ehci_qtd(&ws->qtd[1], &ws->qtd[1], EHCI_QTD_PID_IN,    EHCI_QTD_DT(1), 0, 0);
+    build_ehci_qhd(&ws->qhd[0], &ws->qtd[0], ep, false);
+    return do_async_transfer(ws, 2);
+}
+
+static bool get_data_request(const usb_hcd_t *hcd, const usb_ep_t *ep, const usb_setup_pkt_t *setup_pkt,
+                             const void *buffer, size_t length)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+
+    build_ehci_qtd(&ws->qtd[0], &ws->qtd[2], EHCI_QTD_PID_SETUP, EHCI_QTD_DT(0), setup_pkt, sizeof(usb_setup_pkt_t));
+    build_ehci_qtd(&ws->qtd[1], &ws->qtd[2], EHCI_QTD_PID_IN,    EHCI_QTD_DT(1), buffer, length);
+    build_ehci_qtd(&ws->qtd[2], &ws->qtd[2], EHCI_QTD_PID_OUT,   EHCI_QTD_DT(1), 0, 0);
+    build_ehci_qhd(&ws->qhd[0], &ws->qtd[0], ep, false);
+    return do_async_transfer(ws, 3);
+}
+
+static void poll_keyboards(const usb_hcd_t *hcd)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+
+    for (int kbd_idx = 0; kbd_idx < ws->num_keyboards; kbd_idx++) {
+        ehci_qtd_t *kbd_qtd = &ws->qtd[3 + kbd_idx];
+
+        uint8_t status = kbd_qtd->status;
+        if (status & EHCI_QTD_ACTIVE) continue;
+
+        hid_kbd_rpt_t *kbd_rpt = &ws->kbd_rpt[kbd_idx];
+
+        uint8_t error_mask = EHCI_QTD_HALTED | EHCI_QTD_DB_ERR | EHCI_QTD_BABBLE | EHCI_QTD_TR_ERR | EHCI_QTD_MMF;
+        if (~status & error_mask) {
+            hid_kbd_rpt_t *prev_kbd_rpt = &ws->prev_kbd_rpt[kbd_idx];
+            if (process_usb_keyboard_report(hcd, kbd_rpt, prev_kbd_rpt)) {
+                *prev_kbd_rpt = *kbd_rpt;
+            }
+        }
+
+        ehci_qhd_t *kbd_qhd = &ws->qhd[1 + kbd_idx];
+
+        uint16_t dt = kbd_qhd->data_length & EHCI_QTD_DT_MASK;
+        build_ehci_qtd(kbd_qtd, kbd_qtd, EHCI_QTD_PID_IN, dt, kbd_rpt, sizeof(hid_kbd_rpt_t));
+
+        kbd_qhd->next_qtd_ptr = (uintptr_t)kbd_qtd;
+    }
+}
+
+static bool configure_bulk_ep(const usb_hcd_t *hcd, const usb_ep_t *ep, int ep_id, bool is_out)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+    (void)ep_id;
+    (void)is_out;
+
+    // Allocate a small metadata struct to track HS parent info and data toggle.
+    // The actual QH/QTD are rebuilt in ws->qhd[0]/qtd[0] for each transfer
+    // (same slots used by control transfers), avoiding stale QH cache issues.
+    uintptr_t bulk_addr = heap_alloc(HEAP_TYPE_LM_1, sizeof(ehci_bulk_ep_t), 64);
+    if (bulk_addr == 0) return false;
+
+    ehci_bulk_ep_t *bulk_ep = (ehci_bulk_ep_t *)bulk_addr;
+    bulk_ep->hs_parent_data = ep->driver_data;
+    bulk_ep->data_toggle = 0;
+
+    // Store the pointer in data_buffer for the caller.
+    *(uintptr_t *)ws->base_ws.data_buffer = bulk_addr;
+
+    return true;
+}
+
+static bool bulk_transfer(const usb_hcd_t *hcd, const usb_ep_t *ep, void *buffer, size_t length, bool is_out)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+    ehci_bulk_ep_t *bulk_ep = (ehci_bulk_ep_t *)ep->driver_data;
+
+    // A single qTD can address at most 5 buffer pages; reject anything larger.
+    if (length > 5 * 0x1000 - ((uintptr_t)buffer & 0xFFF)) {
+        return false;
+    }
+
+    uint8_t pid = is_out ? EHCI_QTD_PID_OUT : EHCI_QTD_PID_IN;
+
+    // Build QTD in workspace slot 0, with software-tracked data toggle.
+    build_ehci_qtd(&ws->qtd[0], &ws->qtd[0], pid,
+                   EHCI_QTD_DT(bulk_ep->data_toggle), buffer, length);
+
+    // Fill in additional buffer page pointers if the transfer spans page boundaries.
+    if (length > 0) {
+        uintptr_t start = (uintptr_t)buffer;
+        uintptr_t end = start + length - 1;
+        for (int i = 1; i < 5; i++) {
+            uintptr_t page = (start & ~0xFFFUL) + ((uintptr_t)i * 0x1000);
+            if (page > end) break;
+            ws->qtd[0].buffer_ptr[i] = page;
+        }
+    }
+
+    // Build a fresh QH in workspace slot 0 (same slot as control transfers).
+    // This avoids stale QH cache issues => the controller always reads a clean QH.
+    usb_ep_t tmp_ep = *ep;
+    tmp_ep.driver_data = bulk_ep->hs_parent_data;
+    build_ehci_qhd(&ws->qhd[0], &ws->qtd[0], &tmp_ep, false);
+
+    // Set the data toggle in the QH overlay (DTC=1 means HW uses overlay DT)
+    ws->qhd[0].data_length = EHCI_QTD_DT(bulk_ep->data_toggle);
+
+    // Execute via the existing async schedule
+    bool ok = do_async_transfer(ws, 1);
+
+    if (ok) {
+        // Read next data toggle from the QH overlay (updated by hardware)
+        bulk_ep->data_toggle = (ws->qhd[0].data_length >> 15) & 1;
+    }
+
+    return ok;
+}
+
+static bool reset_bulk_ep(const usb_hcd_t *hcd, const usb_ep_t *ep, int ep_id)
+{
+    (void)hcd;
+    (void)ep_id;
+
+    // A cleared halt resets the device to DATA0; resync the software toggle.
+    ehci_bulk_ep_t *bulk_ep = (ehci_bulk_ep_t *)ep->driver_data;
+    bulk_ep->data_toggle = 0;
+    return true;
+}
+
+static bool scan_for_msd(const usb_hcd_t *hcd)
+{
+    workspace_t *ws = (workspace_t *)hcd->ws;
+
+    ehci_op_regs_t *op_regs = ws->op_regs;
+
+    // Record the heap state to allow us to free memory if the scan fails.
+    uintptr_t initial_heap_mark = heap_mark(HEAP_TYPE_LM_1);
+
+    // Construct a hub descriptor for the root hub.
+    usb_hub_t root_hub;
+    memset(&root_hub, 0, sizeof(root_hub));
+    root_hub.ep0            = NULL;
+    root_hub.num_ports      = ws->num_ports;
+    root_hub.power_up_delay = 10;  // 20ms
+
+    usleep(100*MILLISEC);  // USB maximum device attach time
+
+    // Scan the ports that are not already in use, looking for a USB drive.
+    usb_ep_t keyboards[1];
+    for (int port_idx = 0; port_idx < ws->num_ports; port_idx++) {
+        uint32_t port_status = read32(&op_regs->port_sc[port_idx]);
+
+        // Check the port is powered up.
+        if (~port_status & EHCI_PORT_SC_PP) continue;
+
+        // Skip ports owned by a previous scan, unless unplugged or hosting a since-forgotten drive.
+        if (ws->port_in_use[port_idx]) {
+            if (ws->msd_port == 1 + port_idx) {
+                ws->msd_port = 0;
+            } else if ((port_status & (EHCI_PORT_SC_CCS | EHCI_PORT_SC_PED)) == (EHCI_PORT_SC_CCS | EHCI_PORT_SC_PED)) {
+                continue;
+            }
+            ws->port_in_use[port_idx] = false;
+        }
+
+        // Check if anything is connected to this port.
+        if (~port_status & EHCI_PORT_SC_CCS) continue;
+
+        // Low and full speed devices are handled by the companion controllers, which we don't rescan.
+        if ((port_status & EHCI_PORT_SC_LS_MASK) == EHCI_PORT_SC_LS_K) {
+            if (ws->i_have_companions) {
+                release_ehci_port(op_regs, port_idx);
+            }
+            continue;
+        }
+
+        // Reset the port.
+        if (!reset_ehci_port(op_regs, port_idx)) continue;
+
+        usleep(10*MILLISEC);  // USB reset recovery time
+
+        port_status = read32(&op_regs->port_sc[port_idx]);
+
+        // Check for full speed device.
+        if (~port_status & EHCI_PORT_SC_PED) {
+            if (ws->i_have_companions) {
+                release_ehci_port(op_regs, port_idx);
+            }
+            continue;
+        }
+
+        ws->num_hs_devices++;
+
+        // With max_keyboards = 0 only the mass storage path can succeed, so a true
+        // return value means the USB drive was found on this port.
+        int num_keyboards = 0;
+        if (find_attached_usb_keyboards(hcd, &root_hub, 1 + port_idx, USB_SPEED_HIGH, ws->num_hs_devices,
+                                        &ws->num_hs_devices, keyboards, 0, &num_keyboards)) {
+            ws->port_in_use[port_idx] = true;
+            ws->msd_port = 1 + port_idx;
+            return true;
+        }
+
+        disable_ehci_port(op_regs, port_idx);
+    }
+
+    heap_rewind(HEAP_TYPE_LM_1, initial_heap_mark);
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// Driver Method Table
+//------------------------------------------------------------------------------
+
+static const hcd_methods_t methods = {
+    .reset_root_hub_port = reset_root_hub_port,
+    .allocate_slot       = NULL,
+    .release_slot        = NULL,
+    .assign_address      = assign_address,
+    .configure_hub_ep    = NULL,
+    .configure_kbd_ep    = NULL,
+    .setup_request       = setup_request,
+    .get_data_request    = get_data_request,
+    .poll_keyboards      = poll_keyboards,
+    .rearm_keyboards     = NULL,
+    .configure_bulk_ep   = configure_bulk_ep,
+    .bulk_transfer       = bulk_transfer,
+    .reset_bulk_ep       = reset_bulk_ep,
+    .scan_for_msd        = scan_for_msd
+};
+
+// Clearing CONFIGFLAG reverts the ports to the companion controllers, so a dead EHCI can't hide them.
+static bool abandon_controller(ehci_op_regs_t *op_regs, const char *what)
+{
+    flush32(&op_regs->config_flag, 0);
+    print_usb_info(" EHCI %s failed, ports released to companions", what);
+    return false;
+}
+
+//------------------------------------------------------------------------------
+// Public Functions
+//------------------------------------------------------------------------------
+
+bool ehci_reset(int bus, int dev, int func, uintptr_t base_addr)
+{
+    ehci_cap_regs_t *cap_regs = (ehci_cap_regs_t *)base_addr;
+
+    // Walk the extra capabilities list.
+    int ext_cap_ptr = ehci_ext_cap_ptr(read32(&cap_regs->hcc_params));
+    while (ext_cap_ptr != 0) {
+        uint8_t ext_cap_id = pci_config_read8(bus, dev, func, ext_cap_ptr + 0);
+        if (ext_cap_id == EHCI_EXT_CAP_OS_HANDOFF) {
+            // Take ownership from the SMM if necessary.
+            bool acquired = true;
+            int timer = 1000;
+            pci_config_write8(bus, dev, func, ext_cap_ptr + EHCI_USBLEGSUP_OS, 1);
+            while (pci_config_read8(bus, dev, func, ext_cap_ptr + EHCI_USBLEGSUP_BIOS) & 1) {
+                if (timer == 0) {
+                    acquired = false;
+                    break;
+                }
+                usleep(1*MILLISEC);
+                timer--;
+            }
+
+            // Disable all SMI sources either way: they survive HCRESET and can wedge the CPU in SMM.
+            pci_config_write32(bus, dev, func, ext_cap_ptr + EHCI_USBLEGCTLSTS, 0);
+
+            // With SMIs disabled the SMM can't interfere, so a stuck BIOS semaphore is not fatal.
+            if (!acquired) {
+                print_usb_info(" BIOS handoff timed out, taking over anyway");
+            }
+        }
+        ext_cap_ptr = pci_config_read8(bus, dev, func, ext_cap_ptr + 1);
+    }
+
+    ehci_op_regs_t *op_regs = (ehci_op_regs_t *)(base_addr + cap_regs->cap_length);
+
+    // Ensure the controller is halted and then reset it.
+    if (!halt_host_controller(op_regs)) return abandon_controller(op_regs, "halt");
+    if (!reset_host_controller(op_regs)) return abandon_controller(op_regs, "reset");
+
+    return true;
+}
+
+bool ehci_probe(uintptr_t base_addr, usb_hcd_t *hcd)
+{
+    ehci_cap_regs_t *cap_regs = (ehci_cap_regs_t *)base_addr;
+
+    ehci_op_regs_t *op_regs = (ehci_op_regs_t *)(base_addr + cap_regs->cap_length);
+
+    // Record the heap state to allow us to free memory.
+    uintptr_t initial_heap_mark = heap_mark(HEAP_TYPE_LM_1);
+
+    // Allocate and initialise a periodic frame list. This needs to be aligned on a 4K page boundary. Some controllers
+    // don't support a programmable list length, so we just use the default length.
+    uintptr_t pfl_addr = heap_alloc(HEAP_TYPE_LM_1, EHCI_MAX_PFL_LENGTH * sizeof(uint32_t), PAGE_SIZE);
+    if (pfl_addr == 0) {
+        goto no_keyboards_found;
+    }
+    uint32_t *pfl = (uint32_t *)pfl_addr;
+
+    for (int i = 0; i < EHCI_MAX_PFL_LENGTH; i++) {
+        pfl[i] = EHCI_LP_TERMINATE;
+    }
+
+    // Allocate and initialise a workspace for this controller. This needs to be permanently mapped into virtual memory.
+    uintptr_t workspace_addr = heap_alloc(HEAP_TYPE_LM_1, sizeof(workspace_t), PAGE_SIZE);
+    if (workspace_addr == 0) {
+        goto no_keyboards_found;
+    }
+    workspace_t *ws = (workspace_t *)workspace_addr;
+
+    memset(ws, 0, sizeof(workspace_t));
+
+    ws->op_regs = op_regs;
+
+    // Initialise the driver object for this controller.
+    hcd->methods = &methods;
+    hcd->ws      = &ws->base_ws;
+
+    // Initialise the host controller.
+    write32(&op_regs->fr_index, 0);
+    write32(&op_regs->ctrl_ds_segment, 0);
+    write32(&op_regs->periodic_list_base, pfl_addr);
+    write32(&op_regs->async_list_addr, (uintptr_t)(ws->qhd));
+    if (!start_host_controller(op_regs)) {
+        goto no_keyboards_found;
+    }
+    flush32(&op_regs->config_flag, 1);
+
+    uint32_t hcs_params = read32(&cap_regs->hcs_params);
+
+    // Construct a hub descriptor for the root hub.
+    usb_hub_t root_hub;
+    memset(&root_hub, 0, sizeof(root_hub));
+    root_hub.ep0            = NULL;
+    root_hub.num_ports      = num_ehci_ports(hcs_params);
+    root_hub.power_up_delay = 10;  // 20ms
+
+    // Power up all the ports.
+    if (hcs_params & EHCI_HCS_PPC) {
+        bool port_power_changed = false;
+        for (int port_idx = 0; port_idx < root_hub.num_ports; port_idx++) {
+            uint32_t port_status = read32(&op_regs->port_sc[port_idx]);
+            if (~port_status & EHCI_PORT_SC_PP) {
+                flush32(&op_regs->port_sc[port_idx], port_status | EHCI_PORT_SC_PP);
+                port_power_changed = true;
+            }
+        }
+        if (port_power_changed) {
+            usleep(20*MILLISEC);  // EHCI maximum port power-up time
+        }
+    }
+
+    usleep(100*MILLISEC);  // USB maximum device attach time
+
+    bool i_have_companions = (num_ehci_companions(hcs_params) > 0);
+
+    // Record the state needed to rescan the root ports later.
+    ws->num_ports         = root_hub.num_ports;
+    ws->i_have_companions = i_have_companions;
+
+    // Scan the ports, looking for hubs and keyboards.
+    usb_ep_t keyboards[MAX_KEYBOARDS];
+    int num_keyboards = 0;
+    int num_ls_devices = 0;
+    int num_hs_devices = 0;
+    bool msd_found_before = usb_mass_storage_found;
+    for (int port_idx = 0; port_idx < root_hub.num_ports; port_idx++) {
+        // If we've filled the keyboard info table and found a USB drive, abort now.
+        if (num_keyboards >= MAX_KEYBOARDS && usb_mass_storage_found) break;
+
+        uint32_t port_status = read32(&op_regs->port_sc[port_idx]);
+
+        // Check the port is powered up.
+        if (~port_status & EHCI_PORT_SC_PP) continue;
+
+        // Check if anything is connected to this port.
+        if (~port_status & EHCI_PORT_SC_CCS) continue;
+
+        // Check for low speed device.
+        if ((port_status & EHCI_PORT_SC_LS_MASK) == EHCI_PORT_SC_LS_K) {
+            if (i_have_companions) {
+                release_ehci_port(op_regs, port_idx);
+            }
+            num_ls_devices++;
+            continue;
+        }
+
+        // Reset the port.
+        if (!reset_ehci_port(op_regs, port_idx)) continue;
+
+        usleep(10*MILLISEC);  // USB reset recovery time
+
+        port_status = read32(&op_regs->port_sc[port_idx]);
+
+        // Check for full speed device.
+        if (~port_status & EHCI_PORT_SC_PED) {
+            if (i_have_companions) {
+                release_ehci_port(op_regs, port_idx);
+            }
+            num_ls_devices++;
+            continue;
+        }
+
+        num_hs_devices++;
+
+        // Look for keyboards and USB drives attached directly or indirectly to this port.
+        bool port_msd_before = usb_mass_storage_found;
+        if (find_attached_usb_keyboards(hcd, &root_hub, 1 + port_idx, USB_SPEED_HIGH, num_hs_devices,
+                                        &num_hs_devices, keyboards, MAX_KEYBOARDS, &num_keyboards)) {
+            ws->port_in_use[port_idx] = true;
+            if (usb_mass_storage_found && !port_msd_before) {
+                ws->msd_port = 1 + port_idx;
+            }
+            continue;
+        }
+
+        // If we didn't find any keyboard interfaces or a USB drive on this port
+        // (find_attached_usb_keyboards returns true for both), we can disable it.
+        disable_ehci_port(op_regs, port_idx);
+    }
+
+    // True only if the drive was found on this controller during the scan above.
+    bool msd_on_this_hcd = usb_mass_storage_found && !msd_found_before;
+
+    print_usb_info(" Found %i low/full speed device%s, %i high speed device%s, %i keyboard%s%s",
+                   num_ls_devices, num_ls_devices != 1 ? "s" : "",
+                   num_hs_devices, num_hs_devices != 1 ? "s" : "",
+                   num_keyboards,  num_keyboards  != 1 ? "s" : "",
+                   msd_on_this_hcd ? ", 1 USB drive" : "");
+    if (num_ls_devices > 0 && i_have_companions) {
+        print_usb_info(" Handed over low/full speed devices to companion controllers");
+    }
+
+    // Even if no device was found, keep the controller registered so its root ports
+    // can be rescanned later by usb_scan_for_msd().
+    ws->num_hs_devices = num_hs_devices;
+    ws->num_keyboards  = num_keyboards;
+
+    if (num_keyboards > 0) {
+        // Initialise the interrupt QHD and QTD for each keyboard interface and find the minimum interval.
+        int min_interval = EHCI_MAX_PFL_LENGTH;
+        uint32_t first_qhd_ptr = EHCI_LP_TERMINATE;
+        for (int kbd_idx = 0; kbd_idx < num_keyboards; kbd_idx++) {
+            usb_ep_t *kbd = &keyboards[kbd_idx];
+
+            ehci_qhd_t *kbd_qhd = &ws->qhd[1 + kbd_idx];
+            ehci_qtd_t *kbd_qtd = &ws->qtd[3 + kbd_idx];
+
+            hid_kbd_rpt_t *kbd_rpt = &ws->kbd_rpt[kbd_idx];
+
+            build_ehci_qtd(kbd_qtd, kbd_qtd, EHCI_QTD_PID_IN, EHCI_QTD_DT(0), kbd_rpt, sizeof(hid_kbd_rpt_t));
+            build_ehci_qhd(kbd_qhd, kbd_qtd, kbd, true);
+
+            kbd_qhd->next_qhd_ptr = first_qhd_ptr;
+            first_qhd_ptr = (uintptr_t)kbd_qhd | EHCI_LP_TYPE_QH;
+
+            if (kbd->interval < min_interval) {
+                min_interval = kbd->interval;
+            }
+        }
+
+        // Initialise the periodic frame list and enable the periodic schedule.
+        for (int i = 0; i < EHCI_MAX_PFL_LENGTH; i += min_interval) {
+            pfl[i] = first_qhd_ptr;
+        }
+        enable_periodic_schedule(op_regs);
+    }
+
+    return true;
+
+no_keyboards_found:
+    // The frame list and workspace are freed and reused below, so stop all DMA first.
+    (void)halt_host_controller(op_regs);
+    (void)reset_host_controller(op_regs);
+    // In case the reset failed to clear CONFIGFLAG, release the ports explicitly.
+    flush32(&op_regs->config_flag, 0);
+    heap_rewind(HEAP_TYPE_LM_1, initial_heap_mark);
+    return false;
+}

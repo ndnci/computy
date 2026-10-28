@@ -85,10 +85,21 @@ fn write(root: &Path, state: &State) -> Result<(), String> {
     std::fs::rename(temporary, path).map_err(|e| e.to_string())
 }
 pub fn status(root: &Path) -> Result<Value, String> {
-    let state = read(root)?;
-    Ok(
-        json!({"supported":cfg!(target_os="windows"),"pending":state.pending.is_some(),"requested_at":state.pending.map(|p|p.requested_at),"last_report_id":state.last_report_id,"platform":std::env::consts::OS}),
-    )
+    #[cfg(target_os = "linux")]
+    {
+        let _ = root;
+        let linux = crate::linux_boot::status()?;
+        Ok(
+            json!({"supported":true,"pending":linux["pending"],"requested_at":linux["requested_at"],"last_report_id":null,"platform":"linux","linux":linux}),
+        )
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let state = read(root)?;
+        Ok(
+            json!({"supported":cfg!(target_os="windows"),"pending":state.pending.is_some(),"requested_at":state.pending.map(|p|p.requested_at),"last_report_id":state.last_report_id,"platform":std::env::consts::OS}),
+        )
+    }
 }
 pub fn forget(root: &Path) -> Result<Value, String> {
     let mut state = read(root)?;
@@ -97,26 +108,39 @@ pub fn forget(root: &Path) -> Result<Value, String> {
     status(root)
 }
 pub fn prepare(service: &Arc<AppService>) -> Result<(), String> {
-    if !cfg!(target_os = "windows") {
-        return Err(
-            "La planification via le diagnostic système n’est disponible que sous Windows.".into(),
-        );
+    #[cfg(target_os = "linux")]
+    {
+        if service.active_job().is_some_and(|job| job.running) {
+            return Err(
+                "Terminez le diagnostic en cours avant de préparer un test au démarrage.".into(),
+            );
+        }
+        crate::linux_boot::request("schedule").map(|_| ())
     }
-    if service.active_job().is_some_and(|j| j.running) {
-        return Err(
-            "Terminez le diagnostic en cours avant de préparer un test au démarrage.".into(),
-        );
+    #[cfg(not(target_os = "linux"))]
+    {
+        if !cfg!(target_os = "windows") {
+            return Err(
+                "La planification via le diagnostic système n’est disponible que sous Windows."
+                    .into(),
+            );
+        }
+        if service.active_job().is_some_and(|j| j.running) {
+            return Err(
+                "Terminez le diagnostic en cours avant de préparer un test au démarrage.".into(),
+            );
+        }
+        let root = service.data_root();
+        let mut state = read(&root)?;
+        if state.pending.is_none() {
+            state.pending = Some(Pending {
+                requested_at: crate::domain::timestamp_ms(),
+                machine_id: service.inventory(false).machine_id,
+            });
+            write(&root, &state)?;
+        }
+        Ok(())
     }
-    let root = service.data_root();
-    let mut state = read(&root)?;
-    if state.pending.is_none() {
-        state.pending = Some(Pending {
-            requested_at: crate::domain::timestamp_ms(),
-            machine_id: service.inventory(false).machine_id,
-        });
-        write(&root, &state)?;
-    }
-    Ok(())
 }
 pub fn collect(service: &Arc<AppService>) -> Result<Value, String> {
     #[cfg(not(target_os = "windows"))]
@@ -132,10 +156,10 @@ pub fn collect(service: &Arc<AppService>) -> Result<Value, String> {
         let root = service.data_root();
         let mut state = read(&root)?;
         let Some(pending) = state.pending.as_ref() else {
-            return Ok(json!({"imported":false}));
+            Ok(json!({"imported":false}));
         };
         if service.active_job().is_some_and(|j| j.running) {
-            return Ok(json!({"imported":false,"reason":"Un diagnostic est en cours."}));
+            Ok(json!({"imported":false,"reason":"Un diagnostic est en cours."}));
         }
         let script = r#"[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $items=@(Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='Microsoft-Windows-MemoryDiagnostics-Results'} -MaxEvents 32 -ErrorAction Stop | ForEach-Object { $x=[xml]$_.ToXml();$d=@{};foreach($n in $x.Event.EventData.Data){if($n.Name){$d[$n.Name]=[string]$n.'#text'}};[pscustomobject]@{provider=$_.ProviderName;event_id=$_.Id;record_id=$_.RecordId;created_at=([DateTimeOffset]$_.TimeCreated).ToUnixTimeMilliseconds();completion_type=[string]$x.Event.UserData.Results.CompletionType;num_bad_pages=$d['NumBadPages'];message=$_.Message;xml=$_.ToXml()} });ConvertTo-Json -InputObject $items -Depth 6 -Compress"#;
         let output = crate::inventory::command(

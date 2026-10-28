@@ -4,9 +4,9 @@ Validation du 28 octobre 2026, sur Linux. Aucun service distant ni tunnel public
 
 | Vérification | Résultat |
 |---|---|
-| Moteur Rust | 30 tests réussis : domaine, données firmware, vraies boucles RAM/disque/CPU, annulation, historique, préférences, MCP, import d’événements Windows et propriété du fichier temporaire |
+| Moteur Rust | 38 tests réussis : domaine, données firmware, vraies boucles RAM/disque/CPU, annulation, historique, préférences, MCP, import d’événements Windows et propriété du fichier temporaire |
 | Analyse Rust | `cargo fmt --check` et Clippy, toutes les cibles, `-D warnings` |
-| Intégration Node | 11 tests réussis, dont CLI réelle et clients du SDK MCP officiel en stdio/HTTP |
+| Intégration Node | 14 tests réussis, dont CLI réelle et clients du SDK MCP officiel en stdio/HTTP |
 | Interface Playwright | Sélections indépendantes RAM/stockage/CPU, deux diagnostics réels, progression, historique et comparaison ; 28 captures françaises clair/sombre |
 | Internationalisation | 25 langues parcourues, directions LTR/RTL, thème système et choix explicite, 3 largeurs ; captures supplémentaires dans 5 langues et les deux thèmes |
 | Bureau natif | Binaire Tauri final, IPC Rust réel, mesures RAM/disque/CPU relues dans les rapports, thème enregistré ; 6 captures WebKitGTK |
@@ -50,3 +50,5 @@ L’exception de sandbox WebKit concerne uniquement ce conteneur de test sans r�
 Windows et macOS disposent des adaptateurs et d’une matrice de compilation CI, mais leurs paquets, l’intégration au démarrage et le diagnostic Windows n’ont pas été exécutés physiquement dans cet environnement Linux. Les parseurs SMBIOS et Windows, dont les événements au démarrage, sont testés avec des données de référence.
 
 Une compilation et des tests réussis ne certifient pas l’état de tous les composants. Les captures conservent les contrôles inconnus ou inaccessibles. Les limites de couverture, de firmware, de caches et de télémétrie sont exposées dans les rapports et dans la [méthodologie](DIAGNOSTICS.md).
+
+Le parcours guidé et le composant avant démarrage de la version 0.1.1 sont détaillés dans [BOOT-DIAGNOSTICS.md](BOOT-DIAGNOSTICS.md). La sélection GRUB et la préparation USB réelles ne sont pas exécutées sur l’hôte pendant les vérifications.

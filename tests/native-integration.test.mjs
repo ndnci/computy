@@ -14,6 +14,24 @@ const binary = path.resolve(
   process.env.COMPUTY_TEST_BINARY ||
     `native/target/release/computy-cli${process.platform === 'win32' ? '.exe' : ''}`,
 );
+test(
+  'boot mutations require explicit consent flags before any operation',
+  { skip: process.platform !== 'linux' },
+  async () => {
+    const root = await mkdtemp(path.join(tmpdir(), 'computy-boot-consent-'));
+    try {
+      await assert.rejects(exec(binary, ['--data-dir', root, 'boot', 'reboot']), (error) =>
+        error.stderr.includes('requires explicit --yes'),
+      );
+      await assert.rejects(
+        exec(binary, ['--data-dir', root, 'boot', 'usb-prepare', '--id', 'not-a-device']),
+        (error) => error.stderr.includes('requires explicit --yes'),
+      );
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  },
+);
 test('CLI runs real checks, preserves snapshots and shares validated preferences', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'computy-cli-test-'));
   const call = async (args) => {

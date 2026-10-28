@@ -277,7 +277,12 @@ export default function HistoryPage() {
                           </span>
                         </td>
                         <td>
-                          <StatusBadge status={report.summary.status} compact />
+                          <StatusBadge
+                            status={report.summary.status}
+                            checks={report.checks}
+                            completed={report.completed}
+                            compact
+                          />
                         </td>
                         <td>
                           <Score score={report.summary.score} status={report.summary.status} />

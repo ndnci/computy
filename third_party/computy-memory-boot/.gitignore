@@ -1,0 +1,35 @@
+# Prerequisites
+*.d
+
+# Preprocessed assembler
+*.s
+
+# Object files
+*.o
+
+# Generated files
+build_version.h
+gdbscript
+memtest_shared_debug.lds
+
+# Binaries
+mt86plus
+memtest_shared
+memtest_shared.bin
+*.bin
+*.elf
+*.efi
+*.img
+*.iso
+*.mbr
+*.debug
+
+# Directories
+grub-iso
+html
+latex
+
+# OVMF
+OVMF*
+
+

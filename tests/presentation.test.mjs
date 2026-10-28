@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatBytes, statusInfo, comparisonWarnings, componentSummary } from '../src/domain.mjs';
+import {
+  formatBytes,
+  statusInfo,
+  comparisonWarnings,
+  componentSummary,
+  scoreStatus,
+  checkOutcome,
+} from '../src/domain.mjs';
 import { setLanguage } from '../src/i18n.mjs';
 await setLanguage('fr');
 
@@ -39,4 +46,18 @@ test('comparison warns for different machines and protocols', () => {
   };
   assert.equal(comparisonWarnings([before, after]).length, 3);
   assert.equal(comparisonWarnings([before, { ...before }]).length, 0);
+});
+test('a successful score smiles while unavailable evidence remains separate', () => {
+  const checks = [
+    { status: 'passed', name: 'RAM' },
+    { status: 'unavailable', name: 'ECC' },
+  ];
+  assert.equal(scoreStatus(10, 'warning'), 'passed');
+  assert.deepEqual(checkOutcome(checks), { status: 'passed', unavailable: ['ECC'] });
+  assert.equal(checkOutcome([...checks, { status: 'warning', name: 'wear' }]).status, 'warning');
+  assert.equal(checkOutcome([...checks, { status: 'failed', name: 'fault' }]).status, 'failed');
+  assert.equal(checkOutcome([{ status: 'unavailable', name: 'ECC' }]).status, 'unavailable');
+  assert.equal(checkOutcome(checks, false).status, 'cancelled');
+  assert.equal(scoreStatus(10, 'cancelled'), 'cancelled');
+  assert.equal(scoreStatus(10, 'failed'), 'failed');
 });

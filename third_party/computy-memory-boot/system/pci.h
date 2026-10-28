@@ -1,0 +1,127 @@
+// SPDX-License-Identifier: GPL-2.0
+#ifndef PCI_H
+#define PCI_H
+/**
+ * \file
+ *
+ * Provides functions to perform PCI configuration space reads and writes.
+ *
+ *//*
+ * Copyright (C) 2020-2022 Martin Whitaker.
+ * Copyright (C) 2024 Loongson Technology Corporation Limited. All rights reserved.
+ * Copyright (C) 2026 Sam Demeulemeester.
+ */
+
+#include <stdint.h>
+
+#define PCI_MAX_BUS     256
+#define PCI_MAX_DEV     32
+#define PCI_MAX_FUNC    8
+
+#define PCI_VID_REG          0x00
+#define PCI_DID_REG          0x02
+#define PCI_SUB_VID_REG      0x2C
+#define PCI_SUB_DID_REG      0x2E
+
+/* Vendor IDs */
+#define PCI_VID_LOONGSON     0x0014
+#define PCI_VID_ATI          0x1002
+#define PCI_VID_AMD          0x1022
+#define PCI_VID_DELL         0x1028
+#define PCI_VID_SIS          0x1039
+#define PCI_VID_HP           0x103C
+#define PCI_VID_ASUS         0x1043
+#define PCI_VID_EFAR         0x1055
+#define PCI_VID_ALI          0x10B9
+#define PCI_VID_NVIDIA       0x10DE
+#define PCI_VID_VIA          0x1106
+#define PCI_VID_SERVERWORKS  0x1166
+#define PCI_VID_SUPERMICRO   0x15D9
+#define PCI_VID_HYGON        0x1D94
+#define PCI_VID_INTEL        0x8086
+
+/* Intel Southbridge ISA/LPC (Device 0x1F, Function 0x00) DIDs */
+#define PCI_DID_LPC_ICH      0x2410
+#define PCI_DID_LPC_ICH1     0x2420
+#define PCI_DID_LPC_ICH2     0x2440
+#define PCI_DID_LPC_ICH2M    0x244C
+#define PCI_DID_LPC_ICH3     0x2480
+#define PCI_DID_LPC_ICH3M    0x248C
+#define PCI_DID_LPC_ICH4     0x24C0
+#define PCI_DID_LPC_ICH4M    0x24CC
+#define PCI_DID_LPC_ICH5     0x24D0
+#define PCI_DID_LPC_6300ESB  0x25A1
+#define PCI_DID_LPC_ICH5S    0x25A1
+#define PCI_DID_LPC_ICH6     0x2640
+#define PCI_DID_LPC_ICH6M    0x2641
+#define PCI_DID_LPC_ICH7     0x27B8
+#define PCI_DID_LPC_ICH7M    0x27B9
+
+/**
+ * Initialises the PCI access support.
+ */
+void pci_init(void);
+
+/**
+ * Returns an 8 bit value read from the specified bus+device+function+register
+ * address in the PCI configuration address space.
+ */
+uint8_t pci_config_read8(int bus, int dev, int func, int reg);
+
+/**
+ * Returns a 16 bit value read from the specified bus+device+function+register
+ * address in the PCI configuration address space. The address must be 16-bit
+ * aligned.
+ */
+uint16_t pci_config_read16(int bus, int dev, int func, int reg);
+
+/**
+ * Returns a 32 bit value read from the specified bus+device+function+register
+ * address in the PCI configuration address space. The address must be 32-bit
+ * aligned.
+ */
+uint32_t pci_config_read32(int bus, int dev, int func, int reg);
+
+/**
+ * Writes an 8 bit value to the specified bus+device+function+register address
+ * in the PCI configuration address space.
+ */
+void pci_config_write8(int bus, int dev, int func, int reg, uint8_t value);
+
+/**
+ * Writes a 16 bit value to the specified bus+device+function+register address
+ * in the PCI configuration address space. The address must be 16-bit aligned.
+ */
+void pci_config_write16(int bus, int dev, int func, int reg, uint16_t value);
+
+/**
+ * Writes a 32 bit value to the specified bus+device+function+register address
+ * in the PCI configuration address space. The address must be 32-bit aligned.
+ */
+void pci_config_write32(int bus, int dev, int func, int reg, uint32_t value);
+
+/** Allocates MMIO space for an unassigned or misplaced memory BAR and writes it to the BAR.
+ *  Returns the allocated base address, or 0 if no suitable range exists. */
+uintptr_t pci_alloc_mmio(int bus, int dev, int func, int bar_reg, uintptr_t size);
+
+#if defined(__aarch64__)
+/** Finds a platform USB host controller with fixed MMIO, such as DWC3/XHCI.
+ *  Returns true and stores its base address if the given index exists. */
+bool platform_usb_controller(int index, uintptr_t *base_addr);
+#endif
+
+/**
+ * Basic LPC Functions
+ */
+
+void lpc_outb(uint8_t cmd, uint8_t data);
+uint8_t lpc_inb(uint8_t reg);
+
+
+/**
+ * Read & Write to AMD SNM
+ */
+uint32_t amd_smn_read(uint32_t adr);
+void amd_smn_write(uint32_t adr, uint32_t data);
+
+#endif // PCI_H

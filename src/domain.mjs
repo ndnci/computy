@@ -23,6 +23,26 @@ export function statusInfo(status) {
     }[status] || { label: 'Non vérifié', short: 'Non vérifié', tone: 'muted' }
   );
 }
+// A score describes executed checks. Missing telemetry describes coverage separately.
+export function scoreStatus(score, status) {
+  if (['failed', 'cancelled', 'unavailable'].includes(status)) return status;
+  return score === 10 ? 'passed' : score === 0 ? 'failed' : status;
+}
+export function checkOutcome(checks, completed = true) {
+  const unavailable = checks
+    .filter((check) => check.status === 'unavailable')
+    .map((check) => check.name);
+  const status = checks.some((check) => check.status === 'failed')
+    ? 'failed'
+    : !completed || checks.some((check) => check.status === 'cancelled')
+      ? 'cancelled'
+      : checks.some((check) => check.status === 'warning')
+        ? 'warning'
+        : checks.some((check) => check.status === 'passed')
+          ? 'passed'
+          : 'unavailable';
+  return { status, unavailable };
+}
 export function componentSummary(checks, component) {
   const relevant = checks.filter((check) => check.component === component);
   const known = relevant.filter((check) => ['passed', 'warning', 'failed'].includes(check.status));

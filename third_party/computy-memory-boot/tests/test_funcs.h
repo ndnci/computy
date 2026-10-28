@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: GPL-2.0
+#ifndef TEST_FUNCS_H
+#define TEST_FUNCS_H
+/**
+ * \file
+ *
+ * Provides the prototypes for the basic test functions used to implement
+ * the tests.
+ *
+ *//*
+ * Copyright (C) 2020-2022 Martin Whitaker.
+ */
+
+#include <stdbool.h>
+
+#include "test.h"
+
+int test_addr_walk1(int my_cpu);
+
+int test_own_addr1(int my_cpu);
+
+int test_own_addr2(int my_cpu, int stage);
+
+int test_mov_inv_fixed(int my_cpu, int iterations, testword_t pattern1, testword_t pattern2);
+
+int test_mov_inv_walk1(int my_cpu, int iterations, int offset, bool inverse);
+
+int test_mov_inv_rng(int my_cpu, bool splat_round);
+
+int test_modulo_n(int my_cpu, int iterations, testword_t pattern1, testword_t pattern2, int n, int offset);
+
+int test_block_move(int my_cpu, int iterations);
+
+int test_bus_stress(int my_cpu, int iteration);
+
+int test_bit_fade(int my_cpu, int stage, int sleep_secs);
+
+int test_rowhammer(int my_cpu, int time_budget_secs);
+
+#endif // TEST_FUNCS_H

@@ -8,3 +8,8 @@ export function componentSummary(
   component: string,
 ): { score: number | null; status: Status; checked: number; total: number };
 export function comparisonWarnings(reports: Report[]): string[];
+export function scoreStatus(score: number | null, status: Status): Status;
+export function checkOutcome(
+  checks: Pick<Check, 'status' | 'name'>[],
+  completed?: boolean,
+): { status: Status; unavailable: string[] };

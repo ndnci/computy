@@ -18,6 +18,13 @@ RUN cargo install tauri-driver --version 2.0.6 --locked
 RUN useradd --uid 1000 --create-home computy
 USER computy
 
+FROM toolchain AS boot-qa
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    qemu-system-x86 ovmf xorriso grub-pc-bin grub-efi-amd64-bin mtools dosfstools \
+    && rm -rf /var/lib/apt/lists/*
+RUN useradd --uid 1000 --create-home computy
+USER computy
+
 FROM toolchain AS sources
 COPY package.json package-lock.json ./
 RUN npm ci

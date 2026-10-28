@@ -16,7 +16,14 @@ import {
   ShieldCheck,
   SearchCheck,
 } from 'lucide-react';
-import { duration, formatDate, statusInfo } from './domain.mjs';
+import {
+  duration,
+  formatDate,
+  statusInfo,
+  scoreStatus,
+  checkOutcome,
+  formatBytes,
+} from './domain.mjs';
 import type { Check as DiagnosticCheck, Report, Status } from './types';
 export function Logo({ size = 44 }: { size?: number }) {
   return (
@@ -41,7 +48,19 @@ export function Logo({ size = 44 }: { size?: number }) {
     </span>
   );
 }
-export function StatusBadge({ status, compact = false }: { status: Status; compact?: boolean }) {
+export function StatusBadge({
+  status,
+  compact = false,
+  checks,
+  completed = true,
+}: {
+  status: Status;
+  compact?: boolean;
+  checks?: DiagnosticCheck[];
+  completed?: boolean;
+}) {
+  const outcome = checks ? checkOutcome(checks, completed) : null;
+  status = outcome?.status ?? status;
   const info = statusInfo(status);
   const Icon =
     status === 'passed'
@@ -50,9 +69,31 @@ export function StatusBadge({ status, compact = false }: { status: Status; compa
         ? TriangleAlert
         : Minus;
   return (
-    <span className={`badge ${info.tone}`}>
-      <Icon size={12} />
-      {tx(compact ? info.short : info.label)}
+    <span className="result-badges" data-result-status={status}>
+      <span
+        className={`badge ${info.tone}`}
+        title={checks
+          ?.filter((check) => check.status === status)
+          .map((check) => `${tx(check.name)}: ${tx(check.message)}`)
+          .join('\n')}
+      >
+        <Icon size={12} />
+        {tx(
+          outcome && status === 'passed'
+            ? 'Aucune erreur détectée'
+            : compact
+              ? info.short
+              : info.label,
+        )}
+      </span>
+      {!!outcome?.unavailable.length && (
+        <span
+          className="badge muted evidence-missing"
+          title={outcome.unavailable.map(tx).join('\n')}
+        >
+          {t('Non vérifiés : {{count}}', { count: outcome.unavailable.length })}
+        </span>
+      )}
     </span>
   );
 }
@@ -78,7 +119,7 @@ export function Score({
 }) {
   return (
     <div className={`score ${large ? 'large' : ''}`}>
-      <Mood status={status} size={large ? 38 : 22} />
+      <Mood status={scoreStatus(score, status)} size={large ? 38 : 22} />
       <span>
         {tx(score === null ? '—' : score)}
         <small>{tx('/ 10')}</small>
@@ -382,6 +423,8 @@ export function ReportDetails({
   report: Report;
   onExport: (report: Report) => void;
 }) {
+  const outcome = checkOutcome(report.checks, report.completed);
+  const memory = report.checks.find((check) => check.id === 'memory-patterns');
   return (
     <>
       <div className="report-intro">
@@ -398,6 +441,42 @@ export function ReportDetails({
         </div>
         <Score score={report.summary.score} status={report.summary.status} large />
       </div>
+      {memory && (
+        <div className="report-memory-scope">
+          <b>{tx('Mémoire réellement testée')}</b>
+          <span>
+            {formatBytes(Number(memory.metrics.allocated_bytes ?? 0))} /{' '}
+            {formatBytes(report.inventory.memory.total_bytes)} ·{' '}
+            {t('Passes terminées : {{count}}', {
+              count: Number(memory.metrics.passes_completed ?? 0),
+            })}
+          </span>
+          <p>
+            {tx(
+              'Ce test s’exécute dans votre session, sans redémarrage. Il ne parcourt pas toute la RAM physique.',
+            )}
+          </p>
+        </div>
+      )}
+      {outcome.unavailable.length > 0 && (
+        <Notice>
+          <b>{tx('Informations indisponibles, pas erreurs détectées')}</b>
+          <p>
+            {tx(
+              'Ces contrôles ne sont pas notés. Leur absence ne signifie pas que votre matériel est défectueux.',
+            )}
+          </p>
+          <ul>
+            {report.checks
+              .filter((check) => check.status === 'unavailable')
+              .map((check) => (
+                <li key={check.id}>
+                  <b>{tx(check.name)}</b> — {tx(check.message)}
+                </li>
+              ))}
+          </ul>
+        </Notice>
+      )}
       <Notice>
         {tx('La note r\xE9sume les contr\xF4les effectu\xE9s. Couverture : ')}
         <b>
@@ -409,7 +488,11 @@ export function ReportDetails({
         {tx('. Elle n\u2019est pas une probabilit\xE9 de bon fonctionnement.')}
       </Notice>
       <div className="report-actions">
-        <StatusBadge status={report.summary.status} />
+        <StatusBadge
+          status={report.summary.status}
+          checks={report.checks}
+          completed={report.completed}
+        />
         <button className="button secondary small" onClick={() => onExport(report)}>
           <ArrowDownToLine size={15} />
           {tx('Exporter en JSON')}
@@ -418,12 +501,13 @@ export function ReportDetails({
       <div className="checks-stack">
         {tx(report.checks.map((check) => <CheckCard key={check.id} check={check} />))}
       </div>
-      <div className="report-footnote">
+      <details className="report-footnote">
+        <summary>{tx('Détails du rapport')}</summary>
         {tx('Moteur Rust \xB7 sch\xE9ma v')}
         {tx(report.schema_version)}
         {tx(' \xB7 ID ')}
         {tx(report.id)}
-      </div>
+      </details>
     </>
   );
 }

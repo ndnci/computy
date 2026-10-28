@@ -1,0 +1,2 @@
+# Keep vendored upstream formatting intact; normal checks still apply to Computy code.
+third_party/computy-memory-boot/** linguist-vendored -whitespace

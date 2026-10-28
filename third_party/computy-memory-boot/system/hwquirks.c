@@ -1,0 +1,504 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2004-2026 Sam Demeulemeester
+//
+// ------------------------
+// This file is used to detect quirks on specific hardware
+// that require proprietary init here *OR* different code path
+// later in various part of the code.
+//
+// Please add a quick comment for every quirk added to the list.
+
+#include "hwquirks.h"
+#include "io.h"
+#include "pci.h"
+#include "string.h"
+#include "unistd.h"
+#include "cpuinfo.h"
+#include "cpuid.h"
+#include "config.h"
+#include "temperature.h"
+#include "memrw.h"
+#include "vmem.h"
+
+quirk_t quirk;
+
+// --------------------------------------
+// -- Private quirk-specific functions --
+// --------------------------------------
+
+static void asus_tusl2_configure_mux(void)
+{
+    uint8_t muxreg;
+
+    // Enter ASB100 Config Mode
+    outb(0x87, 0x2E);
+    outb(0x87, 0x2E);
+    usleep(200);
+
+    // Write LPC Command to access Config Mode Reg
+    lpc_outb(0x7, 0x8);
+
+    // Read Config Mode Register
+    muxreg = lpc_inb(0xF1);
+
+    // Change Smbus Mux Channel & Write Config Mode Register
+    muxreg &= 0xE7;
+    muxreg |= 0x10;
+    lpc_outb(0xF1, muxreg);
+    usleep(200);
+
+    // Leave Config Mode
+    outb(0xAA, 0x2E);
+}
+
+static int *get_motherboard_cache(void)
+{
+    if (l2_cache == 0) {
+        return &l2_cache;
+    } else if (l3_cache == 0) {
+        return &l3_cache;
+    }
+    return NULL;
+}
+
+static void get_m1531_41_mb_cache_size(void)
+{
+    int *const mb_cache = get_motherboard_cache();
+    if (!mb_cache) {
+        return;
+    }
+
+    // Check if L2 cache is enabled with L2CC-2 Register[0]
+    if ((pci_config_read8(0, 0, 0, 0x42) & 1) == 0) {
+        return;
+    }
+
+    // Get L2 Cache Size from L2CC-1 Register (bits differ per chip variant)
+    uint8_t ali_reg = pci_config_read8(0, 0, 0, 0x41);
+
+    if (quirk.root_did == 0x1531) {         // ALi Aladdin IV (M1531): Register[2:1]
+        switch ((ali_reg >> 1) & 0x3) {
+          case 0b01: *mb_cache = 256;  break;
+          case 0b10: *mb_cache = 512;  break;
+          case 0b11: *mb_cache = 1024; break;
+        }
+    } else {                                // ALi Aladdin V (M1541): Register[3:2]
+        switch ((ali_reg >> 2) & 0x3) {
+          case 0b00: *mb_cache = 256;  break;
+          case 0b01: *mb_cache = 512;  break;
+          case 0b10: *mb_cache = 1024; break;
+        }
+    }
+}
+
+static void get_sis_530_mb_cache_size(void)
+{
+    int *const mb_cache = get_motherboard_cache();
+    if (!mb_cache) {
+        return;
+    }
+
+    uint8_t sis_reg = pci_config_read8(0, 0, 0, 0x51);
+
+    // Check if cache is enabled with Register[7]
+    if ((sis_reg & 0x80) == 0) {
+        return;
+    }
+
+    // Get cache size with Register[5:4]
+    *mb_cache = 256 << ((sis_reg >> 4) & 0x03);
+}
+
+static void get_vt82c585_597_mb_cache_size(void)
+{
+    int *const mb_cache = get_motherboard_cache();
+    if (!mb_cache) {
+        return;
+    }
+
+    // Check if cache is enabled with CC1 Register[7:6]
+    if ((pci_config_read8(0, 0, 0, 0x50) & 0xc0) != 0x80) {
+        return;
+    }
+
+    // Get cache size with CC2 Register[1:0]
+    const uint8_t reg = pci_config_read8(0, 0, 0, 0x51) & 0x03;
+
+    *mb_cache = 256 << reg;
+}
+
+static void disable_temp_reporting(void)
+{
+    enable_temp_cpu = false;
+}
+
+static void amd_k8_revfg_temp(void)
+{
+    uint32_t rtcr = pci_config_read32(0, 24, 3, AMD_TEMP_REG_K8);
+
+    // For Rev F & G, switch sensor if no temperature is reported
+    if (!((rtcr >> 16) & 0xFF)) {
+        pci_config_write8(0, 24, 3, AMD_TEMP_REG_K8, rtcr | 0x04);
+    }
+
+    // K8 Rev G Desktop requires an additional offset.
+    if (cpuid_info.version.extendedModel < 6 || cpuid_info.version.extendedModel > 7)   // Not Rev G
+        return;
+
+    if (cpuid_info.version.extendedModel == 6 && cpuid_info.version.model < 9)  // Not Desktop
+        return;
+
+    uint16_t brandID = (cpuid_info.version.extendedBrandID >> 9) & 0x1f;
+
+    if (cpuid_info.version.model == 0xF && (brandID == 0x7 || brandID == 0x9 || brandID == 0xC))   // Mobile (Single Core)
+        return;
+
+    if (cpuid_info.version.model == 0xB && brandID > 0xB)   // Mobile (Dual Core)
+        return;
+
+    cpu_temp_offset = 21.0f;
+}
+
+// AMD Zen Tctl -> Tdie offset table.
+typedef struct {
+    uint8_t      ext_family;
+    uint8_t      ext_model;
+    float        tctl_offset;
+    char         brand_prefix[CPUID_BRAND_STR_LENGTH];
+} amd_tctl_offset_t;
+
+static const amd_tctl_offset_t amd_tctl_offset_table[] = {
+    { 0x8, 0x0, -20.0f, "AMD Ryzen 5 1600X"         },  // Summit Ridge
+    { 0x8, 0x0, -20.0f, "AMD Ryzen 7 1700X"         },  // Summit Ridge
+    { 0x8, 0x0, -20.0f, "AMD Ryzen 7 1800X"         },  // Summit Ridge
+    { 0x8, 0x0, -10.0f, "AMD Ryzen 7 2700X"         },  // Pinnacle Ridge
+    { 0x8, 0x0, -27.0f, "AMD Ryzen Threadripper 19" },  // Whitehaven (1900X/1920X/1950X)
+    { 0x8, 0x0, -27.0f, "AMD Ryzen Threadripper 29" },  // Colfax (29x0X/29x0WX)
+    { 0x8, 0x0, -27.0f, "AMD EPYC 7"                },  // Naples (Family 17h, Model 01h)
+    // EPYC Milan/Genoa/Siena/Turin need no entry here: their -49 °C range shift
+    // is detected generically via CUR_TEMP_RANGE_SEL / CUR_TEMP_TJ_SEL in cpu_temp_init().
+};
+
+static void amd_zen_apply_tctl_offset(void)
+{
+    const char *brand = cpuid_info.brand_id.str;
+    uint8_t ext_family = cpuid_info.version.extendedFamily;
+    uint8_t ext_model  = cpuid_info.version.extendedModel;
+
+    for (size_t i = 0; i < sizeof(amd_tctl_offset_table) / sizeof(amd_tctl_offset_table[0]); i++) {
+        const amd_tctl_offset_t *e = &amd_tctl_offset_table[i];
+
+        if (e->ext_family != ext_family || e->ext_model != ext_model) {
+            continue;
+        }
+
+        if (strncmp(brand, e->brand_prefix, strlen(e->brand_prefix)) == 0) {
+            cpu_temp_offset += e->tctl_offset;
+            return;
+        }
+    }
+}
+
+// AMD dual-CCD X3D CPUs pair one 96MB V-Cache CCD with one 32MB standard CCD.
+// CPUID leaf 0x80000006 cannot describe this asymmetric layout: it reports the
+// boot CCD's 96MB L3 scaled by the CCD count (192MB) instead of the real 128MB.
+typedef struct {
+    uint8_t      ext_family;
+    uint8_t      ext_model;
+    char         brand_prefix[CPUID_BRAND_STR_LENGTH];
+} amd_x3d_dual_ccd_t;
+
+static const amd_x3d_dual_ccd_t amd_x3d_dual_ccd_table[] = {
+    { 0xA, 0x6, "AMD Ryzen 9 7900X3D"  },   // Raphael       (Family 19h, Model 61h)
+    { 0xA, 0x6, "AMD Ryzen 9 7950X3D"  },   // Raphael       (Family 19h, Model 61h)
+    { 0xA, 0x6, "AMD Ryzen 9 7945HX3D" },   // Dragon Range  (Family 19h, Model 61h)
+    { 0xB, 0x4, "AMD Ryzen 9 9900X3D"  },   // Granite Ridge (Family 1Ah, Model 44h)
+    { 0xB, 0x4, "AMD Ryzen 9 9950X3D"  },   // Granite Ridge (Family 1Ah, Model 44h)
+    // Symmetric X3D parts report their L3 correctly: keep out the single-CCD
+    // 5800X3D/7600X3D/7800X3D/9800X3D (96MB) and the dual V-Cache 9950X3D2 (192MB).
+};
+
+static bool is_amd_dual_ccd_x3d(void)
+{
+    const char *brand = cpuid_info.brand_id.str;
+
+    for (size_t i = 0; i < sizeof(amd_x3d_dual_ccd_table) / sizeof(amd_x3d_dual_ccd_table[0]); i++) {
+        const amd_x3d_dual_ccd_t *e = &amd_x3d_dual_ccd_table[i];
+        const size_t len = strlen(e->brand_prefix);
+
+        // Whole-token match, so "9950X3D" doesn't catch the "9950X3D2".
+        if (e->ext_family == cpuid_info.version.extendedFamily
+            && e->ext_model == cpuid_info.version.extendedModel
+            && strncmp(brand, e->brand_prefix, len) == 0
+            && (brand[len] == ' ' || brand[len] == '\0')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void loongson_7a00_ehci_workaround(void)
+{
+    uintptr_t reg_addr = 0x10010000;
+
+#if (ARCH_BITS == 64)
+    reg_addr |= 0xEULL << 40;
+#endif
+    reg_addr = map_region(reg_addr, 0x0, false);
+    write8((uint8_t *)(reg_addr + 0x3820), 0xFF);
+    write8((uint8_t *)(reg_addr + 0x3830), 0xFF);
+    write32((uint32_t *)(reg_addr + 0x3100), 0xFFFFFFFF);
+    write32((uint32_t *)(reg_addr + 0x3180), 0xFFFFFFFF);
+    write8((uint8_t *)(reg_addr + 0x3820), 0x0);
+    write8((uint8_t *)(reg_addr + 0x3830), 0x0);
+}
+
+static void via_vt823x_ehci_workaround(void)
+{
+    // Stretch the EHCI MMIO sleep timer from 1us to 10us (bit 5 of config reg 0x4B)
+    // so bulk DMA can't saturate the PCI bus until devices stop answering.
+    for (int func = 3; func <= 4; func++) {         // VT8235 is 00:10.3, VT8237 00:10.4
+        if (pci_config_read16(0, 0x10, func, PCI_VID_REG) == PCI_VID_VIA
+        &&  pci_config_read16(0, 0x10, func, PCI_DID_REG) == 0x3104) {   // VIA EHCI
+            pci_config_write8(0, 0x10, func, 0x4b,
+                              pci_config_read8(0, 0x10, func, 0x4b) | 0x20);
+        }
+    }
+}
+
+
+static void unhide_ich_0_5(void)
+{
+    uint32_t smb_ctrl_reg;
+
+    smb_ctrl_reg = pci_config_read32(0, 0x1F, 0x00, 0xF0);
+    smb_ctrl_reg &= ~(1 << 19);
+    pci_config_write32(0, 0x1F, 0x00, 0xF0, smb_ctrl_reg);
+}
+
+static void unhide_asus_smbus(void)
+{
+    uint32_t smb_ctrl_reg;
+
+    smb_ctrl_reg = pci_config_read32(0, 0x1F, 0x00, 0xF0);
+    pci_config_write32(0, 0x1F, 0x00, 0xF0, smb_ctrl_reg | 0x01);
+
+    // Get MMIO base address
+    smb_ctrl_reg = pci_config_read32(0, 0x1F, 0x00, 0xF0);
+
+    if ((smb_ctrl_reg & 1) == 0) { return; }
+
+    // Read MMIO at offset 0x3418
+    uintptr_t base = (uintptr_t)(smb_ctrl_reg & ~0x3FFFu);
+    uint32_t *ptr = (uint32_t *)(base + 0x3418u);
+
+    // Set Bit 3 to 0 to enable SMBUS Controler
+    *ptr &= ~(1u << 3);
+}
+
+// ---------------------
+// -- Public function --
+// ---------------------
+
+void quirks_init(void)
+{
+    quirk.id        = QUIRK_NONE;
+    quirk.type      = QUIRK_TYPE_NONE;
+    quirk.root_vid  = pci_config_read16(0, 0, 0, PCI_VID_REG);
+    quirk.root_did  = pci_config_read16(0, 0, 0, PCI_DID_REG);
+    quirk.process   = NULL;
+
+    //  -------------------------------------------------
+    //  -- ALi Aladdin IV (M1531) & V (M1541) Quirks  --
+    //  -------------------------------------------------
+    // As on many Socket 7 Motherboards, the L2 cache is external and must
+    // be detected by a proprietary way based on chipset registers
+    if (quirk.root_vid == PCI_VID_ALI && (quirk.root_did == 0x1531      // ALi Aladdin IV (M1531)
+            || quirk.root_did == 0x1541)) {                              // ALi Aladdin V  (M1541)
+        quirk.id    = QUIRK_ALI_ALADDIN_IV_V;
+        quirk.type |= QUIRK_TYPE_MEM_SIZE;
+        quirk.process = get_m1531_41_mb_cache_size;
+    }
+
+    //  -------------------------------------------------------------------
+    //  -- VIA VP1/VPX (VT82C585), VP3 (VT82C597), MVP3 (VT82C598) Quirk --
+    //  -------------------------------------------------------------------
+    // Motherboard cache detection
+    else if (quirk.root_vid == PCI_VID_VIA && (quirk.root_did == 0x0585 // VIA VT82C585
+            || quirk.root_did == 0x0597 || quirk.root_did == 0x0598)) { // VIA VT82C597/8
+        quirk.id    = QUIRK_VIA_VP;
+        quirk.type |= QUIRK_TYPE_MEM_SIZE;
+        quirk.process = get_vt82c585_597_mb_cache_size;
+    }
+
+    //  --------------------------
+    //  -- SiS 530 Quirk        --
+    //  --------------------------
+    // Motherboard cache detection
+    else if (quirk.root_vid == PCI_VID_SIS && quirk.root_did == 0x0530) {  // SiS 530
+        quirk.id    = QUIRK_SIS_530;
+        quirk.type |= QUIRK_TYPE_MEM_SIZE;
+        quirk.process = get_sis_530_mb_cache_size;
+    }
+
+    //  ------------------------
+    //  -- ASUS TUSL2-C Quirk --
+    //  ------------------------
+    // This motherboard has an ASB100 ASIC with a SMBUS Mux Integrated.
+    // To access SPD later in the code, we need to configure the mux.
+    // PS: Detection via DMI is unreliable, so using Root PCI Registers
+    if (quirk.root_vid == PCI_VID_INTEL && quirk.root_did == 0x1130) {      // Intel i815
+        if (pci_config_read16(0, 0, 0, PCI_SUB_VID_REG) == PCI_VID_ASUS) {  // ASUS
+            if (pci_config_read16(0, 0, 0, PCI_SUB_DID_REG) == 0x8027) {    // TUSL2-C
+                quirk.id    = QUIRK_TUSL2;
+                quirk.type |= QUIRK_TYPE_SMBUS;
+                quirk.process = asus_tusl2_configure_mux;
+            }
+        }
+    }
+
+    //  -------------------------------------------------
+    //  -- SuperMicro X10SDV Quirk (GitHub Issue #233) --
+    //  -------------------------------------------------
+    // Memtest86+ crashs on Super Micro X10SDV motherboard with SMP Enabled
+    // We were unable to find a solution so far, so disable SMP by default
+    if (quirk.root_vid == PCI_VID_INTEL && quirk.root_did == 0x6F00) {             // Broadwell-E (Xeon-D)
+        if (pci_config_read16(0, 0, 0, PCI_SUB_VID_REG) == PCI_VID_SUPERMICRO) {   // Super Micro
+                quirk.id    = QUIRK_X10SDV_NOSMP;
+                quirk.type |= QUIRK_TYPE_SMP;
+                quirk.process = NULL;
+        }
+    }
+
+    //  ------------------------------------------------------
+    //  -- Early AMD K8 doesn't support temperature reading --
+    //  ------------------------------------------------------
+    // The on-die temperature diode on SH-B0/B3 stepping does not work.
+    if (cpuid_info.vendor_id.str[0] == 'A' && cpuid_info.version.family == 0xF
+        && cpuid_info.version.extendedFamily == 0 && cpuid_info.version.extendedModel == 0) {   // Early K8
+        if ((cpuid_info.version.model == 4 && cpuid_info.version.stepping == 0) ||              // SH-B0 ClawHammer (Athlon 64)
+            (cpuid_info.version.model == 5 && cpuid_info.version.stepping <= 1)) {              // SH-B0/B3 SledgeHammer (Opteron)
+                quirk.id    = QUIRK_K8_BSTEP_NOTEMP;
+                quirk.type |= QUIRK_TYPE_TEMP;
+                quirk.process = disable_temp_reporting;
+        }
+    }
+
+    //  ---------------------------------------------------
+    //  -- Late AMD K8 (rev F/G) temp sensor workaround  --
+    //  ---------------------------------------------------
+    if (cpuid_info.vendor_id.str[0] == 'A' && cpuid_info.version.family == 0xF
+        && cpuid_info.version.extendedFamily == 0 && cpuid_info.version.extendedModel >= 4) {   // Later K8
+
+        quirk.id    = QUIRK_K8_REVFG_TEMP;
+        quirk.type |= QUIRK_TYPE_TEMP;
+        quirk.process = amd_k8_revfg_temp;
+    }
+
+    //  ------------------------------------------------
+    //  -- AMD K10 CPUs Temp workaround (Errata #319) --
+    //  ------------------------------------------------
+    // Some AMD K10 CPUs on Socket AM2+/F have buggued thermal diode leading
+    // to inaccurate temperature measurements. Affected steppings: DR-BA/B2/B3, RB-C2 & HY-D0.
+    if (cpuid_info.vendor_id.str[0] == 'A' && cpuid_info.version.family == 0xF
+        && cpuid_info.version.extendedFamily == 1 && cpuid_info.version.extendedModel == 0) {   // AMD K10
+
+        uint8_t pkg_type = (cpuid_info.version.extendedBrandID >> 28) & 0x0F;
+        uint32_t dct0_high = pci_config_read32(0, 24, 2, 0x94); // 0x94[8] = 1 for DDR3
+
+        if (pkg_type == 0b0000 || (pkg_type == 0b0001 && (((dct0_high >> 8) & 1) == 0))) {      // Socket F or AM2+ (exclude AM3)
+
+            if (cpuid_info.version.model < 4 ||                                                 // DR-BA, DR-B2 & DR-B3
+                (cpuid_info.version.model == 4 && cpuid_info.version.stepping <= 2) ||          // RB-C2
+                cpuid_info.version.model == 8) {                                                // HY-D0
+
+                quirk.id    = QUIRK_AMD_ERRATA_319;
+                quirk.type |= QUIRK_TYPE_TEMP;
+                quirk.process = disable_temp_reporting;
+            }
+        }
+    }
+
+    //  -----------------------------------------------------------
+    //  -- AMD Zen-class Tctl -> Tdie offset for affected SKUs   --
+    //  -----------------------------------------------------------
+    if (cpuid_info.vendor_id.str[0] == 'A' && cpuid_info.version.family == 0xF
+        && cpuid_info.version.extendedFamily >= 8) {
+
+        quirk.id    = QUIRK_AMD_ZEN_TCTL_OFFSET;
+        quirk.type |= QUIRK_TYPE_TEMP;
+        quirk.process = amd_zen_apply_tctl_offset;
+    }
+
+    //  -----------------------------------------------
+    //  -- AMD Dual-CCD Asymmetric L3 cache size fix --
+    //  -----------------------------------------------
+    if (cpuid_info.vendor_id.str[0] == 'A' && cpuid_info.version.family == 0xF
+        && cpuid_info.version.extendedFamily >= 0xA
+        && l3_cache == 192 * 1024 && is_amd_dual_ccd_x3d()) {
+
+        quirk.id = QUIRK_AMD_X3D_L3_SIZE;
+        quirk.type |= QUIRK_TYPE_CPUID;
+        l3_cache = 128 * 1024;      // 96MB (V-Cache CCD) + 32MB (standard CCD)
+    }
+
+    //  -----------------------------------------------------------
+    //  -- Loongson 7A1000 and 7A2000 chipset USB 2.0 workaround --
+    //  -----------------------------------------------------------
+    if (quirk.root_vid == PCI_VID_LOONGSON) {
+        if (pci_config_read16(0, 4, 1, PCI_DID_REG) == 0x7a14) {
+            quirk.id    = QUIRK_LOONGSON7A00_EHCI_WORKARD;
+            quirk.type |= QUIRK_TYPE_USB;
+            quirk.process = loongson_7a00_ehci_workaround;
+        }
+    }
+
+    //  ------------------------------------------------------
+    //  -- VIA VT8235/37 EHCI PCI bus starvation workaround --
+    //  ------------------------------------------------------
+    if (quirk.root_vid == PCI_VID_VIA) {
+        if (pci_config_read16(0, 0x10, 3, PCI_DID_REG) == 0x3104
+        ||  pci_config_read16(0, 0x10, 4, PCI_DID_REG) == 0x3104) {
+            quirk.id    = QUIRK_VIA_VT823X_EHCI;
+            quirk.type |= QUIRK_TYPE_USB;
+            quirk.process = via_vt823x_ehci_workaround;
+        }
+    }
+
+    //  -----------------------------------------------------
+    //  -- Unhide SMBus on early Intel Southbridges (ICHx) --
+    //  -----------------------------------------------------
+    if (quirk.root_vid == PCI_VID_INTEL) {
+
+        uint16_t sb_lpc_did = pci_config_read16(0, 0x1F, 0, PCI_DID_REG);
+        uint16_t root_subvid  = pci_config_read16(0, 0, 0, PCI_SUB_VID_REG);
+        uint16_t root_subdid  = pci_config_read16(0, 0, 0, PCI_SUB_DID_REG);
+
+        switch(sb_lpc_did)
+        {
+            case PCI_DID_LPC_ICH:
+            case PCI_DID_LPC_ICH1:
+            case PCI_DID_LPC_ICH2:
+            case PCI_DID_LPC_ICH2M:
+            case PCI_DID_LPC_ICH3:
+            case PCI_DID_LPC_ICH3M:
+            case PCI_DID_LPC_ICH4:
+            case PCI_DID_LPC_ICH4M:
+            case PCI_DID_LPC_ICH5:
+            case PCI_DID_LPC_6300ESB:
+                quirk.id      = QUIRK_UNHIDE_ICH05;
+                quirk.type   |= QUIRK_TYPE_SMBUS;
+                quirk.process = unhide_ich_0_5;
+                break;
+            case PCI_DID_LPC_ICH6M:
+                if (root_subvid == PCI_VID_DELL && root_subdid == 0x0182) { // Dell D620
+                    quirk.id      = QUIRK_UNHIDE_ASUS_SMBUS;
+                    quirk.type   |= QUIRK_TYPE_SMBUS;
+                    quirk.process = unhide_asus_smbus;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+}

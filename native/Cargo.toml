@@ -1,17 +1,23 @@
 [package]
 name = "computy-engine"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.95"
 
 [features]
 default = ["cli"]
+boot-helper = []
 cli = ["dep:clap", "dep:tokio", "dep:axum", "dep:getrandom", "dep:subtle", "dep:ctrlc", "dep:auto-launch"]
 
 [[bin]]
 name = "computy-cli"
 path = "src/main.rs"
 required-features = ["cli"]
+
+[[bin]]
+name = "computy-boot-helper"
+path = "src/bin/computy-boot-helper.rs"
+required-features = ["boot-helper"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

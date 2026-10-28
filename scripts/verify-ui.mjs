@@ -44,6 +44,7 @@ try {
   if (!ready) throw new Error(logs || 'UI server did not start');
   await run('scripts/capture-ui.mjs');
   await run('scripts/check-locales-ui.mjs');
+  await run('scripts/check-diagnostic-ux.mjs');
   await run('scripts/presentation-screens.mjs');
 } finally {
   if (server.exitCode === null) {

@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+if [ "$1" = remove ] || [ "$1" = purge ]; then
+    if [ -x /usr/bin/grub-editenv ] && [ -f /boot/grub/grubenv ]; then
+        if /usr/bin/grub-editenv /boot/grub/grubenv list | /usr/bin/grep -qx 'next_entry=computy-memory-test'; then
+            /usr/bin/grub-editenv /boot/grub/grubenv unset next_entry
+        fi
+    fi
+    if [ -f /boot/grub/grub.cfg ] && [ -x /usr/sbin/update-grub ]; then /usr/sbin/update-grub || true; fi
+    # User reports and preferences deliberately remain in the user data directory.
+fi

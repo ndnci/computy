@@ -1,4 +1,5 @@
 import { t, tx, currentLocale } from '../i18n.mjs';
+import { version } from '../../package.json';
 import {
   ArrowUpRight,
   Check,
@@ -23,7 +24,9 @@ export default function About() {
       <section className="about-brand-panel">
         <Logo size={138} />
         <div>
-          <span className="eyebrow">{tx('COMPUTY \xB7 VERSION 0.1.0')}</span>
+          <span className="eyebrow">
+            Computy · {tx('Version')} {version}
+          </span>
           <h2>
             {tx('Comprendre aujourd\u2019hui.')}
             <br />

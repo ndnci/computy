@@ -1,0 +1,32 @@
+{
+  "project": "Memtest86+",
+  "source": "https://github.com/memtest86plus/memtest86plus",
+  "tag": "v9.00",
+  "archive_sha256": "57ca5e0c0b0abcb8deee75735d0aa814f303e801c8a41e6b9b2ed1dfa733c684",
+  "license": "GPL-2.0",
+  "algorithm_files": {
+    "tests/modulo_n.c": "57921ef2bffe862b079abe74e8e8a4dd917b8a3e6ad2ca3a3a6d44e18e6654b5",
+    "tests/tests.c": "fec05f2a410e083094d335ea1084d71b6f3ee2e213771258f4fe8d4ef20ac0c5",
+    "tests/mov_inv_fixed.c": "6a46033f12d4e487ff2530ef227a67f9d0ab05030e4574a635dd472d42da4105",
+    "tests/test_helper.h": "350e5914210a18444c3c1e1e365f9580ff9d28156e617459adfb7614a54f7e20",
+    "tests/mov_inv_rng.c": "f8dcbb7136dc480e6f041134431659b27146f43d6bf07d1bc24893f0c3fc1fbc",
+    "tests/bit_fade.c": "75c8e8b8a0cea26638b4227a73c7ede8f2abc2becf6afd1b8ee89e8a364d4a6b",
+    "tests/own_addr.c": "bb0edb3b07f77c905150a464343ef1b11de65e90728515b06d78cd083245207c",
+    "tests/vec_prsg.h": "f7a098cca03c6ed7f74b008a0108903c6cc1a84e9755c02a5d09dbdef0d00808",
+    "tests/tests.h": "a94eaa8ec604ede3e4e94826b56815e869ec22cbfb0dbb1c6643da3f07614322",
+    "tests/vec_prsg.c": "210a69da01695eae040652b694d2d38df4439f8c80674cba5f4b569ad85ed17c",
+    "tests/rowhammer.h": "997796876e020b39d041cfffb5016e24c481ee999b9701fc599f6031e5aafbba",
+    "tests/block_move.c": "06536d497a47de0725d5b97d038db69bdfc07e6eceb0444a52c43bda00dfaacf",
+    "tests/test_funcs.h": "ca72345033236734ca3f028d2e82022dd38922f19cd232885cdfe788e9f4d0ff",
+    "tests/test_helper.c": "6d0932a8cd88761e3869635fb34be3645027290d3ec7146787128463fcbf4aba",
+    "tests/bus_stress.c": "db5a7301949da28d29c1031bbd59650347e67f8456f1de58c1db9c9a69fb8156",
+    "tests/addr_walk1.c": "712193c828ef55db5784f0b001cee280f01ae598d52e3fcfb6143be6016e62aa",
+    "tests/rowhammer.c": "ddf645fd851f7876027f1f5efbe03701b9f1cd8fc1fd5b5a6d2826c6f066c9cd",
+    "tests/mov_inv_walk1.c": "3c7fa1057a37ce13712c8072ab4b87aaa4be7aa6a37e51cf88c7d7180e2c43af",
+    "tests/loongarch/vec_prsg_lasx.c": "5c9945978ad33237f4b9436c463b346a74789369a8af95ed7a4eef5a188816d3",
+    "tests/x86/rowhammer_x86.c": "469ecd937dcbfda00e740eb3fb09e84d43d88e343d4d3ac1d474fcaf24feed5c",
+    "tests/x86/vec_prsg_sse2.c": "c314d13a3d450d1c194b262d98c70d30a42962a95c670fd07e9c9d7ce07a4c71",
+    "tests/x86/vec_prsg_avx2.c": "a02eaeb11eb4474f3b666aa7d66348915b6f2809f1454d95740c8f8b5fba1857",
+    "tests/aarch64/vec_prsg_neon.c": "70f8356710e0aef7ad36eaa70043f4681edb6aeb9ac8c2cb5936708dff4f506e"
+  }
+}

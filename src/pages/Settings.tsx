@@ -253,7 +253,7 @@ export default function SettingsPage() {
             <b>{tx('Ouvrir Computy \xE0 la connexion')}</b>
             <p>
               {tx(
-                'Permet de r\xE9cup\xE9rer les r\xE9sultats Windows disponibles apr\xE8s le red\xE9marrage.',
+                'Rouvre Computy à la connexion. La recherche des résultats de tests au démarrage est automatique à chaque ouverture.',
               )}
             </p>
             {tx(

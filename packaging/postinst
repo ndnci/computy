@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+for config in /etc/default/grub /etc/default/grub.d/*.cfg; do
+    if [ -r "$config" ]; then . "$config" >/dev/null; fi
+done
+if [ "${GRUB_DEFAULT:-0}" != 0 ]; then
+    if ! /usr/bin/grep -q -- "--id 'computy-memory-test'" /boot/grub/grub.cfg 2>/dev/null; then
+        printf '%s\n' 'Computy: custom GRUB default detected; no automatic menu change.' >&2
+        exit 0
+    fi
+fi
+if [ "$1" = configure ] && [ -f /boot/grub/grub.cfg ] && [ -x /usr/sbin/update-grub ]; then
+    /usr/sbin/update-grub || printf '%s\n' 'Computy: GRUB entry generation failed; automatic scheduling will remain unavailable.' >&2
+fi

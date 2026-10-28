@@ -798,3 +798,143 @@
     right: 87px;
   }
 }
+
+/* Keep explanatory icons alongside the title, in both reading directions. */
+.inline-icon-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.inline-icon-heading > svg,
+.inline-icon-heading > .local-card-icon {
+  flex-shrink: 0;
+  margin: 0;
+}
+.inline-icon-heading > h3,
+.inline-icon-heading > b {
+  margin: 0;
+  min-width: 0;
+}
+.result-badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.report-memory-scope {
+  display: grid;
+  gap: 7px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 20px 0;
+  font-size: 13px;
+}
+.report-memory-scope > p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+.notice ul {
+  padding-inline-start: 18px;
+  margin-top: 8px;
+}
+.notice li {
+  margin-top: 5px;
+}
+.report-footnote > summary {
+  cursor: pointer;
+}
+.refresh-button {
+  width: auto;
+  padding-inline: 10px;
+  gap: 7px;
+  font-size: 11px;
+}
+.diagnostic-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 25px;
+}
+.mode-choice {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 19px;
+  text-align: start;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.mode-choice.selected {
+  border-color: var(--green);
+  background: var(--mint);
+}
+.mode-choice > svg {
+  flex-shrink: 0;
+}
+.mode-choice > span {
+  display: grid;
+  gap: 5px;
+}
+.mode-choice b {
+  font-size: 14px;
+}
+.mode-choice small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (max-width: 1100px) {
+  .refresh-button > span {
+    display: none;
+  }
+}
+@media (max-width: 680px) {
+  .diagnostic-modes {
+    grid-template-columns: 1fr;
+  }
+}
+.boot-routes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+.guided-boot .offline-copy {
+  min-width: 0;
+}
+.guided-boot .notice {
+  margin: 18px 0;
+}
+.guided-boot .offline-steps {
+  max-width: 900px;
+  padding-inline-start: 22px;
+}
+.guided-boot .offline-steps li {
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+.usb-targets {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+.usb-targets > label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.usb-targets span {
+  display: grid;
+  gap: 5px;
+}
+.usb-targets small {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}

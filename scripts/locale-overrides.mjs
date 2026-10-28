@@ -123,6 +123,20 @@ for (const [language, row] of Object.entries(overviewRows)) {
     { LOCAL: 'LOCAL' },
   );
 }
+Object.assign(output.en, {
+  'Moteur Rust · schéma v': 'Report format v',
+  'Actualiser les informations': 'Refresh hardware info',
+  'Session approfondie': 'In-depth session test',
+  'Dans ma session': 'In my session',
+  'Avant démarrage': 'Before system startup',
+  'Sans clé USB': 'Without a USB drive',
+  'Avec clé USB': 'With a USB drive',
+  'Aucune erreur détectée': 'No errors detected',
+  'Informations indisponibles, pas erreurs détectées': 'Missing information, not detected errors',
+  'Non vérifiés : {{count}}': 'Unavailable: {{count}}',
+  'Préparer le prochain démarrage': 'Prepare the next boot',
+  'Tester la mémoire avant le lancement du système': 'Test memory before the system starts',
+});
 writeFileSync('src/locales/overrides.json', JSON.stringify(output, null, 2) + '\n');
 console.log(
   `${keys.length} reviewed navigation, action and result labels across ${Object.keys(rows).length} translated locales.`,

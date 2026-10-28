@@ -39,7 +39,7 @@ Dans l’application, ouvrir **Diagnostics**, cocher les composants souhaités, 
 Sur Ubuntu/Debian, l’installation facultative du paquet ajoute aussi Computy au menu des applications :
 
 ```bash
-sudo apt install ./release/Computy_0.1.0_amd64.deb
+sudo apt install ./release/Computy_0.1.1_amd64.deb
 ```
 
 Les bibliothèques d’exécution sont déjà présentes sur le PC de développement vérifié. Les binaires de `release/` sont des artefacts locaux exclus de Git ; après un nouveau clonage, les reconstruire avec les commandes ci-dessous.
@@ -59,9 +59,9 @@ Créer le paquet natif de la plateforme courante :
 npm run package
 ```
 
-Les paquets sont produits dans `src-tauri/target/release/bundle/`. Windows et macOS se compilent sur leurs systèmes respectifs ; le workflow CI contient les trois plateformes. Les versions ne sont pas signées ni notariées à ce stade.
+Les paquets sont produits dans `src-tauri/target/release/bundle/`. Windows et macOS se compilent sur leurs systèmes respectifs ; le workflow pour les trois plateformes est conservé dans `.github/workflows/checks.yml.disabled` et les actions automatiques sont désactivées pour le moment. Les versions ne sont pas signées ni notariées à ce stade.
 
-Le paquet Linux validé localement se trouve dans [`release/Computy_0.1.0_amd64.deb`](release/Computy_0.1.0_amd64.deb), avec le binaire de bureau et la CLI dans `release/`. Ce répertoire de compilation est exclu de Git. Taille du paquet : environ **5,2 Mio**.
+Le paquet Linux validé localement se trouve dans [`release/Computy_0.1.1_amd64.deb`](release/Computy_0.1.1_amd64.deb), avec le binaire de bureau et la CLI dans `release/`. Ce répertoire de compilation est exclu de Git. Taille du paquet : environ **6,4 Mio**.
 
 ### Développer et vérifier avec Docker
 
@@ -150,11 +150,24 @@ Voir [la sécurité MCP](docs/SECURITY.md) pour les limites, les permissions et 
 
 ## Test de mémoire au démarrage
 
-- **Windows** : depuis l’application, ouvrir le diagnostic mémoire système, choisir soi-même quand redémarrer et activer éventuellement l’ouverture de Computy à la connexion. Au retour, Computy recherche un événement réel et récent du fournisseur `Microsoft-Windows-MemoryDiagnostics-Results`. Il refuse les événements plus anciens que la demande et garde les erreurs matérielles visibles. CLI : `boot prepare`, puis `boot collect` au retour.
-- **Linux** : parcours guidé vers [Memtest86+](https://www.memtest.org/). Cette version ne modifie pas automatiquement GRUB, l’UEFI ou une clé USB.
-- **macOS** : parcours [Apple Diagnostics](https://support.apple.com/fr-fr/102550). Pas d’import automatique des résultats Apple dans cette version.
+Le mode **Avant démarrage** est séparé des profils de session. L’assistant distingue **sans clé USB** et **avec clé USB**, vérifie la compatibilité et demande les accords avant préparation, écriture sur une clé et redémarrage. Le moteur intégré et ses sources GPL sont livrés avec Computy.
 
-L’ouverture à la connexion est facultative et ne redémarre pas le PC. Le parcours Windows et les paquets macOS/Windows nécessitent une validation sur ces systèmes ; les tests locaux couvrent Linux, SMBIOS/CIM et les événements Windows.
+Sous Linux x86-64 compatible, Computy peut préparer une sélection GRUB pour un seul démarrage, ou copier le moteur sur une clé FAT32 sans formatage ni écrasement d’un chargeur existant. Secure Boot actif bloque le binaire non approuvé ; Computy ne désactive pas la protection. Les résultats Linux autonomes ne sont pas importés automatiquement et ne reçoivent aucun score supposé.
+
+Windows utilise le diagnostic mémoire système avec import d’un événement récent au retour. La réouverture à la connexion est proposée activée dans ce parcours. Le parcours Apple reste dépendant du modèle.
+
+Voir [le fonctionnement, les limites et les confirmations](docs/BOOT-DIAGNOSTICS.md).
+
+### Mettre à jour une installation Ubuntu/Debian
+
+Fermer Computy, puis depuis la racine du projet :
+
+```bash
+sudo apt install ./release/Computy_0.1.1_amd64.deb
+/usr/bin/computy
+```
+
+Le nom de paquet reste `computy` : APT remplace la version 0.1.0 installée par la 0.1.1. L’historique et les préférences restent dans le même répertoire utilisateur. Le bouton du header **Actualiser les informations** relit le matériel ; il ne met pas à jour l’application. Une copie portable lancée avec `./release/computy` est distincte de l’installation APT : utiliser le menu des applications ou `/usr/bin/computy` pour tester le paquet installé.
 
 ## Aperçus de l’application
 
@@ -227,6 +240,25 @@ Ces captures supplémentaires viennent du binaire Tauri final exécuté avec Web
 | ![Hindi clair](docs/screenshots/overview-hi-light.png) | ![Hindi sombre](docs/screenshots/overview-hi-dark.png) |
 
 </details>
+
+### Résultat RAM expliqué
+
+Le même rapport peut avoir des tests réussis et des compteurs indisponibles. L’interface les distingue ; la mémoire réellement testée et le nombre de passes sont visibles.
+
+| Clair | Sombre |
+|---|---|
+| ![Résultat RAM expliqué, clair](docs/screenshots/ram-report-explained-light.png) | ![Résultat RAM expliqué, sombre](docs/screenshots/ram-report-explained-dark.png) |
+
+### Parcours guidé avant démarrage
+
+| Clair | Sombre |
+|---|---|
+| ![Sans clé USB, clair](docs/screenshots/boot-guide-internal-light.png) | ![Sans clé USB, sombre](docs/screenshots/boot-guide-internal-dark.png) |
+| ![Avec clé USB, clair](docs/screenshots/boot-guide-usb-light.png) | ![Avec clé USB, sombre](docs/screenshots/boot-guide-usb-dark.png) |
+
+Le composant technique avant démarrage en VM UEFI (son environnement graphique dépend du firmware) :
+
+![Phase de test mémoire intégrée, QEMU UEFI](docs/screenshots/boot-engine-uefi.png)
 
 ## Architecture et vérification
 

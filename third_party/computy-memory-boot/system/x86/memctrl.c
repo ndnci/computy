@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2004-2025 Sam Demeulemeester
+//
+// ------------------------
+//
+// Platform-specific code for IMC configuration, ECC support, etc.
+//
+
+#include <stdbool.h>
+
+#include "config.h"
+#include "cpuinfo.h"
+
+#include "memctrl.h"
+#include "imc/imc.h"
+
+#include "display.h"
+
+imc_info_t imc = {"UNDEF", 0, 0, 0, 0, 0, 0, 0, 0};
+
+ecc_info_t ecc_status = {false, ECC_ERR_NONE, 0, 0, 0, 0};
+
+// ---------------------
+// -- Public function --
+// ---------------------
+
+void memctrl_init(void)
+{
+    ecc_status.ecc_enabled = false;
+
+    if (!enable_mch_read) {
+        return;
+    }
+
+    switch(imc.family) {
+      case IMC_K17:
+      case IMC_K19_VRM:
+      case IMC_K19_CZN:
+      case IMC_K19_RPL:
+      case IMC_K19_RBT:
+      case IMC_K19_PHX:
+      case IMC_K1A_GRG:
+        get_imc_config_amd_zen();
+        break;
+      case IMC_SNB:
+      case IMC_IVB:
+        get_imc_config_intel_snb();
+        break;
+      case IMC_HSW:
+        get_imc_config_intel_hsw();
+        break;
+      case IMC_SKL:
+      case IMC_KBL:
+        get_imc_config_intel_skl();
+        break;
+      case IMC_RKL:
+        get_imc_config_intel_icl();
+        break;
+      case IMC_RPL:
+      case IMC_ADL:
+        get_imc_config_intel_adl();
+        break;
+      case IMC_ARL:
+      case IMC_MTL:
+      case IMC_LNL:
+      case IMC_PTL:
+        get_imc_config_intel_mtl();
+      default:
+        break;
+    }
+
+    // Consistency check
+    if (imc.tCL == 0 || imc.tRCD == 0 || imc.tRP == 0 || imc.tRCD == 0) {
+        imc.freq = 0;
+    }
+}
+
+void memctrl_poll_ecc(void)
+{
+    if (!ecc_status.ecc_enabled) {
+        return;
+    }
+
+    switch(imc.family) {
+      case IMC_K17:
+      case IMC_K19_VRM:
+      case IMC_K19_RPL:
+      case IMC_K19_RBT:
+      case IMC_K1A_GRG:
+        poll_ecc_amd_zen(true);
+        break;
+      default:
+        break;
+    }
+}

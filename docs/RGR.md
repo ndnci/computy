@@ -33,3 +33,7 @@ Les tests d’intégration Node lancent réellement la CLI, vérifient les mesur
 `scripts/capture-ui.mjs` vérifie la sélection indépendante des trois composants, les modes RAM seule / RAM + stockage / complet, la progression, les rapports persistés et la comparaison. Chaque écran est capturé dans les deux thèmes. Les données de validation doivent être isolées avec `COMPUTY_DATA_DIR`.
 
 Les catalogues de langues font l’objet de vérifications de couverture, de préservation des variables, de sens de lecture et de libellés de résultat. Les essais de rendu sont complétés par des captures dans plusieurs langues et tailles de fenêtre.
+
+## Mise à jour 0.1.1
+
+Un test de présentation rouge (fonctions absentes) a précédé la séparation entre résultat et informations indisponibles. Les contrats Linux ont d’abord échoué sur le module absent ; un test ultérieur a échoué sur l’absence de confirmation de préparation. Les validations couvrent ensuite le blocage firmware/GRUB, la confirmation avant redémarrage, et les écritures USB sans écrasement. Les algorithmes du composant GPL sont vérifiés par empreintes et réellement démarrés en VM BIOS/UEFI.

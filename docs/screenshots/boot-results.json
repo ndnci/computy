@@ -1,0 +1,24 @@
+[
+  {
+    "firmware": "bios",
+    "completed_pass": true,
+    "tests": [
+      0,
+      1,
+      2
+    ],
+    "virtual_memory_mib": 128,
+    "scope": "QEMU boot smoke test; not physical hardware certification"
+  },
+  {
+    "firmware": "uefi",
+    "completed_pass": true,
+    "tests": [
+      0,
+      1,
+      2
+    ],
+    "virtual_memory_mib": 128,
+    "scope": "QEMU boot smoke test; not physical hardware certification"
+  }
+]

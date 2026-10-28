@@ -51,3 +51,13 @@ Références : [transports MCP](https://modelcontextprotocol.io/specification/20
 Les identifiants de rapport n’acceptent que chiffres et tirets. Les fichiers trop volumineux, symlinks et empreintes invalides sont refusés à la lecture. L’écriture passe par un fichier temporaire unique, une synchronisation et un remplacement atomique. Une empreinte SHA-256 détecte les altérations accidentelles ; elle ne protège pas contre un attaquant possédant les droits de l’utilisateur et pouvant recalculer cette empreinte.
 
 Les diagnostics ont des limites d’allocation et de durée. Un verrou de fichier empêche les interfaces partageant le même répertoire de données de lancer simultanément plusieurs diagnostics. Des répertoires volontairement distincts ne partagent pas ce verrou. Aucun test n’est lancé automatiquement à l’ouverture ni par le serveur MCP en lecture seule.
+
+## Parcours avant démarrage 0.1.1
+
+Les fonctions de préparation et de redémarrage appartiennent au parcours local explicite ; elles ne sont pas exposées au MCP. Sous Linux, le paquet installe un assistant Rust root et une politique PolicyKit `auth_admin`, sans conservation d’autorisation. L’assistant accepte uniquement `verify`, `schedule` et `cancel`, avec des chemins et commandes système fixes ; aucun chemin ni argument de commande libre n’est accepté.
+
+Les programmes, configurations GRUB et états doivent appartenir à root et ne pas être modifiables par groupe/autres utilisateurs. Le helper verrouille l’état, refuse Secure Boot et les configurations GRUB non prises en charge, préserve toute autre sélection ponctuelle et ne confirme la préparation qu’après relecture. Un état non confirmé ne permet pas le redémarrage depuis Computy. Les métadonnées de préparation (UID, date, identifiant de démarrage) sont publiquement lisibles pour l’interface ; elles ne contiennent ni secret ni résultat RAM.
+
+Le paquet ajoute sa propre entrée et son moteur dans `/boot` via le gestionnaire de paquets ; il ne change pas `GRUB_DEFAULT`, les clés du firmware, les partitions ou le chargeur de démarrage installé. La préparation change seulement `next_entry` via les outils GRUB standard. Le script de retrait ne supprime cette sélection que si elle désigne exactement Computy. La programmation réelle reste à valider sur une machine de test compatible ; les essais de développement n’altèrent pas le démarrage de l’hôte.
+
+La préparation USB s’exécute avec les droits de l’utilisateur, après sélection et confirmation. Elle revalide les volumes montés, USB et FAT32, exclut le disque contenant les points de montage système, refuse les liens symboliques de destination et crée le chargeur sans écrasement. Aucun formatage ni accès en écriture à un périphérique brut n’est disponible.

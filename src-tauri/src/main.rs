@@ -91,10 +91,66 @@ async fn open_offline_tool(service: tauri::State<'_, Arc<AppService>>) -> Result
         .await
         .map_err(|e| e.to_string())?
     }
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(target_os = "linux")]
+    {
+        let service = service.inner().clone();
+        tauri::async_runtime::spawn_blocking(move || computy_engine::offline::prepare(&service))
+            .await
+            .map_err(|error| error.to_string())?
+    }
+    #[cfg(not(any(target_os = "windows", target_os = "linux")))]
     {
         let _ = service;
         Err("Utilisez le parcours de test autonome indiqué pour votre système.".into())
+    }
+}
+#[tauri::command]
+async fn boot_action(action: String) -> Result<Value, String> {
+    #[cfg(target_os = "linux")]
+    {
+        tauri::async_runtime::spawn_blocking(move || match action.as_str() {
+            "verify" | "cancel" => computy_engine::linux_boot::request(&action),
+            "reboot" => computy_engine::linux_boot::reboot().map(|_| serde_json::json!(true)),
+            _ => Err("Commande non autorisée.".into()),
+        })
+        .await
+        .map_err(|error| error.to_string())?
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = action;
+        Err("Ce parcours automatique est disponible sous Linux.".into())
+    }
+}
+#[tauri::command]
+async fn usb_targets() -> Result<Value, String> {
+    #[cfg(target_os = "linux")]
+    {
+        tauri::async_runtime::spawn_blocking(|| {
+            computy_engine::usb_boot::targets().map(|targets| serde_json::json!(targets))
+        })
+        .await
+        .map_err(|error| error.to_string())?
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        Ok(serde_json::json!([]))
+    }
+}
+#[tauri::command]
+async fn prepare_usb(id: String) -> Result<Value, String> {
+    #[cfg(target_os = "linux")]
+    {
+        tauri::async_runtime::spawn_blocking(move || {
+            computy_engine::usb_boot::prepare(&id).map(|target| serde_json::json!(target))
+        })
+        .await
+        .map_err(|error| error.to_string())?
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let _ = id;
+        Err("Préparation USB automatique disponible sous Linux.".into())
     }
 }
 #[tauri::command]
@@ -162,6 +218,9 @@ fn main() {
             startup_status,
             set_startup,
             open_offline_tool,
+            boot_action,
+            usb_targets,
+            prepare_usb,
             open_external
         ])
         .build(tauri::generate_context!())

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN" "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>NDNCI</vendor><vendor_url>https://www.ndnci.com</vendor_url>
+  <action id="org.ndnci.computy.boot">
+    <description>Prepare or cancel a one-time Computy memory test</description>
+    <message>Administrator authorization is required to prepare the next Computy memory test.</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/computy-boot-helper</annotate>
+  </action>
+</policyconfig>

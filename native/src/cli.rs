@@ -157,6 +157,19 @@ pub enum BootAction {
     Prepare,
     Collect,
     Forget,
+    Verify,
+    Cancel,
+    Reboot {
+        #[arg(long)]
+        yes: bool,
+    },
+    UsbList,
+    UsbPrepare {
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        yes: bool,
+    },
 }
 #[derive(Debug, Clone, ValueEnum)]
 pub enum StartupAction {
@@ -415,8 +428,39 @@ pub fn run(cli: Cli) -> Result<i32, String> {
         }
         Commands::Boot { action } => {
             match action {
+                #[cfg(target_os = "linux")]
+                BootAction::Verify => print_json(&crate::linux_boot::request("verify")?)?,
+                #[cfg(target_os = "linux")]
+                BootAction::Cancel => print_json(&crate::linux_boot::request("cancel")?)?,
+                #[cfg(target_os = "linux")]
+                BootAction::UsbList => print_json(&json!(crate::usb_boot::targets()?))?,
+                #[cfg(target_os = "linux")]
+                BootAction::UsbPrepare { id, yes } => {
+                    if !yes {
+                        return Err("USB preparation requires explicit --yes after selecting a target from `boot usb-list`.".into());
+                    }
+                    print_json(&json!(crate::usb_boot::prepare(&id)?))?;
+                }
+                #[cfg(target_os = "linux")]
+                BootAction::Reboot { yes } => {
+                    if !yes {
+                        return Err("Reboot requires explicit --yes. Save your work first.".into());
+                    }
+                    crate::linux_boot::reboot()?;
+                }
+                #[cfg(not(target_os = "linux"))]
+                BootAction::Verify
+                | BootAction::Cancel
+                | BootAction::UsbList
+                | BootAction::UsbPrepare { .. }
+                | BootAction::Reboot { .. } => {
+                    return Err("This boot integration is available on Linux.".into());
+                }
                 BootAction::Status => print_json(&crate::offline::status(&root)?)?,
                 BootAction::Collect => print_json(&crate::offline::collect(&service)?)?,
+                #[cfg(target_os = "linux")]
+                BootAction::Forget => print_json(&crate::linux_boot::request("cancel")?)?,
+                #[cfg(not(target_os = "linux"))]
                 BootAction::Forget => print_json(&crate::offline::forget(&root)?)?,
                 BootAction::Prepare => {
                     crate::offline::prepare(&service)?;
@@ -427,7 +471,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                             .map_err(|e| e.to_string())?;
                     }
                     eprintln!(
-                        "Windows Memory Diagnostic opened. Choose when to restart. Run `boot collect` after logging in."
+                        "Boot diagnostic prepared. On Windows, choose when to restart in the system dialog. On Linux, the next boot selects Computy once; the on-screen result is not automatically imported."
                     );
                 }
             }

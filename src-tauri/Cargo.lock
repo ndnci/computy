@@ -498,7 +498,7 @@ dependencies = [
 
 [[package]]
 name = "computy"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "computy-engine",
  "serde_json",
@@ -512,7 +512,7 @@ dependencies = [
 
 [[package]]
 name = "computy-engine"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "fs2",
  "libc",

@@ -28,7 +28,14 @@ import {
   Spinner,
   StatusBadge,
 } from '../components';
-import { componentSummary, duration, formatBytes, formatDate } from '../domain.mjs';
+import {
+  componentSummary,
+  duration,
+  formatBytes,
+  formatDate,
+  scoreStatus,
+  checkOutcome,
+} from '../domain.mjs';
 export default function Overview() {
   const { inventory, loading, reports, navigate, openReport, job } = useApp();
   const latest = reports[0];
@@ -173,7 +180,10 @@ export default function Overview() {
               <>
                 <div className={`health-ring ${latest.summary.status}`}>
                   <div>
-                    <Mood status={latest.summary.status} size={32} />
+                    <Mood
+                      status={scoreStatus(latest.summary.score, latest.summary.status)}
+                      size={32}
+                    />
                     <b>
                       {tx(latest.summary.score ?? '—')}
                       <small>{tx('/ 10')}</small>
@@ -184,7 +194,7 @@ export default function Overview() {
                   {tx(
                     latest.summary.status === 'failed'
                       ? 'Une anomalie à examiner'
-                      : latest.summary.status === 'warning'
+                      : checkOutcome(latest.checks, latest.completed).status === 'warning'
                         ? 'Un bilan à compléter'
                         : latest.completed
                           ? 'Vos contrôles sont conformes'
@@ -302,7 +312,12 @@ export default function Overview() {
                 )}
                 <div className="component-bottom">
                   <span>{tx(card.foot)}</span>
-                  <StatusBadge status={status.status} compact />
+                  <StatusBadge
+                    status={status.status}
+                    checks={latest?.checks.filter((check) => check.component === card.id)}
+                    completed={latest?.completed}
+                    compact
+                  />
                 </div>
               </button>
             );

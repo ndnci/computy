@@ -1,0 +1,76 @@
+name: Build and tests
+
+on:
+  push:
+    branches:
+      - "*"
+    paths-ignore:
+      - "**/README.md"
+  pull_request:
+    branches:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.os }} ${{ matrix.compiler }} ${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc]
+        os: [ubuntu-22.04, ubuntu-24.04]
+        arch: [i586, x86_64, la64, aarch64]
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install Linux Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential gcc-multilib clang libc6-dev-i386-cross dosfstools mtools xorriso -y
+          if [ ${{ matrix.arch }} == 'aarch64' ]; then
+            sudo apt-get install gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu -y
+          fi
+          if [ ${{ matrix.arch }} == 'la64' ]; then
+            sudo mkdir /opt/LoongArch_Toolchains -p; cd /opt/LoongArch_Toolchains
+            sudo wget https://github.com/YongbaoOS/Yongbao-Toolchains/releases/download/2024.8.6/x86_64-cross-tools-loongarch64-binutils_git60d4fed4e364-gcc_14.2.0.tar.xz
+            sudo tar -xf x86_64-cross-tools-loongarch64-binutils_git60d4fed4e364-gcc_14.2.0.tar.xz
+            sudo ln -s /opt/LoongArch_Toolchains/cross-tools/bin/loongarch64-unknown-linux-gnu-gcc /opt/LoongArch_Toolchains/cross-tools/bin/gcc
+            sudo ln -s /opt/LoongArch_Toolchains/cross-tools/bin/loongarch64-unknown-linux-gnu-ld /opt/LoongArch_Toolchains/cross-tools/bin/ld
+            sudo ln -s /opt/LoongArch_Toolchains/cross-tools/bin/loongarch64-unknown-linux-gnu-objcopy /opt/LoongArch_Toolchains/cross-tools/bin/objcopy
+          fi
+
+      - name: Clean up
+        working-directory: ./
+        run: |
+          if [ ${{ matrix.arch }} == 'i586' ]; then
+            cd build/i586
+          elif [ ${{ matrix.arch }} == 'x86_64' ]; then
+            cd build/x86_64
+          elif [ ${{ matrix.arch }} == 'la64' ]; then
+            cd build/loongarch64
+          elif [ ${{ matrix.arch }} == 'aarch64' ]; then
+            cd build/aarch64
+          fi
+          make clean
+
+      - name: Build
+        working-directory: ./
+        run: |
+          if [ ${{ matrix.arch }} == 'i586' ]; then
+            cd build/i586
+          elif [ ${{ matrix.arch }} == 'x86_64' ]; then
+            cd build/x86_64
+          elif [ ${{ matrix.arch }} == 'la64' ]; then
+            export PATH=/opt/LoongArch_Toolchains/cross-tools/bin/:$PATH
+            cd build/loongarch64
+          elif [ ${{ matrix.arch }} == 'aarch64' ]; then
+            cd build/aarch64
+            make -j 2 CC=aarch64-linux-gnu-gcc LD=aarch64-linux-gnu-ld OBJCOPY=aarch64-linux-gnu-objcopy iso
+            exit 0
+          fi
+          make -j 2 CC="${{matrix.compiler}}" iso

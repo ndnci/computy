@@ -1,0 +1,304 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (C) 2004-2025 Sam Demeulemeester
+
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "io.h"
+#include "string.h"
+#include "serial.h"
+#include "unistd.h"
+
+#include "config.h"
+#include "display.h"
+
+#ifdef __loongarch_lp64
+#include "vmem.h"
+#include <larchintrin.h>
+#endif
+
+#ifdef __aarch64__
+#include "mmio.h"
+#include "vmem.h"
+#endif
+
+static struct serial_port console_serial;
+
+//------------------------------------------------------------------------------
+// Private Functions
+//------------------------------------------------------------------------------
+
+static void serial_write_reg(struct serial_port *port, uint16_t reg, uint8_t val)
+{
+    union {
+        uintptr_t addr;
+        uint8_t *ptr;
+    } reg_walker;
+
+    reg_walker.addr = port->base_addr + reg * port->reg_width;
+
+    if (port->is_mmio) {
+        *reg_walker.ptr = val;
+    } else {
+        __outb(val, reg_walker.addr);
+    }
+}
+
+static uint8_t serial_read_reg(struct serial_port *port, uint16_t reg)
+{
+    union {
+        uintptr_t addr;
+        uint8_t *ptr;
+    } reg_walker;
+
+    reg_walker.addr = port->base_addr + reg * port->reg_width;
+
+    if (port->is_mmio) {
+        return *reg_walker.ptr;
+    } else {
+        return __inb(reg_walker.addr);
+    }
+}
+
+static void serial_wait_for_xmit(struct serial_port *port)
+{
+    uint8_t lsr;
+
+    do {
+        lsr = serial_read_reg(port, UART_LSR);
+    } while ((lsr & BOTH_EMPTY) != BOTH_EMPTY);
+}
+
+static void serial_echo_print(const char *p)
+{
+    struct serial_port *port = &console_serial;
+
+    if (!port->enable) {
+        return;
+    }
+
+    /* Now, do each character */
+    while (*p) {
+        /* Send the character out. */
+#ifdef __aarch64__
+        if (port->is_pl011) {
+            while (mmio_read32((uint32_t *)(port->base_addr + PL011_FR)) & PL011_FR_TXFF) { }
+            mmio_write32((uint32_t *)(port->base_addr + PL011_DR), *p++);
+            continue;
+        }
+#endif
+        serial_wait_for_xmit(port);
+        serial_write_reg(port, UART_TX, *p++);
+    }
+}
+
+static void tty_goto(int y, int x)
+{
+    static char s[3];
+
+    serial_echo_print("\x1b[");
+    serial_echo_print(itoa(y + 1, s));
+    serial_echo_print(";");
+    serial_echo_print(itoa(x + 1, s));
+    serial_echo_print("H");
+}
+
+//------------------------------------------------------------------------------
+// Public Functions
+//------------------------------------------------------------------------------
+
+void tty_init(void)
+{
+    if (!enable_tty && !enable_tty_log) {
+        return;
+    }
+
+    int uart_status, serial_div;
+    unsigned char lcr;
+
+    console_serial.enable       = true;
+#ifdef __loongarch_lp64
+    console_serial.base_addr    = map_region(tty_address, 0x0, false);
+    // By default, CPU UART0 is used, which uses the stable counter as the clock.
+    tty_mmio_ref_clk            = (__cpucfg(0x4) * (__cpucfg(0x5) & 0xFFFF)) / ((__cpucfg(0x5) >> 16) & 0xFFFF);
+#elif defined(__aarch64__)
+    console_serial.base_addr    = map_region(tty_address, 0x1000, false);
+    console_serial.is_pl011     = tty_pl011;
+#else
+    console_serial.base_addr    = tty_address;
+#endif
+    console_serial.baudrate     = tty_baud_rate;
+    console_serial.parity       = SERIAL_DEFAULT_PARITY;
+    console_serial.bits         = SERIAL_DEFAULT_BITS;
+
+    // Precalculate the frame time (in microseconds).
+    console_serial.frame_time   = (1000000 * (1 + console_serial.bits + console_serial.parity + 1)) / console_serial.baudrate;
+
+    // UART MMIO Address is usually above TOLUD and never < 1MB
+    if (console_serial.base_addr > 0xFFFF) {
+        console_serial.is_mmio      = true;
+        console_serial.reg_width    = tty_mmio_stride;
+        console_serial.refclk       = tty_mmio_ref_clk;
+    } else {
+        console_serial.is_mmio      = false;
+        console_serial.reg_width    = 1;
+        console_serial.refclk       = UART_REF_CLK_IO;
+    }
+
+    if (console_serial.is_pl011) {
+        // The PL011 has already been configured by the firmware; just use
+        // it as-is.
+        if (enable_tty) {
+            tty_clear_screen();
+            tty_disable_cursor();
+        }
+        return;
+    }
+
+    /* read the Divisor Latch */
+    uart_status = serial_read_reg(&console_serial, UART_LCR);
+    serial_write_reg(&console_serial, UART_LCR, uart_status | UART_LCR_DLAB);
+    serial_read_reg(&console_serial, UART_DLM);
+    serial_read_reg(&console_serial, UART_DLL);
+    serial_write_reg(&console_serial, UART_LCR, uart_status);
+
+    /* now do hardwired init */
+    lcr = console_serial.parity | (console_serial.bits - 5);
+    serial_write_reg(&console_serial, UART_LCR, lcr);               /* No parity, 8 data bits, 1 stop */
+    serial_div = (console_serial.refclk / console_serial.baudrate) / 16;
+    serial_write_reg(&console_serial, UART_LCR, 0x80|lcr);          /* Access divisor latch */
+    serial_write_reg(&console_serial, UART_DLL, serial_div & 0xff); /* baud rate divisor */
+    serial_write_reg(&console_serial, UART_DLM, (serial_div >> 8) & 0xff);
+    serial_write_reg(&console_serial, UART_LCR, lcr);               /* Done with divisor */
+
+    /* Prior to disabling interrupts, read the LSR and RBR registers */
+    uart_status = serial_read_reg(&console_serial, UART_LSR);       /* COM? LSR */
+    uart_status = serial_read_reg(&console_serial, UART_RX);        /* COM? RBR */
+    serial_write_reg(&console_serial, UART_IER, 0x00);              /* Disable all interrupts */
+
+    /* In case of MMIO UART, set up FIFO Reg */
+    if (console_serial.is_mmio) {
+        serial_write_reg(&console_serial, UART_FCR, 0x00);
+        serial_write_reg(&console_serial, UART_FCR, (0xFF) & (UART_FCR_ENA | UART_FCR_THR));
+    }
+
+    // Log mode wants a raw byte stream, so don't emit VT100 sequences.
+    if (enable_tty) {
+        tty_clear_screen();
+        tty_disable_cursor();
+    }
+}
+
+void tty_send_string(const char *p)
+{
+    serial_echo_print(p);
+}
+
+void tty_send_region(int start_row, int start_col, int end_row, int end_col)
+{
+    char p[SCREEN_WIDTH+1];
+    uint8_t ch;
+    int pos = 0;
+    int cur_inverse = -1, inverse = false;
+
+    if (start_col > (SCREEN_WIDTH - 1) || end_col > (SCREEN_WIDTH - 1)) {
+        return;
+    }
+
+    if (start_row > (SCREEN_HEIGHT - 1) || end_row > (SCREEN_HEIGHT - 1)) {
+        return;
+    }
+
+    for (int row = start_row; row <= end_row; row++) {
+
+        // Always use absolute positioning instead of relying on CR-LF to avoid issues
+        // when a CR-LF is lost (especially with Industrial RS232/Ethernet converters).
+        tty_goto(row, start_col);
+
+        // Copy Shadow buffer to TTY buffer
+        pos = 0;
+        for (int col = start_col; col <= end_col; col++) {
+
+            inverse = ((shadow_buffer[row][col].attr & 0x70) >> 4 != palette.background);
+
+            if (cur_inverse != inverse) {
+
+                if (pos) {
+                  p[pos] = '\0';
+                  serial_echo_print(p);
+                  pos = 0;
+                }
+
+                if (inverse) {
+                    tty_inverse();
+                } else {
+                    tty_normal();
+                }
+
+                cur_inverse = inverse;
+            }
+
+            /* Make sure only VT100 characters are sent. */
+            ch = shadow_buffer[row][col].ch;
+
+            switch (ch) {
+                case 32 ... 127:
+                    break;
+
+                case 0xB3:
+                    ch = '|';
+                    break;
+
+                case 0xC1:
+                case 0xC2:
+                case 0xC4:
+                    ch = '-';
+                    break;
+
+                case 0xF8:
+                    ch = '*';
+                    break;
+
+                default:
+                    ch = '?';
+            }
+
+            p[pos++] = ch;
+        }
+
+        if (pos) {
+            p[pos] = '\0';
+            serial_echo_print(p);
+        }
+    }
+
+    if (tty_new_line) {
+        serial_echo_print("\n");
+    }
+}
+
+char tty_get_char(int max_wait_frames)
+{
+    int wait_time = max_wait_frames * console_serial.frame_time;
+    do {
+#ifdef __aarch64__
+        if (console_serial.is_pl011) {
+            if (!(mmio_read32((uint32_t *)(console_serial.base_addr + PL011_FR)) & PL011_FR_RXFE)) {
+                return mmio_read32((uint32_t *)(console_serial.base_addr + PL011_DR)) & 0xFF;
+            }
+            usleep(10);
+            wait_time -= 10;
+            continue;
+        }
+#endif
+        int uart_status = serial_read_reg(&console_serial, UART_LSR);
+        if (uart_status & UART_LSR_DR) {
+            return serial_read_reg(&console_serial, UART_RX);
+        }
+        usleep(10);
+        wait_time -= 10;
+    } while (wait_time > 0);
+
+    return '\0';
+}

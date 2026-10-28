@@ -1,0 +1,21 @@
+#!/bin/sh
+# Own entry only. Never change GRUB_DEFAULT, firmware settings or another entry.
+set -eu
+# Do not introduce a new entry if an administrator uses a numeric/nonstandard
+# default which adding a menu entry could shift. Preserve an existing entry on upgrades.
+for config in /etc/default/grub /etc/default/grub.d/*.cfg; do
+    if [ -r "$config" ]; then . "$config" >/dev/null; fi
+done
+if [ "${GRUB_DEFAULT:-0}" != 0 ]; then
+    if ! /usr/bin/grep -q -- "--id 'computy-memory-test'" /boot/grub/grub.cfg 2>/dev/null; then exit 0; fi
+fi
+image=/boot/computy-memory.efi
+[ -f "$image" ] || exit 0
+[ -r /usr/lib/grub/grub-mkconfig_lib ] || exit 0
+. /usr/lib/grub/grub-mkconfig_lib
+[ -n "${GRUB_DEVICE_BOOT:-}" ] || exit 0
+relative=$(make_system_path_relative_to_its_root "$image")
+case "$relative" in /computy-memory.efi|/boot/computy-memory.efi) ;; *) exit 0 ;; esac
+printf "menuentry 'Computy - Memory test before system startup' --class computy --id 'computy-memory-test' {\n"
+prepare_grub_to_access_device "$GRUB_DEVICE_BOOT"
+printf '  load_video\n  set gfxpayload=keep\n  linux %s nopause dark\n}\n' "$relative"

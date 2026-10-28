@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Computy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "identifier": "com.ndnci.computy",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:1420",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "node scripts/build-native-extras.mjs && npm run build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -39,6 +39,27 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "linux": { "deb": { "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0"] } }
+    "linux": {
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "pkexec"
+        ],
+        "recommends": [
+          "grub2-common"
+        ],
+        "files": {
+          "/boot/computy-memory.efi": "../third_party/computy-memory-boot/build/x86_64/mt86plus",
+          "/usr/libexec/computy-boot-helper": "target/boot-helper/release/computy-boot-helper",
+          "/etc/grub.d/41_computy_memory": "../packaging/41_computy_memory",
+          "/usr/share/polkit-1/actions/org.ndnci.computy.boot.policy": "../packaging/org.ndnci.computy.boot.policy",
+          "/usr/share/doc/computy/memory-boot-sources.tar.gz": "target/boot-helper/computy-memory-sources.tar.gz",
+          "/usr/share/doc/computy/memory-boot-LICENSE": "../third_party/computy-memory-boot/LICENSE"
+        },
+        "postInstallScript": "../packaging/postinst",
+        "postRemoveScript": "../packaging/postrm"
+      }
+    }
   }
 }

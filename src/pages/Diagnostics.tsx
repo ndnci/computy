@@ -13,6 +13,7 @@ import {
   Play,
   RotateCcw,
   ScanLine,
+  Power,
   ShieldCheck,
   Square,
   Timer,
@@ -60,6 +61,7 @@ export default function Diagnostics() {
   });
   const [label, setLabel] = useState('');
   const [showConfiguration, setShowConfiguration] = useState(true);
+  const [mode, setMode] = useState<'session' | 'boot'>('session');
   const presets = {
     quick: {
       memory_mib: 64,
@@ -118,8 +120,36 @@ export default function Diagnostics() {
           'Des contrôles réels, des résultats expliqués et un historique pour avancer.',
         )}
       />
+      {!job?.running && !launching && (
+        <div className="diagnostic-modes" role="group" aria-label={tx('Mode de diagnostic')}>
+          <button
+            className={`mode-choice ${mode === 'session' ? 'selected' : ''}`}
+            aria-pressed={mode === 'session'}
+            onClick={() => setMode('session')}
+          >
+            <Activity size={22} />
+            <span>
+              <b>{tx('Dans ma session')}</b>
+              <small>{tx('RAM, stockage et processeur · sans redémarrage')}</small>
+            </span>
+          </button>
+          <button
+            className={`mode-choice ${mode === 'boot' ? 'selected' : ''}`}
+            aria-pressed={mode === 'boot'}
+            onClick={() => setMode('boot')}
+          >
+            <Power size={22} />
+            <span>
+              <b>{tx('Avant démarrage')}</b>
+              <small>{tx('Mémoire seule · redémarrage choisi et confirmé')}</small>
+            </span>
+          </button>
+        </div>
+      )}
       {tx(
-        job?.running ? (
+        mode === 'boot' && !job?.running ? (
+          <OfflineDiagnostic />
+        ) : job?.running ? (
           <>
             <section className="running-panel">
               <div className="running-header">
@@ -250,7 +280,7 @@ export default function Diagnostics() {
                   <PanelHeader
                     title={tx('02. Choisissez votre profondeur de test')}
                     subtitle={tx(
-                      'Plus de mémoire et de passes augmentent la couverture, ainsi que la durée.',
+                      'Tous ces profils s’exécutent dans votre session. Aucun ne redémarre le PC.',
                     )}
                   />
                   <div className="profile-grid">
@@ -276,7 +306,7 @@ export default function Diagnostics() {
                           },
                           {
                             id: 'extended',
-                            name: 'Plus en détail',
+                            name: 'Session approfondie',
                             icon: LayersIcon,
                             detail: '512 Mio · 4 passes',
                             tag: 'APPROFONDI',
@@ -474,8 +504,10 @@ export default function Diagnostics() {
                   </span>
                 </div>
                 <div className="scope-card">
-                  <CircleHelp size={20} />
-                  <h3>{tx('Ce qu\u2019on peut vraiment v\xE9rifier')}</h3>
+                  <div className="inline-icon-heading">
+                    <CircleHelp size={20} />
+                    <h3>{tx('Ce qu\u2019on peut vraiment v\xE9rifier')}</h3>
+                  </div>
                   <p>
                     {tx(
                       'Dans l\u2019OS, le test m\xE9moire couvre une allocation limit\xE9e. Pour aller plus loin, compl\xE9tez-le par un test au d\xE9marrage.',
@@ -489,7 +521,6 @@ export default function Diagnostics() {
                 </div>
               </aside>
             </div>
-            <OfflineDiagnostic />
           </>
         ),
       )}
