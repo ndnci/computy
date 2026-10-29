@@ -1,6 +1,7 @@
-# Consignes pour les agents
+# Agent instructions
 
-- Après chaque tâche qui modifie le dépôt, effectuer les vérifications adaptées puis créer un commit, sauf instruction explicite contraire de l’utilisateur.
-- Chaque commit doit avoir un seul auteur : utiliser l’identité Git déjà configurée pour l’utilisateur, sans la remplacer.
-- Ne jamais ajouter de mention `Co-authored-by`, de coauteur, ni de signature ou de trailer attribuant le travail à un agent, une IA ou un outil.
-- Rédiger un message de commit clair décrivant les changements. Ne pas pousser les commits sans demande explicite de l’utilisateur.
+- After each task that changes the repository, run appropriate checks and create a commit unless the user explicitly instructs otherwise.
+- Each commit must have a single author: use the user's existing Git identity without replacing it.
+- Never add `Co-authored-by`, a coauthor, or any signature or trailer attributing work to an agent, AI or tool.
+- Write a clear commit message describing the changes. Do not push commits without an explicit user request.
+- Maintain project documentation in English. Keep the application's supported UI languages and localization catalogs intact.

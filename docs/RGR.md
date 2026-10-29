@@ -1,22 +1,22 @@
-# Journal Red → Green → Refactor
+# Red → Green → Refactor journal
 
-Les tests ont été écrits et exécutés en échec avant l’implémentation des comportements associés. Les données artificielles servent aux tests de parseurs et à l’injection de corruption ; les captures de l’application utilisent les contrôles réels du moteur.
+Tests were written and observed failing before the corresponding behavior was implemented. Artificial data is used for parser tests and injected corruption; application screenshots use real engine checks.
 
-| Cycle | Red observé | Green / comportement | Refactor |
+| Cycle | Observed red | Green / behavior | Refactor |
 |---|---|---|---|
-| Contrats du domaine et de l’inventaire | 12 tests en échec sur APIs non implémentées | Inconnu sans note ; minimum bloquant ; corruption injectée détectée ; SMART traité comme masque ; SMBIOS sans fréquence maximale inventée ; identifiants sûrs | Domaine séparé des sondes et de la persistance |
-| Exécution réelle | 4 nouveaux tests en échec pour disque et CPU | Fichier synchronisé puis vérifié, nettoyage préservant le fichier témoin, annulation sans succès ; RAM réellement parcourue ; historique altéré rejeté | Fonctions de vérification et RAII du fichier/mémoire |
-| Résultats au démarrage | 2 tests en échec sur import Windows | Fournisseur et ancienneté vérifiés ; événements d’erreur et interruption préservés | Import isolé du moteur de test en direct |
-| Présentation et comparaison | Module de présentation absent, tests rouges | Données manquantes explicites, anomalie prioritaire, avertissements de protocole/machine | Fonctions de présentation indépendantes de React |
-| MCP | 2 tests rouges avant gestion du protocole et de l’authentification | Permissions minimales, refus des mutations, jeton requis, expiration, origine et Host | Transport séparé du service applicatif |
-| Préférences système | Test rouge : thème par défaut `light`, langue absente | Thème `system`, langue persistante, valeurs validées | Préférences communes CLI/Tauri/interface |
-| Preuve SMART partielle | Test rouge : alerte matérielle masquée par erreur de transport | Une alerte explicite reste un échec, même avec télémétrie partielle | Priorité de l’observation matérielle sur disponibilité du transport |
-| Parcours UI | Playwright ne pouvait pas cliquer la case native ; ancien résultat visible au début d’un nouveau test | Surface cliquable corrigée, ancien état retiré au lancement, deux vrais diagnostics puis comparaison | État applicatif de lancement clarifié |
-| Parité des réglages et ECC partiel | Deux nouveaux tests rouges : réglage RAM ignoré par le transport ; erreur ECC non corrigée masquée par un compteur absent | Préférences communes avec surcharge explicite ; une erreur observée reste bloquante | Fusion des options dans l’adaptateur commun |
-| En-tête Origin invalide | Test HTTP rouge : un Origin non ASCII atteignait la négociation de contenu | Refus explicite `403`, comme pour les origines interdites | Validation du transport avant traitement du protocole |
-| Propriété du fichier temporaire | Contrat de création atomique absent | Une collision de nom refuse le test et préserve le fichier existant | Le garde RAII n’acquiert le fichier qu’après sa création effective |
+| Domain and inventory contracts | 12 tests failing on unimplemented APIs | Unknown data has no score; blocking minimum; injected corruption detected; SMART interpreted as a bitmask; no invented SMBIOS maximum rate; safe identifiers | Domain separated from probes and persistence |
+| Real execution | Four new tests failing for disk and CPU | Synchronized file verified, cleanup preserving a sentinel, cancellation without success; RAM actually traversed; altered history rejected | Verification functions and RAII for files/memory |
+| Boot results | Two failing Windows import tests | Provider and age checked; error and interruption events preserved | Import isolated from the in-session test engine |
+| Presentation and comparison | Missing presentation module, failing tests | Missing information explicit, anomalies prioritized, protocol/machine warnings | Presentation functions independent of React |
+| MCP | Two failing tests before protocol and authentication support | Minimal permissions, denied mutations, required token, expiry, Origin and Host checks | Transport separated from application service |
+| System preferences | Failing test: default `light` theme, missing language | `system` theme, persisted language, validated values | Shared CLI/Tauri/UI preferences |
+| Partial SMART evidence | Failing test: hardware alert hidden by a transport error | Explicit alerts remain failures despite partial telemetry | Hardware observation takes precedence over transport availability |
+| UI workflow | Playwright could not click the native checkbox; previous result visible when starting a new test | Click target corrected, old state cleared at launch, two real diagnostics followed by comparison | Clearer application launch state |
+| Settings parity and partial ECC | Two new failing tests: RAM setting ignored by transport; uncorrected ECC hidden by an absent counter | Shared preferences with explicit overrides; observed errors remain blocking | Options merged in the shared adapter |
+| Invalid Origin header | Failing HTTP test: non-ASCII Origin reached content negotiation | Explicit `403`, as for forbidden origins | Transport validation before protocol processing |
+| Temporary file ownership | Atomic creation contract missing | Filename collision refuses the test and preserves the existing file | RAII guard acquires the file only after successful creation |
 
-## Vérifications
+## Checks
 
 ```bash
 cargo test --manifest-path native/Cargo.toml
@@ -28,26 +28,32 @@ npm run test:ui
 cargo check --manifest-path src-tauri/Cargo.toml
 ```
 
-Les tests d’intégration Node lancent réellement la CLI, vérifient les mesures, exportent et comparent les rapports et se connectent au MCP avec le SDK officiel en stdio et HTTP authentifié. Le test HTTP reste sur l’adresse locale et n’ouvre aucun tunnel.
+Node integration tests launch the real CLI, check measurements, export and compare reports, and connect to MCP through the official SDK over stdio and authenticated HTTP. HTTP tests stay on localhost and open no tunnel.
 
-`scripts/capture-ui.mjs` vérifie la sélection indépendante des trois composants, les modes RAM seule / RAM + stockage / complet, la progression, les rapports persistés et la comparaison. Chaque écran est capturé dans les deux thèmes. Les données de validation doivent être isolées avec `COMPUTY_DATA_DIR`.
+`scripts/capture-ui.mjs` checks independent selection of three components, RAM-only / RAM + storage / complete modes, progress, persisted reports and comparisons. Every screen is captured in both themes. Validation data must be isolated with `COMPUTY_DATA_DIR`.
 
-Les catalogues de langues font l’objet de vérifications de couverture, de préservation des variables, de sens de lecture et de libellés de résultat. Les essais de rendu sont complétés par des captures dans plusieurs langues et tailles de fenêtre.
+Language catalogs are checked for coverage, preserved placeholders, reading direction and result labels. Rendering checks include screenshots in multiple languages and window sizes.
 
-## Mise à jour 0.1.1
+## Update 0.1.1
 
-Un test de présentation rouge (fonctions absentes) a précédé la séparation entre résultat et informations indisponibles. Les contrats Linux ont d’abord échoué sur le module absent ; un test ultérieur a échoué sur l’absence de confirmation de préparation. Les validations couvrent ensuite le blocage firmware/GRUB, la confirmation avant redémarrage, et les écritures USB sans écrasement. Les algorithmes du composant GPL sont vérifiés par empreintes et réellement démarrés en VM BIOS/UEFI.
+A failing presentation test (missing functions) preceded separation of results from unavailable information. Linux contracts initially failed on a missing module; a later test failed on missing preparation consent. Validation then covered firmware/GRUB restrictions, reboot consent and USB writes without overwriting. GPL component algorithms are checked by hashes and actually booted in BIOS/UEFI VMs.
 
-## Mise à jour 0.1.2
+## Update 0.1.2
 
-Les contrats du moniteur ont échoué sur le module et les nouveaux champs de préférences absents avant leur implémentation. Ils vérifient ensuite les anciennes préférences, les pourcentages inconnus/invalides, deux prélèvements réels et le classement des dix premiers sans limiter l’instantané complet. Le rendu natif distingue une absence de mesure de 0 %.
+Monitor contracts failed on the missing module and preference fields before implementation. They then checked old preferences, unknown/invalid percentages, two real samples, and top-ten ranking without limiting the full snapshot. Native rendering distinguishes missing data from 0%.
 
-Le scénario Playwright exécute deux relances réelles, compare leurs paramètres et identifiants, puis vérifie la conservation de l’original, les cases indépendantes et les lignes cliquables. Les fixtures USB/Secure Boot concernent uniquement les capacités et les erreurs de transport ; aucune écriture USB ni préparation de démarrage n’est exécutée. La suite existante des 25 langues a détecté un formulaire remplacé par un ancien résultat ; l’état a été corrigé pour distinguer un lancement courant d’un rapport ancien. Les captures ont conduit à corriger le contraste des nouvelles cartes sombres.
+The Playwright scenario performs two actual reruns, compares parameters and identifiers, then verifies preservation of the original, independent checkboxes and clickable rows. USB/Secure Boot fixtures concern only capabilities and transport errors; no USB writes or boot scheduling are performed. The existing 25-language suite detected a form replaced by an old result; state was corrected to distinguish a current launch from a previous report. Screenshots led to contrast fixes for new dark-mode cards.
 
-Le contrôle des processus réels a ensuite détecté les TID Linux exposés par défaut par sysinfo comme des processus distincts. Un test rouge compare les PID au Tgid réel de `/proc`; la collecte désactive désormais les tâches pour éviter de répéter la mémoire et les E/S d’un même processus. Un autre cycle rouge/vert vérifie le cumul de VRAM d’un PID présent sur plusieurs GPU NVIDIA.
+Real-process checks then detected Linux TIDs exposed by sysinfo as distinct processes. A failing test compares PIDs with their actual `/proc` Tgid; collection now disables tasks to avoid repeating one process's memory and I/O. Another red/green cycle verifies VRAM aggregation for a PID present on multiple NVIDIA GPUs.
 
-## Mise à jour 0.1.3
+## Update 0.1.3
 
-Le contrat du style a d’abord échoué sur le champ `tray_style` absent ; la migration choisit maintenant `icon_text` et refuse un style inconnu. Les tests du rendu couvrent les trois styles, les seuils 65/90 % et l’absence de confusion entre valeur inconnue et zéro. Le protocole Linux est vérifié dans un vrai bus privé avec un watcher de test : plusieurs transitions Active/Passive conservent l’objet, les propriétés se lisent sur D-Bus et Activate ouvre le panneau. Le contrôle natif ajoute trois cycles RAM et deux cycles globaux, une activation DBusMenu et la récupération PNG de l’icône de l’application réelle. Le watcher et le fichier desktop de test ne fournissent aucune mesure matérielle simulée.
+The style contract initially failed on the absent `tray_style` field; migration now selects `icon_text` and rejects unknown styles. Rendering tests cover three styles, 65/90% thresholds and the distinction between unknown values and zero. The Linux protocol is checked on a real private bus with a test watcher: repeated Active/Passive transitions preserve the object, properties can be read over D-Bus, and Activate opens the panel. Native validation adds three RAM cycles and two global cycles, DBusMenu activation, and PNG resolution of the real application's icon. The watcher and test desktop file supply no simulated hardware measurements.
 
-Les captures Playwright vérifient les trois choix persistants, les panneaux RAM/CPU dans les deux thèmes, les liens avec icônes, le composant Panel du bloc de confidentialité et l’espace restant entre les éléments du menu latéral au survol.
+Playwright screenshots verify the three persisted choices, RAM/CPU panels in both themes, links with icons, the shared Panel component for the privacy block, and remaining spacing between hovered sidebar items.
+
+## Update 0.1.4
+
+The menu-generation test reproduced `grub_probe: parameter not set` in red using the real GRUB library: shell `set -u` interrupted normal optional-variable initialization. The generator now retains `set -e` without enabling `nounset`. Device setup is computed before any output so a failed probe cannot leave a partial entry.
+
+The check then passes with real Debian and Ubuntu libraries, the GRUB syntax validator, shared/separate `/boot` paths, and expected rejection cases. A failed probe produces no entry; custom defaults and the existing configuration are preserved. Tests run only in an isolated container without access to host disks. Native window closure is also checked with a real `WM_DELETE_WINDOW` event in Xvfb: the process and three indicators stay active, and the same window can be shown again. The final native test checks the visible application version against package metadata.

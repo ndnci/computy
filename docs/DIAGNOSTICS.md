@@ -1,54 +1,54 @@
-# Méthodologie
+# Diagnostic methodology
 
-Computy conserve les observations, leur source, leurs paramètres et leurs limites. Il ne transforme pas une donnée manquante en résultat positif et n’attribue pas une panne à une barrette précise sur la seule base d’une erreur mémoire.
+Computy preserves observations, their sources, parameters and limitations. It never turns missing information into a successful result or attributes a memory error to a particular module without supporting evidence.
 
-## Mémoire
+## Memory
 
-Le moteur Rust réserve une allocation bornée, tente `mlock` / `VirtualLock` et indique si le verrouillage a réussi. La taille demandée ne peut dépasser 2048 Mio, un tiers de la mémoire disponible ni un quart de la mémoire visible. Une demande excessive est refusée.
+The Rust engine reserves a bounded allocation, attempts `mlock` / `VirtualLock`, and reports whether locking succeeded. The requested size cannot exceed 2048 MiB, one third of available memory, or one quarter of visible memory. Excessive requests are rejected.
 
-Chaque passe applique cinq familles de motifs : adresses virtuelles, zéros/uns, damier, séquence pseudo-aléatoire déterministe et bit mobile selon l’index du mot. Pour chaque motif : remplissage, vérification croissante avec inversion, puis vérification décroissante avec restauration. Les lectures et écritures volatiles empêchent le compilateur d’éliminer les accès. Les divergences sont comptées ; le premier décalage, la valeur attendue et la valeur lue sont conservés.
+Each pass applies five pattern families: virtual addresses, zeros/ones, checkerboard, a deterministic pseudorandom sequence, and a moving bit based on the word index. Each pattern is filled, checked in ascending order while inverting, then checked in descending order while restoring. Volatile reads and writes prevent the compiler from eliminating accesses. Mismatches are counted; the first offset, expected value and observed value are preserved.
 
-Ce moteur est un contrôle en espace utilisateur. Il ne remappe pas toute la mémoire physique, ne désactive pas les caches, ne réalise pas un test Rowhammer et ne constitue pas une implémentation complète de Memtest86+. Sans verrouillage, des pages peuvent passer par le swap. Le motif de bits mobiles n’exerce pas les 64 positions de chaque mot pendant une seule passe.
+This is a userspace check. It does not remap all physical memory, disable caches, perform Rowhammer testing, or implement the complete Memtest86+ suite. Without locking, pages may be swapped out. The moving-bit pattern does not exercise all 64 positions of every word within a single pass.
 
-Les compteurs EDAC accessibles sous Linux sont des compteurs depuis le démarrage. Ils ne sont pas présentés comme des erreurs exclusivement causées par le diagnostic courant.
+Accessible Linux EDAC counters accumulate since boot. They are not presented as errors caused exclusively by the current diagnostic.
 
-Sources : [algorithmes et limites de Memtest86+](https://github.com/memtest86plus/memtest86plus#memory-testing-philosophy), [pannes intermittentes et durée de MemTest86](https://www.memtest86.com/tech_execution-time.html), [EDAC du noyau Linux](https://www.kernel.org/doc/html/latest/driver-api/edac.html).
+Sources: [Memtest86+ algorithms and limitations](https://github.com/memtest86plus/memtest86plus#memory-testing-philosophy), [intermittent failures and MemTest86 test duration](https://www.memtest86.com/tech_execution-time.html), [Linux kernel EDAC](https://www.kernel.org/doc/html/latest/driver-api/edac.html).
 
-## Stockage
+## Storage
 
-`smartctl --scan --json` énumère les périphériques, puis `--all --json --nocheck=standby,0` lit leur télémétrie sans réveiller volontairement un disque en veille. Les appels ont un délai maximal, n’utilisent pas de shell et sont limités à 16 périphériques. Un outil absent, un accès refusé ou un périphérique non exposé reste indisponible.
+`smartctl --scan --json` enumerates devices, then `--all --json --nocheck=standby,0` reads their telemetry without deliberately waking a standby drive. Calls have timeouts, use no shell, and are limited to 16 devices. Missing tools, denied access and unexposed devices remain unavailable.
 
-Le code de sortie de smartctl est un **masque de bits**. Les alertes d’état, erreurs de média NVMe, alertes critiques, secteurs ATA en attente/non corrigibles, secteurs réalloués et journaux historiques sont interprétés séparément. Une erreur de transport ne doit pas masquer une alerte matérielle explicite. Les valeurs brutes pertinentes restent dans le rapport.
+The smartctl exit code is a **bitmask**. Health alerts, NVMe media errors, critical warnings, pending/uncorrectable ATA sectors, reallocated sectors and historical logs are interpreted separately. A transport failure must not hide an explicit hardware alert. Relevant raw values remain in the report.
 
-Le contrôle de fichier crée un fichier unique avec `create_new`, écrit des blocs déterministes de 1 Mio différents selon leur index, appelle `sync_all`, ferme puis rouvre le fichier et compare chaque octet relu. Sous Linux, une éviction de cache est demandée à titre consultatif. Le fichier est supprimé sur réussite, erreur ou annulation ; un échec de suppression est signalé. Une réserve de 256 Mio d’espace libre est conservée.
+The file check creates a unique file with `create_new`, writes deterministic 1 MiB blocks that differ by index, calls `sync_all`, closes and reopens the file, then compares every byte read back. Linux receives an advisory cache eviction request. The file is deleted on success, error or cancellation; cleanup failures are reported. A 256 MiB free-space reserve is maintained.
 
-Le contrôle concerne le **volume des données de Computy**. Il ne parcourt pas tous les secteurs ni tous les disques et ne constitue pas un benchmark de débit. Les temps incluent génération de motifs, synchronisation et comparaison. Il ne lance pas un auto-test firmware SMART long et ne remplace pas un diagnostic constructeur. Aucune écriture brute, aucun formatage et aucun accès aux fichiers personnels ne sont nécessaires.
+This check covers the **volume containing Computy's data**. It does not scan all sectors or all drives and is not a throughput benchmark. Timing includes pattern generation, synchronization and comparison. It does not run a long SMART firmware self-test or replace a manufacturer's diagnostic. No raw writes, formatting or access to personal files is required.
 
-Source : [manuel officiel de smartctl](https://github.com/smartmontools/smartmontools/blob/master/smartmontools/smartctl.8.in).
+Source: [official smartctl manual](https://github.com/smartmontools/smartmontools/blob/master/smartmontools/smartctl.8.in).
 
-## Processeur et capteurs
+## CPU and sensors
 
-Jusqu’à quatre threads calculent le SHA-256 d’un million de caractères `a` et une somme entière de 0 à 9999. Chaque réponse est comparée à une valeur fixe connue ; le nombre de calculs terminés et les divergences sont enregistrés. La durée est bornée de 1 à 60 secondes. Cela n’exerce pas toutes les instructions, le GPU, ni la stabilité thermique prolongée.
+Up to four threads calculate SHA-256 for one million `a` characters and an integer sum from 0 to 9999. Each answer is compared with a fixed known value; completed calculations and mismatches are recorded. Duration is bounded to 1–60 seconds. This does not exercise all instructions, the GPU, or prolonged thermal stability.
 
-Les températures sont des relevés ponctuels des capteurs exposés par le système. Une température ou un seuil critique absent n’est pas estimé.
+Temperatures are point-in-time readings from sensors exposed by the operating system. Missing temperatures or critical thresholds are not estimated.
 
-## Inventaire et remplacement
+## Inventory and replacement
 
-Linux lit sysinfo et SMBIOS via dmidecode lorsqu’il est accessible. Windows lit les classes CIM de mémoire ; macOS utilise system_profiler. Les capacités maximales sont des **déclarations du firmware**, à confirmer avec le fabricant. `MaxCapacity` et `MaxCapacityEx` Windows sont convertis depuis les Kio.
+Linux uses sysinfo and SMBIOS through dmidecode when accessible. Windows reads memory CIM classes; macOS uses system_profiler. Maximum capacities are **firmware declarations** that should be confirmed with the manufacturer. Windows `MaxCapacity` and `MaxCapacityEx` are converted from KiB.
 
-Le débit nominal d’une barrette et son débit configuré ne prouvent pas le débit maximal de la plateforme. Celui-ci dépend aussi du CPU, de la carte mère et du firmware. Les débits DDR sont affichés en MT/s. Un format DIMM/SODIMM suggère un module remplaçable ; l’accès physique doit être confirmé dans le manuel. Un format inconnu reste inconnu. Apple Silicon utilise une mémoire intégrée non remplaçable.
+A module's rated and configured transfer rates do not establish the platform's maximum supported rate. That also depends on the CPU, motherboard and firmware. DDR transfer rates are shown in MT/s. A DIMM/SODIMM form factor suggests a replaceable module; physical access must be confirmed in the manual. Unknown form factors remain unknown. Apple Silicon uses integrated, non-replaceable memory.
 
-Sources : [Win32_PhysicalMemory](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory), [Win32_PhysicalMemoryArray](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemoryarray), [Apple Diagnostics](https://support.apple.com/fr-fr/102550).
+Sources: [Win32_PhysicalMemory](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory), [Win32_PhysicalMemoryArray](https://learn.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemoryarray), [Apple Diagnostics](https://support.apple.com/102550).
 
-## Notes, couverture et historique
+## Scores, coverage and history
 
-| Observation | Note du contrôle |
+| Observation | Check score |
 |---|---:|
-| Aucun défaut observé par le contrôle effectué | 10 |
-| Avertissement exploitable : usure ou historique à examiner | 5 |
-| Divergence ou alerte matérielle détectée | 0 |
-| Indisponible, non exécuté ou interrompu | Aucune |
+| No fault observed by the completed check | 10 |
+| Actionable warning: wear or history needs review | 5 |
+| Mismatch or hardware alert detected | 0 |
+| Unavailable, not run, or interrupted | None |
 
-Le résumé utilise la note la plus basse des contrôles exploitables. Une anomalie ne peut pas être diluée dans une moyenne. Les contrôles indisponibles réduisent la couverture et produisent un bilan à compléter. Un diagnostic interrompu n’a pas de note globale positive. **La couverture est un nombre de contrôles exploitables, pas un pourcentage de RAM ou de secteurs physiquement certifiés.**
+The summary uses the lowest score among usable checks. An anomaly cannot be diluted by averaging. Unavailable checks reduce coverage and produce an incomplete assessment. An interrupted diagnostic receives no positive overall score. **Coverage counts usable checks; it is not a percentage of physically certified RAM or sectors.**
 
-La comparaison conserve les instantanés et avertit si les machines, sources, paramètres ou conditions diffèrent. Une augmentation de capacité ou de vitesse n’est pas une preuve de meilleure santé. Les rapports Windows au démarrage ont une source distincte ; l’allocation et la durée inconnues ne sont pas inventées.
+Comparisons preserve snapshots and warn when machines, sources, parameters or conditions differ. Higher capacity or speed is not evidence of better health. Windows preboot reports have a separate source; unknown allocation sizes and durations are never invented.

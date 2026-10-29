@@ -1,4 +1,5 @@
 {
+  "version": "0.1.4",
   "native": "Tauri / WebKitGTK",
   "actual_diagnostic": true,
   "actual_tray_registrations": true,
@@ -11,6 +12,8 @@
   "custom_popover": true,
   "quit_without_indicators_exits": true,
   "actual_process_telemetry": true,
+  "native_window_close_keeps_monitoring": true,
+  "reopening_keeps_same_process": true,
   "themes": [
     "light",
     "dark"

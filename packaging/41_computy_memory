@@ -1,6 +1,8 @@
 #!/bin/sh
 # Own entry only. Never change GRUB_DEFAULT, firmware settings or another entry.
-set -eu
+# grub-mkconfig_lib intentionally initializes unset optional variables. Keep its
+# normal shell semantics: nounset (-u) breaks supported Debian/Ubuntu versions.
+set -e
 # Do not introduce a new entry if an administrator uses a numeric/nonstandard
 # default which adding a menu entry could shift. Preserve an existing entry on upgrades.
 for config in /etc/default/grub /etc/default/grub.d/*.cfg; do
@@ -16,6 +18,9 @@ image=/boot/computy-memory.efi
 [ -n "${GRUB_DEVICE_BOOT:-}" ] || exit 0
 relative=$(make_system_path_relative_to_its_root "$image")
 case "$relative" in /computy-memory.efi|/boot/computy-memory.efi) ;; *) exit 0 ;; esac
+# Generate the device setup before writing any entry. A failing probe must not
+# leave half a menuentry in grub.cfg.new.
+device_config=$(prepare_grub_to_access_device "$GRUB_DEVICE_BOOT")
 printf "menuentry 'Computy - Memory test before system startup' --class computy --id 'computy-memory-test' {\n"
-prepare_grub_to_access_device "$GRUB_DEVICE_BOOT"
+printf '%s\n' "$device_config"
 printf '  load_video\n  set gfxpayload=keep\n  linux %s nopause dark\n}\n' "$relative"

@@ -1,71 +1,71 @@
-# Sécurité et accès aux agents
+# Security and agent access
 
-## Frontière d’accès
+## Access boundary
 
-Tauri charge les fichiers locaux de l’application. Le rendu n’a ni Node.js, ni commande shell, ni accès générique aux fichiers. Les commandes Rust acceptent des méthodes connues et des paramètres bornés. La politique CSP de production limite scripts, ressources et communications à l’application et à son IPC. Les liens externes passent par une liste de domaines HTTPS et s’ouvrent dans le navigateur système.
+Tauri loads local application assets. The renderer has no Node.js, shell commands or generic filesystem access. Rust commands accept known methods and bounded parameters. The production CSP restricts scripts, resources and communication to the application and its IPC. External links pass through an HTTPS domain allowlist and open in the system browser.
 
-Les sondes OS exécutent uniquement des programmes et arguments définis par le code. Aucun argument utilisateur n’est interpolé dans PowerShell ou un shell. Les sous-processus de sondage ont des délais et une sortie limitée.
+OS probes execute only programs and arguments defined in code. User arguments are never interpolated into PowerShell or a shell. Probe subprocesses have timeouts and bounded output.
 
-L’aperçu web est un outil de développement, lié à localhost. Son adaptateur exige POST JSON, un en-tête applicatif et une origine de même hôte. Il n’est pas un serveur de production ni le transport MCP.
+The web preview is a development tool bound to localhost. Its adapter requires JSON POST, an application header and a same-host origin. It is neither a production server nor the MCP transport.
 
 ## MCP stdio
 
-Le client lance la CLI localement et échange des messages JSON-RPC délimités par des lignes. `stdout` ne contient que le protocole ; les journaux vont sur `stderr`. Chaque requête est limitée à 64 Kio.
+The client starts the CLI locally and exchanges newline-delimited JSON-RPC messages. `stdout` contains only protocol output; logs go to `stderr`. Requests are limited to 64 KiB each.
 
-Les permissions sont choisies par le propriétaire au lancement du processus :
+The owner selects permissions when starting the process:
 
-| Mode | Outils |
+| Mode | Tools |
 |---|---|
-| Par défaut | Inventaire, historique paginé, lecture/export d’un rapport, comparaison, progression, lecture des préférences et de l’attente Windows |
-| `--allow-diagnostics` | Ajouter lancement et annulation de contrôles bornés |
-| `--allow-history-write` | Ajouter renommage/suppression, préférences et import d’un événement Windows réel |
+| Default | Inventory, paginated history, report reading/export, comparisons, progress, preferences and pending Windows result status |
+| `--allow-diagnostics` | Additionally start and cancel bounded checks |
+| `--allow-history-write` | Additionally rename/delete reports, change preferences and import an actual Windows event |
 
-Les outils non autorisés ne sont pas listés et leur invocation directe est refusée. Les outils n’exposent ni shell, ni chemin d’écriture libre, ni redémarrage, ni formatage. Les résultats, noms de périphériques et libellés de rapports sont des **données non fiables**, jamais des instructions pour l’agent.
+Unauthorized tools are omitted from discovery and rejected on direct invocation. Tools expose no shell, arbitrary output paths, rebooting or formatting. Results, device names and report labels are **untrusted data**, never instructions for an agent.
 
-## HTTP temporaire
+## Temporary HTTP
 
-- Adresse imposée : **127.0.0.1**, jamais `0.0.0.0`.
-- Jeton aléatoire de 256 bits, créé pour ce processus, comparaison en temps constant.
-- Fichier de jeton créé sans écrasement ; permissions Unix `0600`. Sous Windows, utiliser un répertoire privé de l’utilisateur et ses ACL.
-- Durée de 60 à 3600 secondes, mesurée avec une horloge monotone ; 900 secondes par défaut.
-- Jeton transmis uniquement dans `Authorization: Bearer …`, jamais dans l’URL ou le contenu d’un rapport.
-- Hôte local attendu et origine vérifiés. Les origines de navigateur sont refusées sauf autorisation HTTPS exacte.
-- Corps limité à 64 Kio et 5 secondes de lecture ; au plus 8 traitements simultanés et 120 requêtes authentifiées par minute.
-- JSON-RPC par POST ; notifications acceptées sans réponse de protocole, réponse HTTP 202. GET retourne 405 car ce serveur n’offre pas de flux SSE.
-- Le suivi des tâches passe par un identifiant de diagnostic ; les tâches sont attachées au processus serveur qui les a lancées.
+- Required bind address: **127.0.0.1**, never `0.0.0.0`.
+- Random 256-bit token generated for this process, compared in constant time.
+- Token file created without overwriting; Unix permissions `0600`. On Windows, use a private user directory with appropriate ACLs.
+- Lifetime of 60–3600 seconds measured with a monotonic clock; default 900 seconds.
+- Token sent only in `Authorization: Bearer …`, never in a URL or report body.
+- Expected local Host and Origin checked. Browser origins are rejected unless an exact HTTPS origin is allowed.
+- Request body limited to 64 KiB and five seconds of reading; at most eight concurrent handlers and 120 authenticated requests per minute.
+- JSON-RPC over POST; notifications receive HTTP 202 without a protocol response. GET returns 405 because this server provides no SSE stream.
+- Tasks are tracked by diagnostic identifier and belong to the server process that started them.
 
-Arrêter normalement la CLI ou attendre l’expiration révoque l’accès, annule le diagnostic encore actif et supprime le fichier de jeton. Après une interruption brutale du processus, un fichier peut subsister, mais son jeton ne donne accès à aucun nouveau processus : chaque lancement génère un nouveau secret.
+Normal CLI shutdown or expiration revokes access, cancels any active diagnostic, and removes the token file. After abrupt termination, a file may remain, but its token cannot access another process: each launch generates a new secret.
 
 ## Tunnel
 
-`--cloudflare-tunnel` est un choix explicite. Computy utilise uniquement un `cloudflared` déjà installé, sans téléchargement automatique, création de compte ou stockage d’identifiants Cloudflare. Le sous-processus reçoit une URL locale fixe et un en-tête Host local. Son arrêt est lié à la durée de vie du serveur.
+`--cloudflare-tunnel` is an explicit choice. Computy uses an already installed `cloudflared`; it does not download it, create accounts or store Cloudflare credentials. The subprocess receives a fixed local URL and local Host header. Its lifetime is tied to the server.
 
-Une URL publique n’est pas une autorisation. Le jeton reste obligatoire à travers le tunnel. Transmettre le jeton au client distant par un canal approprié, avec les permissions minimales nécessaires, puis arrêter le serveur après usage.
+A public URL does not grant authorization. The token remains mandatory through the tunnel. Send it to the remote client through an appropriate channel with the minimum necessary permissions, then stop the server after use.
 
-Ce transport personnel utilise un jeton Bearer prépartagé ; il ne fournit pas OAuth. Pour un service permanent ou plusieurs utilisateurs, ajouter une passerelle d’identité/OAuth et un tunnel géré. Les Quick Tunnels sont destinés aux usages temporaires, sans garantie de disponibilité. Aucune ouverture publique n’est nécessaire aux tests du projet.
+This personal transport uses a preshared Bearer token; it does not provide OAuth. Permanent or multi-user services need an identity/OAuth gateway and a managed tunnel. Quick Tunnels are for temporary use and have no availability guarantee. Project tests require no public endpoint.
 
-Références : [transports MCP](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports), [autorisation MCP](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization), [bonnes pratiques MCP](https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices), [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/).
+References: [MCP transports](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports), [MCP authorization](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization), [MCP security best practices](https://modelcontextprotocol.io/docs/2025-11-25/tutorials/security/security_best_practices), [Cloudflare Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/).
 
-## Données et ressources
+## Data and resources
 
-Les identifiants de rapport n’acceptent que chiffres et tirets. Les fichiers trop volumineux, symlinks et empreintes invalides sont refusés à la lecture. L’écriture passe par un fichier temporaire unique, une synchronisation et un remplacement atomique. Une empreinte SHA-256 détecte les altérations accidentelles ; elle ne protège pas contre un attaquant possédant les droits de l’utilisateur et pouvant recalculer cette empreinte.
+Report identifiers accept only digits and hyphens. Oversized files, symlinks and invalid digests are rejected on read. Writes use a unique temporary file, synchronization and atomic replacement. SHA-256 detects accidental alteration; it does not protect against an attacker with the user's permissions who can recompute the digest.
 
-Les diagnostics ont des limites d’allocation et de durée. Un verrou de fichier empêche les interfaces partageant le même répertoire de données de lancer simultanément plusieurs diagnostics. Des répertoires volontairement distincts ne partagent pas ce verrou. Aucun test n’est lancé automatiquement à l’ouverture ni par le serveur MCP en lecture seule.
+Diagnostics have allocation and duration limits. A file lock prevents interfaces sharing a data directory from running simultaneous diagnostics. Deliberately separate directories do not share that lock. No tests start automatically when opening the application or a read-only MCP server.
 
-## Parcours avant démarrage 0.1.1
+## Preboot workflow
 
-Les fonctions de préparation et de redémarrage appartiennent au parcours local explicite ; elles ne sont pas exposées au MCP. Sous Linux, le paquet installe un assistant Rust root et une politique PolicyKit `auth_admin`, sans conservation d’autorisation. L’assistant accepte uniquement `verify`, `schedule` et `cancel`, avec des chemins et commandes système fixes ; aucun chemin ni argument de commande libre n’est accepté.
+Preparation and rebooting belong to the explicit local workflow and are not exposed through MCP. On Linux, the package installs a privileged Rust helper and a PolicyKit `auth_admin` policy without retained authorization. The helper accepts only `verify`, `schedule` and `cancel`, with fixed paths and system commands; arbitrary paths and command arguments are rejected.
 
-Les programmes, configurations GRUB et états doivent appartenir à root et ne pas être modifiables par groupe/autres utilisateurs. Le helper verrouille l’état, refuse Secure Boot et les configurations GRUB non prises en charge, préserve toute autre sélection ponctuelle et ne confirme la préparation qu’après relecture. Un état non confirmé ne permet pas le redémarrage depuis Computy. Les métadonnées de préparation (UID, date, identifiant de démarrage) sont publiquement lisibles pour l’interface ; elles ne contiennent ni secret ni résultat RAM.
+Programs, GRUB configurations and state must be owned by root and not writable by group or others. The helper locks state, rejects Secure Boot and unsupported GRUB configurations, preserves other one-time selections, and confirms preparation only after reading it back. Unconfirmed state cannot enable rebooting from Computy. Preparation metadata (UID, timestamp, boot identifier) is publicly readable for the interface; it contains neither secrets nor RAM results.
 
-Le paquet ajoute sa propre entrée et son moteur dans `/boot` via le gestionnaire de paquets ; il ne change pas `GRUB_DEFAULT`, les clés du firmware, les partitions ou le chargeur de démarrage installé. La préparation change seulement `next_entry` via les outils GRUB standard. Le script de retrait ne supprime cette sélection que si elle désigne exactement Computy. La programmation réelle reste à valider sur une machine de test compatible ; les essais de développement n’altèrent pas le démarrage de l’hôte.
+The package manager adds Computy's own entry and engine under `/boot`; it does not change `GRUB_DEFAULT`, firmware keys, partitions or the installed bootloader. Scheduling changes only `next_entry` through standard GRUB tools. Removal clears that selection only if it refers exactly to Computy. Actual scheduling still needs validation on a compatible test machine; development checks do not alter the host's boot configuration.
 
-La préparation USB s’exécute avec les droits de l’utilisateur, après sélection et confirmation. Elle revalide les volumes montés, USB et FAT32, exclut le disque contenant les points de montage système, refuse les liens symboliques de destination et crée le chargeur sans écrasement. Aucun formatage ni accès en écriture à un périphérique brut n’est disponible.
+USB preparation runs with user permissions after selection and confirmation. It revalidates mounted USB FAT32 volumes, excludes disks containing system mount points, rejects destination symlinks, and creates the loader without overwriting. Formatting and raw device writes are not available.
 
-## Moniteur et processus
+## Monitoring and processes
 
-Le moniteur utilise les droits de l’utilisateur courant. Les commandes GPU ont des paramètres fixes, aucun shell ni élévation, un délai maximal et une sortie bornée. Les noms/PID sont des données non fiables, jamais des instructions ; arguments et environnements ne sont pas collectés. Les noms sont échappés par React et nettoyés pour les menus natifs. Le moniteur est désactivable et n’exécute aucun test de charge. Le nouvel outil MCP `computy_monitor` est en lecture seule ; il expose les mesures et la liste des processus accessibles au compte exécutant Computy, y compris leurs noms, aux clients déjà autorisés.
+Monitoring uses the current user's permissions. GPU commands use fixed arguments, no shell or elevation, timeouts and bounded output. Names/PIDs are untrusted data, never instructions; arguments and environments are not collected. React escapes names and native menus sanitize them. Monitoring can be disabled and runs no stress tests. The read-only MCP tool `computy_monitor` exposes measurements and the process list accessible to Computy's account, including names, to already authorized clients.
 
-## Panneau des indicateurs
+## Indicator panel
 
-Le panneau utilise les assets locaux de Computy et le même CSP. Son accès à `engine_call` est limité à la télémétrie et aux préférences en lecture. Ses actions ont des destinations fixes ; les noms de processus restent du texte échappé. Les icônes sont résolues à partir de PID locaux, avec 32 PID par requête, un cache borné et des PNG limités en taille ; le client ne fournit aucun chemin. Les chemins d’exécutables servant à la résolution ne sont pas envoyés à la CLI ou au MCP. Le service StatusNotifier/DBusMenu est limité au bus de session de l’utilisateur ; aucun port réseau n’est ouvert. Les tests du watcher s’exécutent dans un bus privé isolé.
+The panel uses local Computy assets and the same CSP. Its `engine_call` access is limited to telemetry and read-only preferences. Actions have fixed destinations; process names remain escaped text. Icons are resolved from local PIDs with 32 PIDs per request, a bounded cache and size-limited PNGs; the client supplies no paths. Executable paths used for resolution are not sent to CLI or MCP clients. StatusNotifier/DBusMenu is restricted to the user's session bus; no network port is opened. Watcher tests run in an isolated private bus.

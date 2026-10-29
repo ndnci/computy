@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 const root = await mkdtemp(path.join(tmpdir(), 'computy-desktop-'));
 const destination = 'docs/screenshots';
+const expectedVersion = JSON.parse(await readFile('package.json', 'utf8')).version;
 await mkdir(destination, { recursive: true });
 await writeFile(
   path.join(root, 'preferences.state'),
@@ -68,6 +69,12 @@ async function click(text) {
 }
 async function capture(name) {
   await execute('window.scrollTo(0,0)');
+  // WebKit may expose updated DOM before its native screenshot surface is painted.
+  await request('POST', `/session/${session}/execute/async`, {
+    script:
+      'const done=arguments[arguments.length-1];requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(done,150)));',
+    args: [],
+  });
   const png = await request('GET', `/session/${session}/screenshot`);
   await writeFile(`${destination}/native-linux-${name}.png`, Buffer.from(png, 'base64'));
 }
@@ -100,6 +107,11 @@ try {
   session = created.sessionId;
   assert.ok(session);
   await until("return document.body.innerText.includes('Moteur Rust connecté')");
+  assert.equal(
+    await execute("return document.querySelector('.main-footer b')?.textContent"),
+    expectedVersion,
+    'The packaged interface must display the current application version',
+  );
   assert.equal(await execute('return typeof window.__TAURI_INTERNALS__?.invoke'), 'function');
   await request('POST', `/session/${session}/window/rect`, { width: 1440, height: 1000 });
   await execute(
@@ -194,6 +206,26 @@ try {
   const state = await trayCount(3);
   const memory = state.items.find((item) => item.id === 'computy-memory');
   const menuPath = memory.path + '/Menu';
+  await exec('python3', ['scripts/close-test-window.py', String(appProcess.pid)], {
+    env: { ...process.env, COMPUTY_TEST_X11: '1' },
+  });
+  for (let n = 0; n < 30; n++) {
+    if (!(await native('plugin:window|is_visible', { label: 'main' }))) break;
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.equal(await native('plugin:window|is_visible', { label: 'main' }), false);
+  process.kill(appProcess.pid, 0);
+  await trayCount(3);
+  assert.ok(
+    (
+      await dbus(memory, 'org.freedesktop.DBus.Properties.Get', [
+        'org.kde.StatusNotifierItem',
+        'Status',
+      ])
+    ).includes('Active'),
+  );
+  await native('monitor_panel_action', { destination: 'overview' });
+  assert.equal(await native('plugin:window|is_visible', { label: 'main' }), true);
   const layout = (
     await exec('gdbus', [
       'call',
@@ -315,6 +347,7 @@ try {
   }
   assert.ok(exited, 'quitting with indicators disabled must exit the app');
   const result = {
+    version: expectedVersion,
     native: 'Tauri / WebKitGTK',
     actual_diagnostic: true,
     actual_tray_registrations: true,
@@ -327,6 +360,8 @@ try {
     custom_popover: true,
     quit_without_indicators_exits: true,
     actual_process_telemetry: true,
+    native_window_close_keeps_monitoring: true,
+    reopening_keeps_same_process: true,
     themes: ['light', 'dark'],
     errors: [],
   };

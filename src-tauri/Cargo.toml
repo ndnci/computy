@@ -1,6 +1,6 @@
 [package]
 name = "computy"
-version = "0.1.3"
+version = "0.1.4"
 description = "Votre matériel, en clair."
 authors = ["NDNCI"]
 edition = "2024"

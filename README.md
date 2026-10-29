@@ -1,299 +1,301 @@
-<p align="center"><img src="public/computy-logo.png" width="120" alt="Logo Computy" /></p>
+<p align="center"><img src="public/computy-logo.png" width="120" alt="Computy logo" /></p>
 
 # Computy
 
-**Votre matériel, en clair.** Une application de bureau **Rust + Tauri**, une **CLI native** et un **serveur MCP** pour comprendre, vérifier et suivre son ordinateur.
+**Understand your hardware.** A **Rust + Tauri** desktop application, **native CLI** and **MCP server** for inspecting, testing and tracking your computer.
 
-Une création **[NDNCI](https://www.ndnci.com)**. Aucun compte, aucune télémétrie. L’historique reste sur votre machine.
+Created by **[NDNCI](https://www.ndnci.com)**. No account or usage tracking. Your history stays on your machine.
 
-![Computy : présentation en clair et sombre](docs/screenshots/presentation-overview-with-history.png)
+![Computy in light and dark mode](docs/screenshots/presentation-overview-with-history.png)
 
-## Ce que Computy permet
+## Features
 
-- **Choisir ses contrôles avec des cases à cocher** : RAM seule, stockage seul, RAM + stockage, processeur ou bilan complet.
-- Lire l’inventaire réel : mémoire visible, modules et capacité maximale déclarés par le firmware, débits configurés, format et remplacement à confirmer, processeur, volumes et capteurs exposés.
-- Vérifier la RAM avec plusieurs motifs et inversions, analyser les données **SMART/NVMe** accessibles, relire un fichier temporaire synchronisé et vérifier des calculs CPU.
-- Suivre la progression réelle, interrompre un diagnostic et conserver ses résultats partiels.
-- Conserver un instantané du matériel pour chaque bilan, le renommer, l’exporter en JSON et comparer **2 à 4 bilans**.
-- **Relancer un bilan** depuis sa ligne ou son rapport : les mêmes paramètres produisent un nouveau diagnostic, et l’original reste conservé. Toute la ligne ouvre le rapport ; les cases et actions restent indépendantes. Un rapport Windows avant démarrage rouvre l’assistant et demande une nouvelle confirmation.
-- Suivre RAM/CPU/GPU dans des **indicateurs de la barre système**, activés par défaut et configurables, avec des volumes au choix. Un clic montre les **10 premiers processus**, et **Voir tout** ouvre la liste complète avec recherche et tri. Les valeurs absentes restent explicites. [Fonctionnement et limites du moniteur](docs/MONITORING.md).
-- Utiliser le thème **système par défaut**, ou choisir **clair/sombre** ; choisir parmi **25 langues**, avec formats locaux et sens de lecture adapté.
-- Retrouver les mêmes contrôles, rapports, préférences et comparaisons depuis le terminal ou un agent MCP.
+- **Choose checks with independent checkboxes**: RAM, storage, RAM + storage, CPU, or a complete assessment.
+- Read real hardware information: visible memory, firmware-reported modules and maximum capacity, configured transfer rates, form factor and replacement hints, CPU, volumes and available sensors.
+- Test RAM using multiple patterns and inversions, inspect available **SMART/NVMe** data, verify a synchronized temporary file, and check CPU calculations against known answers.
+- Follow actual progress, cancel diagnostics, and preserve partial results.
+- Keep a hardware snapshot for each report, rename it, export JSON, and compare **2–4 reports**.
+- **Rerun a diagnostic** from its history row or report. The same settings create a new diagnostic while preserving the original. The whole row opens the report; checkboxes and actions work independently. Rerunning a Windows preboot report opens the wizard and requires fresh confirmation.
+- Monitor RAM/CPU/GPU through configurable **system tray indicators**, enabled by default, with optional volume indicators. Open the **top 10 processes**, then **View all** for the complete searchable, sortable list. Missing measurements remain explicit. See [monitoring behavior and limits](docs/MONITORING.md).
+- Follow the **system theme by default**, or choose **light/dark**. Select from **25 languages**, with localized formatting and appropriate text direction.
+- Use the same checks, reports, preferences and comparisons from the terminal or an MCP agent.
 
-**Un résultat sans erreur signifie qu’aucune erreur n’a été observée dans les conditions du test. Il ne certifie pas l’absence de panne.** Computy affiche les données absentes et la portée de chaque contrôle. La note sur 10 résume les contrôles exploitables ; elle n’est pas une probabilité de bonne santé.
+**An error-free result means no error was observed under the test conditions. It does not certify fault-free hardware.** Computy shows missing information and the scope of each check. Its score out of 10 summarizes usable checks; it is not a probability of good health.
 
-## Démarrer
+## Getting started
 
-### Tester immédiatement sur le PC Linux de développement
+### Try the existing Linux development build
 
-Les binaires ont déjà été compilés dans `release/`. Depuis la racine du projet :
+When local binaries have already been built in `release/`, run these commands from the repository root:
 
 ```bash
-# Ouvrir l’application native, sans compilation ni Docker
+# Open the native application without compiling or running Docker
 ./release/computy
 
-# Ou lancer un diagnostic léger RAM + stockage dans le terminal
+# Or run a quick RAM + storage diagnostic in the terminal
 ./release/computy-cli diagnose --profile quick --components memory,storage
 ```
 
-Dans l’application, ouvrir **Diagnostics**, cocher les composants souhaités, choisir **Premier regard**, puis **Lancer le diagnostic**. L’historique conserve automatiquement le rapport.
+In the application, open **Diagnostics**, select components, choose the quick profile, and start the diagnostic. The report is saved automatically in history.
 
-Sur Ubuntu/Debian, l’installation facultative du paquet ajoute aussi Computy au menu des applications :
+On Ubuntu/Debian, installing the package also adds Computy to the applications menu:
 
 ```bash
-sudo apt install ./release/Computy_0.1.3_amd64.deb
+sudo apt install ./release/Computy_0.1.4_amd64.deb
 ```
 
-Les bibliothèques d’exécution sont déjà présentes sur le PC de développement vérifié. Les binaires de `release/` sont des artefacts locaux exclus de Git ; après un nouveau clonage, les reconstruire avec les commandes ci-dessous.
+Runtime libraries are present on the development PC used for validation. Files in `release/` are local build artifacts excluded from Git; after cloning the repository, build them using the commands below.
 
-### Application de bureau
+### Desktop application
 
-Prérequis : Node.js 22+, Rust stable (1.95+), et les [dépendances système Tauri](https://v2.tauri.app/start/prerequisites/). Linux utilise WebKitGTK, macOS WKWebView et Windows WebView2. **Computy n’embarque pas Chromium.**
+Requirements: Node.js 22+, stable Rust (1.95+), and the [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/). Linux uses WebKitGTK, macOS uses WKWebView, and Windows uses WebView2. **Computy does not bundle Chromium.**
 
 ```bash
 npm ci
 npm run desktop
 ```
 
-Créer le paquet natif de la plateforme courante :
+Build a native package for the current platform:
 
 ```bash
 npm run package
 ```
 
-Les paquets sont produits dans `src-tauri/target/release/bundle/`. Windows et macOS se compilent sur leurs systèmes respectifs ; le workflow pour les trois plateformes est conservé dans `.github/workflows/checks.yml.disabled` et les actions automatiques sont désactivées pour le moment. Les versions ne sont pas signées ni notariées à ce stade.
+Packages are written to `src-tauri/target/release/bundle/`. Build Windows and macOS packages on their respective operating systems. The three-platform workflow is preserved in `.github/workflows/checks.yml.disabled`; automatic GitHub Actions are currently disabled. Releases are not signed or notarized yet.
 
-Le paquet Linux validé localement se trouve dans [`release/Computy_0.1.3_amd64.deb`](release/Computy_0.1.3_amd64.deb), avec le binaire de bureau et la CLI dans `release/`. Ce répertoire de compilation est exclu de Git. Taille du paquet : environ **7,6 Mio**.
+The locally validated Linux package is [`release/Computy_0.1.4_amd64.deb`](release/Computy_0.1.4_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
 
-### Développer et vérifier avec Docker
+### Develop and validate with Docker
 
-Docker fournit Rust et les dépendances Linux de Tauri, sans installation du compilateur sur l’hôte.
+Docker provides Rust and the Linux Tauri dependencies without installing a compiler on the host.
 
 ```bash
-# Vérifications du moteur, de l’interface et de l’intégration Tauri
+# Engine, frontend and Tauri integration checks
 docker compose run --build --rm verify
 
-# Aperçu de développement sur http://127.0.0.1:1420
+# Development preview at http://127.0.0.1:1420
 docker compose up --build dev
 
-# Paquet Linux .deb, copié dans ./release
+# Linux .deb package, copied into ./release
 docker compose run --build --rm desktop-build
 ```
 
-**Un conteneur expose son environnement d’exécution.** L’aperçu Docker sert au développement ; il ne doit pas être interprété comme un inventaire complet de l’hôte. Pour diagnostiquer son PC, exécuter le binaire natif sur ce PC. Aucune option `--privileged` n’est demandée.
+**A container reports its own runtime environment.** The Docker preview is a development tool and does not provide a complete hardware inventory of the host. Run the native binary on the computer you want to diagnose. No `--privileged` option is required.
 
-### CLI sans interface
+### Headless CLI
 
 ```bash
 cargo build --release --manifest-path native/Cargo.toml
 ./native/target/release/computy-cli --help
 
-# Inventaire complet en JSON
+# Full inventory as JSON
 ./native/target/release/computy-cli --json inventory
 
-# RAM seule
+# RAM only
 ./native/target/release/computy-cli diagnose --components memory --memory-mib 256 --passes 2
 
-# RAM + stockage
-./native/target/release/computy-cli diagnose --components memory,storage --label "Avant remplacement"
+# RAM + storage
+./native/target/release/computy-cli diagnose --components memory,storage --label "Before replacement"
 
-# Bilan complet, profil léger
-./native/target/release/computy-cli --json diagnose --profile quick --label "Après remplacement"
+# Complete assessment, quick profile
+./native/target/release/computy-cli --json diagnose --profile quick --label "After replacement"
 
 ./native/target/release/computy-cli history
-./native/target/release/computy-cli --json compare ID_AVANT ID_APRES
-./native/target/release/computy-cli export ID --output rapport.json
-./native/target/release/computy-cli rename ID "RAM après remplacement"
-./native/target/release/computy-cli settings set --theme system --language fr
+./native/target/release/computy-cli --json compare BEFORE_ID AFTER_ID
+./native/target/release/computy-cli export ID --output report.json
+./native/target/release/computy-cli rename ID "RAM after replacement"
+./native/target/release/computy-cli settings set --theme system --language en
 
-# Ouverture de l’application installée à la connexion (facultatif)
-./native/target/release/computy-cli startup enable --desktop-path /chemin/absolu/Computy
+# Open the installed application at login (optional)
+./native/target/release/computy-cli startup enable --desktop-path /absolute/path/to/Computy
 ```
 
-`Ctrl+C` interrompt proprement un diagnostic. La progression va sur `stderr`, les résultats JSON sur `stdout`. Codes de sortie : `0` terminé sans anomalie bloquante, `1` erreur de commande, `2` anomalie détectée, `3` aucun contrôle exploitable, `130` interrompu. Un code `0` peut accompagner une couverture partielle : examiner `summary.status`, `checked/total` et chaque contrôle.
+`Ctrl+C` cancels a diagnostic cleanly. Progress goes to `stderr`; JSON results go to `stdout`. Exit codes: `0` completed without a blocking anomaly, `1` command error, `2` anomaly detected, `3` no usable checks, `130` interrupted. Code `0` may still accompany partial coverage: inspect `summary.status`, `checked/total`, and individual checks.
 
-`--data-dir CHEMIN` permet d’isoler un historique. En version installée, la CLI et Tauri utilisent le répertoire de données de `com.ndnci.computy` pour l’utilisateur courant. Le mode développement utilise `.computy` ; passer `--data-dir .computy` à la CLI pour partager cet historique. `COMPUTY_DATA_DIR` configure également le répertoire du moteur en développement.
+Use `--data-dir PATH` to isolate history. Installed CLI and Tauri builds use the current user's `com.ndnci.computy` application data directory. Development mode uses `.computy`; pass `--data-dir .computy` to the CLI to share that history. `COMPUTY_DATA_DIR` also configures the development engine's data directory.
 
-## Agents IA et MCP
+## AI agents and MCP
 
-Les transports utilisent le même moteur Rust. **Lecture seule par défaut** ; pas de shell arbitraire, d’écriture sur périphérique brut ou de commande de redémarrage exposés aux agents.
+Both transports use the same Rust engine. **Read-only by default**; agents receive no arbitrary shell, raw device writes, or reboot commands.
 
-### En local : stdio
+### Local stdio
 
 ```json
 {
   "mcpServers": {
     "computy": {
-      "command": "/chemin/absolu/computy-cli",
+      "command": "/absolute/path/to/computy-cli",
       "args": ["mcp"]
     }
   }
 }
 ```
 
-Ajouter `--allow-diagnostics` pour autoriser le lancement et l’arrêt de tests bornés. Ajouter séparément `--allow-history-write` pour autoriser renommage, suppression, préférences et import d’un résultat Windows. Les outils indisponibles ne sont pas annoncés et les appels directs sont refusés.
+Add `--allow-diagnostics` to allow starting and cancelling bounded checks. Separately add `--allow-history-write` for renaming, deletion, preferences, and Windows result imports. Unauthorized tools are omitted from discovery and rejected on direct invocation.
 
-### Accès temporaire via HTTP et tunnel facultatif
+### Temporary HTTP access and an optional tunnel
 
 ```bash
-computy-cli mcp --http --port 8765 --ttl 900 --token-file /chemin/prive/computy.token
+computy-cli mcp --http --port 8765 --ttl 900 --token-file /private/path/computy.token
 
-# Si cloudflared est déjà installé : publication explicitement demandée
+# Explicitly publish a temporary endpoint if cloudflared is already installed
 computy-cli mcp --http --ttl 900 --cloudflare-tunnel
 ```
 
-Le serveur écoute exclusivement sur **127.0.0.1**, génère un jeton de 256 bits, l’écrit dans un fichier privé (`0600` sur Unix), vérifie chaque en-tête `Authorization: Bearer …` et expire après la durée choisie (60 à 3600 secondes). Le jeton n’est jamais placé dans l’URL. Les origines de navigateur sont refusées par défaut ; seules des origines HTTPS exactes peuvent être autorisées avec `--allow-origin`.
+The server listens exclusively on **127.0.0.1**, generates a 256-bit token, writes it to a private file (`0600` on Unix), validates each `Authorization: Bearer …` header, and expires after the selected duration (60–3600 seconds). Tokens never appear in URLs. Browser origins are denied by default; only exact HTTPS origins can be allowed with `--allow-origin`.
 
-Le tunnel transmet uniquement le port MCP et fixe l’en-tête Host local attendu. Il s’arrête avec le serveur lors d’un arrêt normal ou à l’expiration. **Aucun tunnel n’est ouvert automatiquement au démarrage de l’application.** Le client distant utilise l’URL HTTPS affichée par `cloudflared`, suivie de `/mcp`, et le jeton dans ses en-têtes.
+The tunnel forwards only the MCP port and sets the expected local Host header. It stops with the server on normal shutdown or expiration. **Opening Computy never opens a tunnel automatically.** The remote client uses the HTTPS URL printed by `cloudflared`, followed by `/mcp`, and sends the token in its headers.
 
-Ce mode vise les clients MCP capables de fournir un jeton Bearer explicite. Il ne fournit pas un serveur OAuth ni une intégration universelle aux clients exigeant OAuth. Les [Quick Tunnels Cloudflare](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/) sont destinés au développement et aux accès temporaires ; un déploiement durable doit utiliser une configuration gérée avec contrôle d’accès.
+This mode targets MCP clients that support an explicit Bearer token. It does not provide an OAuth server or universal compatibility with clients requiring OAuth. [Cloudflare Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/) are intended for development and temporary access; persistent deployments need a managed configuration with access controls.
 
-Voir [la sécurité MCP](docs/SECURITY.md) pour les limites, les permissions et la révocation.
+See [MCP security](docs/SECURITY.md) for limits, permissions and revocation.
 
-## Test de mémoire au démarrage
+## Preboot memory testing
 
-Le mode **Avant démarrage** est séparé des profils de session. L’assistant distingue **sans clé USB** et **avec clé USB**, vérifie la compatibilité et demande les accords avant préparation, écriture sur une clé et redémarrage. Le moteur intégré et ses sources GPL sont livrés avec Computy.
+**Before startup** is separate from in-session profiles. The wizard offers paths **with and without a USB drive**, checks compatibility, and asks for consent before preparation, USB writes and rebooting. The integrated engine and its GPL sources ship with Computy.
 
-Sous Linux x86-64 compatible, Computy peut préparer une sélection GRUB pour un seul démarrage, ou copier le moteur sur une clé FAT32 sans formatage ni écrasement d’un chargeur existant. Secure Boot actif bloque le binaire non approuvé ; Computy ne désactive pas la protection. Les résultats Linux autonomes ne sont pas importés automatiquement et ne reçoivent aucun score supposé.
+On supported Linux x86-64 systems, Computy can select a GRUB entry for one boot, or copy the engine onto a FAT32 USB drive without formatting it or overwriting an existing bootloader. Enabled Secure Boot blocks the unapproved binary; Computy does not disable that protection. Standalone Linux results are not imported automatically and receive no assumed score.
 
-Windows utilise le diagnostic mémoire système avec import d’un événement récent au retour. La réouverture à la connexion est proposée activée dans ce parcours. Le parcours Apple reste dépendant du modèle.
+Windows uses its system memory diagnostic and imports a recent result event after returning. Reopening Computy at login is enabled by default in that workflow. The Apple workflow remains model-dependent.
 
-Voir [le fonctionnement, les limites et les confirmations](docs/BOOT-DIAGNOSTICS.md).
+See [behavior, limits and confirmations](docs/BOOT-DIAGNOSTICS.md).
 
-### Mettre à jour une installation Ubuntu/Debian
+### Update an Ubuntu/Debian installation
 
-Quitter Computy depuis le menu d’un indicateur (**Quitter Computy**), puis depuis la racine du projet :
+Choose **Quit Computy** from an indicator's menu, then run these commands from the repository root:
 
 ```bash
-sudo apt install ./release/Computy_0.1.3_amd64.deb
+sudo apt install ./release/Computy_0.1.4_amd64.deb
 /usr/bin/computy
 ```
 
-Le nom de paquet reste `computy` : APT remplace la version précédente par la 0.1.3. L’historique et les préférences restent dans le même répertoire utilisateur. Le bouton du header **Actualiser les informations** relit le matériel et confirme le résultat par une notification ; il ne met pas à jour l’application. Une copie portable lancée avec `./release/computy` est distincte de l’installation APT : utiliser le menu des applications ou `/usr/bin/computy` pour tester le paquet installé.
+The package name remains `computy`: APT upgrades the existing installation to 0.1.4. History and preferences stay in the same user data directory. The header's **Refresh hardware info** action rereads hardware information and shows a notification; it does not update the application. A portable copy launched with `./release/computy` is separate from the APT installation: use the applications menu or `/usr/bin/computy` to test the installed package.
 
-## Aperçus de l’application
+**Closing the window keeps Computy running in the background while its indicators are present.** APT replaces the installed file, but an already running process keeps executing the previous version. Single-instance handling also sends subsequent launches to that process. Choose **Quit Computy**, then reopen the application to load the updated version without restarting your PC. Use `dpkg-query -W computy` to check the installed package version separately.
 
-### Moniteur et processus en direct
+## Screenshots
 
-Trois styles au choix : **icône + pourcentage** par défaut, **anneau**, ou **icône qui se remplit**. Bleu sous 65 %, jaune de 65 à 89 %, rouge à partir de 90 %. Les indicateurs restent enregistrés pendant leur désactivation pour permettre leur réactivation. Un panneau détaillé affiche le composant, les premiers processus avec leurs icônes disponibles et les actions. Sur les versions GNOME qui imposent le menu natif au premier clic, sa première entrée ou un double clic ouvre le panneau.
+### Live monitoring and processes
 
-| Clair | Sombre |
+Choose from three styles: **icon + percentage** by default, **ring**, or an **icon that fills up**. Blue below 65%, yellow from 65% to 89%, red from 90%. Indicators remain registered while disabled so they can be reactivated. A detailed panel shows the component, top processes with available application icons, and actions. On GNOME versions that force a native menu on the first click, its first entry or a double-click opens the panel.
+
+| Light | Dark |
 |---|---|
-| ![Styles des indicateurs en clair](docs/screenshots/tray-styles-light.png) | ![Styles des indicateurs en sombre](docs/screenshots/tray-styles-dark.png) |
-| ![Panneau RAM en clair](docs/screenshots/tray-panel-memory-light.png) | ![Panneau RAM en sombre](docs/screenshots/tray-panel-memory-dark.png) |
+| ![Indicator styles in light mode](docs/screenshots/tray-styles-light.png) | ![Indicator styles in dark mode](docs/screenshots/tray-styles-dark.png) |
+| ![RAM panel in light mode](docs/screenshots/tray-panel-memory-light.png) | ![RAM panel in dark mode](docs/screenshots/tray-panel-memory-dark.png) |
 
-![Panneau Tauri avec icône réelle de Computy](docs/screenshots/native-linux-tray-panel.png)
+![Tauri panel with the real Computy application icon](docs/screenshots/native-linux-tray-panel.png)
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Préférences du moniteur en clair](docs/screenshots/monitor-settings-light.png) | ![Préférences du moniteur en sombre](docs/screenshots/monitor-settings-dark.png) |
-| ![Processus en direct en clair](docs/screenshots/processes-live-light.png) | ![Processus en direct en sombre](docs/screenshots/processes-live-dark.png) |
-| ![Relancer depuis l’historique en clair](docs/screenshots/history-rerun-actions-light.png) | ![Relancer depuis l’historique en sombre](docs/screenshots/history-rerun-actions-dark.png) |
+| ![Monitor preferences in light mode](docs/screenshots/monitor-settings-light.png) | ![Monitor preferences in dark mode](docs/screenshots/monitor-settings-dark.png) |
+| ![Live processes in light mode](docs/screenshots/processes-live-light.png) | ![Live processes in dark mode](docs/screenshots/processes-live-dark.png) |
+| ![History rerun actions in light mode](docs/screenshots/history-rerun-actions-light.png) | ![History rerun actions in dark mode](docs/screenshots/history-rerun-actions-dark.png) |
 
-Les anneaux natifs restent dans la barre système lorsque la fenêtre est masquée. Le placement dépend du bureau ; les captures ci-dessus présentent les réglages et les mesures dans Computy.
+Native indicators stay in the system tray while the window is hidden. Their placement depends on the desktop; these screenshots show Computy's settings and measurements.
 
-Les captures montrent les données exposées par la machine de validation. Les bilans affichés sont issus de contrôles réellement exécutés, sans simulation de remplacement matériel.
+Screenshots show information exposed by the validation machine. Reports come from checks that actually ran, without simulating hardware replacements. The application language can be changed independently of this English documentation; existing screenshots include French and other supported languages.
 
-### Tableau de bord
+### Overview
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Tableau de bord clair](docs/screenshots/overview-with-history-light.png) | ![Tableau de bord sombre](docs/screenshots/overview-with-history-dark.png) |
+| ![Overview in light mode](docs/screenshots/overview-with-history-light.png) | ![Overview in dark mode](docs/screenshots/overview-with-history-dark.png) |
 
-### Choisir son diagnostic
+### Choose a diagnostic
 
-![Diagnostic : présentation diagonale](docs/screenshots/presentation-diagnostics.png)
+![Diagnostic overview split between light and dark mode](docs/screenshots/presentation-diagnostics.png)
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Diagnostic complet clair](docs/screenshots/diagnostics-light.png) | ![Diagnostic complet sombre](docs/screenshots/diagnostics-dark.png) |
-| ![RAM seule clair](docs/screenshots/diagnostics-memory-only-light.png) | ![RAM seule sombre](docs/screenshots/diagnostics-memory-only-dark.png) |
-| ![RAM et stockage clair](docs/screenshots/diagnostics-memory-storage-light.png) | ![RAM et stockage sombre](docs/screenshots/diagnostics-memory-storage-dark.png) |
+| ![Complete diagnostic in light mode](docs/screenshots/diagnostics-light.png) | ![Complete diagnostic in dark mode](docs/screenshots/diagnostics-dark.png) |
+| ![RAM only in light mode](docs/screenshots/diagnostics-memory-only-light.png) | ![RAM only in dark mode](docs/screenshots/diagnostics-memory-only-dark.png) |
+| ![RAM and storage in light mode](docs/screenshots/diagnostics-memory-storage-light.png) | ![RAM and storage in dark mode](docs/screenshots/diagnostics-memory-storage-dark.png) |
 
-### Progression et résultats
+### Progress and results
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Progression claire](docs/screenshots/diagnostic-running-light.png) | ![Progression sombre](docs/screenshots/diagnostic-running-dark.png) |
-| ![Résultats clairs](docs/screenshots/diagnostic-result-light.png) | ![Résultats sombres](docs/screenshots/diagnostic-result-dark.png) |
+| ![Diagnostic progress in light mode](docs/screenshots/diagnostic-running-light.png) | ![Diagnostic progress in dark mode](docs/screenshots/diagnostic-running-dark.png) |
+| ![Diagnostic results in light mode](docs/screenshots/diagnostic-result-light.png) | ![Diagnostic results in dark mode](docs/screenshots/diagnostic-result-dark.png) |
 
-### Historique et comparaison
+### History and comparisons
 
-![Comparaison : présentation diagonale](docs/screenshots/presentation-comparison.png)
+![Comparison split between light and dark mode](docs/screenshots/presentation-comparison.png)
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Historique clair](docs/screenshots/history-light.png) | ![Historique sombre](docs/screenshots/history-dark.png) |
-| ![Comparaison claire](docs/screenshots/comparison-light.png) | ![Comparaison sombre](docs/screenshots/comparison-dark.png) |
+| ![History in light mode](docs/screenshots/history-light.png) | ![History in dark mode](docs/screenshots/history-dark.png) |
+| ![Comparison in light mode](docs/screenshots/comparison-light.png) | ![Comparison in dark mode](docs/screenshots/comparison-dark.png) |
 
-### Matériel et préférences
+### Hardware and preferences
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Mémoire claire](docs/screenshots/memory-light.png) | ![Mémoire sombre](docs/screenshots/memory-dark.png) |
-| ![Stockage clair](docs/screenshots/storage-light.png) | ![Stockage sombre](docs/screenshots/storage-dark.png) |
-| ![Processeur clair](docs/screenshots/cpu-light.png) | ![Processeur sombre](docs/screenshots/cpu-dark.png) |
-| ![Préférences claires](docs/screenshots/settings-light.png) | ![Préférences sombres](docs/screenshots/settings-dark.png) |
-| ![À propos clair](docs/screenshots/about-light.png) | ![À propos sombre](docs/screenshots/about-dark.png) |
+| ![Memory in light mode](docs/screenshots/memory-light.png) | ![Memory in dark mode](docs/screenshots/memory-dark.png) |
+| ![Storage in light mode](docs/screenshots/storage-light.png) | ![Storage in dark mode](docs/screenshots/storage-dark.png) |
+| ![CPU in light mode](docs/screenshots/cpu-light.png) | ![CPU in dark mode](docs/screenshots/cpu-dark.png) |
+| ![Preferences in light mode](docs/screenshots/settings-light.png) | ![Preferences in dark mode](docs/screenshots/settings-dark.png) |
+| ![About in light mode](docs/screenshots/about-light.png) | ![About in dark mode](docs/screenshots/about-dark.png) |
 
 <details>
-<summary>Fenêtre native Tauri Linux : clair et sombre</summary>
+<summary>Native Tauri Linux window: light and dark</summary>
 
-Ces captures supplémentaires viennent du binaire Tauri final exécuté avec WebKitGTK dans un conteneur de validation, sans serveur web de développement. Les contrôles RAM, fichier temporaire et CPU ont réellement été exécutés et leurs mesures relues dans les rapports.
+These additional screenshots come from the final Tauri binary running WebKitGTK in a validation container, without a development web server. RAM, temporary file and CPU checks actually ran, and their measurements were read back from the reports.
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Tauri Linux accueil clair](docs/screenshots/native-linux-overview-light.png) | ![Tauri Linux accueil sombre](docs/screenshots/native-linux-overview-dark.png) |
-| ![Tauri Linux diagnostics clairs](docs/screenshots/native-linux-diagnostics-light.png) | ![Tauri Linux diagnostics sombres](docs/screenshots/native-linux-diagnostics-dark.png) |
-| ![Tauri Linux résultat clair](docs/screenshots/native-linux-result-light.png) | ![Tauri Linux résultat sombre](docs/screenshots/native-linux-result-dark.png) |
+| ![Native Linux overview in light mode](docs/screenshots/native-linux-overview-light.png) | ![Native Linux overview in dark mode](docs/screenshots/native-linux-overview-dark.png) |
+| ![Native Linux diagnostics in light mode](docs/screenshots/native-linux-diagnostics-light.png) | ![Native Linux diagnostics in dark mode](docs/screenshots/native-linux-diagnostics-dark.png) |
+| ![Native Linux result in light mode](docs/screenshots/native-linux-result-light.png) | ![Native Linux result in dark mode](docs/screenshots/native-linux-result-dark.png) |
 
 </details>
 
 <details>
-<summary>Quelques langues : anglais, arabe, japonais, chinois et hindi</summary>
+<summary>More languages: English, Arabic, Japanese, Chinese and Hindi</summary>
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![English light](docs/screenshots/overview-en-light.png) | ![English dark](docs/screenshots/overview-en-dark.png) |
-| ![Arabe clair, de droite à gauche](docs/screenshots/overview-ar-light.png) | ![Arabe sombre, de droite à gauche](docs/screenshots/overview-ar-dark.png) |
-| ![Japonais clair](docs/screenshots/overview-ja-light.png) | ![Japonais sombre](docs/screenshots/overview-ja-dark.png) |
-| ![Chinois clair](docs/screenshots/overview-zh-CN-light.png) | ![Chinois sombre](docs/screenshots/overview-zh-CN-dark.png) |
-| ![Hindi clair](docs/screenshots/overview-hi-light.png) | ![Hindi sombre](docs/screenshots/overview-hi-dark.png) |
+| ![English in light mode](docs/screenshots/overview-en-light.png) | ![English in dark mode](docs/screenshots/overview-en-dark.png) |
+| ![Arabic, right to left, in light mode](docs/screenshots/overview-ar-light.png) | ![Arabic, right to left, in dark mode](docs/screenshots/overview-ar-dark.png) |
+| ![Japanese in light mode](docs/screenshots/overview-ja-light.png) | ![Japanese in dark mode](docs/screenshots/overview-ja-dark.png) |
+| ![Chinese in light mode](docs/screenshots/overview-zh-CN-light.png) | ![Chinese in dark mode](docs/screenshots/overview-zh-CN-dark.png) |
+| ![Hindi in light mode](docs/screenshots/overview-hi-light.png) | ![Hindi in dark mode](docs/screenshots/overview-hi-dark.png) |
 
 </details>
 
-### Résultat RAM expliqué
+### Understanding a RAM result
 
-Le même rapport peut avoir des tests réussis et des compteurs indisponibles. L’interface les distingue ; la mémoire réellement testée et le nombre de passes sont visibles.
+The same report may contain successful tests and unavailable counters. The interface distinguishes them and shows the memory actually tested and the number of passes.
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Résultat RAM expliqué, clair](docs/screenshots/ram-report-explained-light.png) | ![Résultat RAM expliqué, sombre](docs/screenshots/ram-report-explained-dark.png) |
+| ![Explained RAM result in light mode](docs/screenshots/ram-report-explained-light.png) | ![Explained RAM result in dark mode](docs/screenshots/ram-report-explained-dark.png) |
 
-### Parcours guidé avant démarrage
+### Guided preboot workflow
 
-| Clair | Sombre |
+| Light | Dark |
 |---|---|
-| ![Sans clé USB, clair](docs/screenshots/boot-guide-internal-light.png) | ![Sans clé USB, sombre](docs/screenshots/boot-guide-internal-dark.png) |
-| ![Avec clé USB, clair](docs/screenshots/boot-guide-usb-light.png) | ![Avec clé USB, sombre](docs/screenshots/boot-guide-usb-dark.png) |
+| ![Without a USB drive, light mode](docs/screenshots/boot-guide-internal-light.png) | ![Without a USB drive, dark mode](docs/screenshots/boot-guide-internal-dark.png) |
+| ![With a USB drive, light mode](docs/screenshots/boot-guide-usb-light.png) | ![With a USB drive, dark mode](docs/screenshots/boot-guide-usb-dark.png) |
 
-Le composant technique avant démarrage en VM UEFI (son environnement graphique dépend du firmware) :
+The integrated preboot component in a UEFI VM (its display environment depends on firmware):
 
-![Phase de test mémoire intégrée, QEMU UEFI](docs/screenshots/boot-engine-uefi.png)
+![Integrated memory test running in QEMU UEFI](docs/screenshots/boot-engine-uefi.png)
 
-## Architecture et vérification
+## Architecture and verification
 
 ```text
-native/             Domaine, diagnostics, inventaire OS, historique, CLI, MCP
-src-tauri/          Hôte de bureau Rust : commandes validées, fenêtres et intégration OS
-src/                Interface React/TypeScript et catalogues i18n embarqués
-scripts/            Aperçu natif, génération locale des langues, captures et présentations
-tests/              Contrats de présentation et intégration CLI/MCP avec le SDK officiel
-docs/               Méthodologie, sécurité, journal RGR et captures
-Dockerfile          Compilation, vérifications, aperçu de développement
+native/             Domain, diagnostics, OS inventory, history, CLI, MCP
+src-tauri/          Rust desktop host: validated commands, windows and OS integration
+src/                React/TypeScript interface and bundled i18n catalogs
+scripts/            Native preview, offline localization, screenshots and presentations
+tests/              Presentation contracts and CLI/MCP integration with the official SDK
+docs/               Methodology, security, RGR journal and screenshots
+Dockerfile          Build, validation and development preview
 ```
 
-Le domaine et les diagnostics ne dépendent pas de l’interface. Les adaptateurs d’inventaire et d’historique passent par des interfaces dédiées. La CLI, Tauri et MCP utilisent le même service applicatif. Les rapports sont écrits atomiquement, avec une empreinte SHA-256 pour détecter les altérations accidentelles ; cette empreinte n’est pas une signature contre un attaquant possédant les droits de l’utilisateur.
+The domain and diagnostics are independent of the interface. Inventory and history adapters use dedicated interfaces. CLI, Tauri and MCP share the same application service. Reports are written atomically with a SHA-256 digest to detect accidental changes; this digest does not authenticate files against an attacker with the user's permissions.
 
 ```bash
 npm run build:engine
@@ -302,10 +304,10 @@ npm run test:native
 npm run build
 npm run check:desktop
 
-# Parcours complets, données isolées et captures automatiques
+# Complete workflows, isolated data and automatic screenshots
 npm run test:ui
 ```
 
-Les cycles **Red → Green → Refactor** sont décrits dans [le journal RGR](docs/RGR.md). La [méthodologie](docs/DIAGNOSTICS.md) explique les algorithmes, la notation et les sources primaires. La [documentation des langues](docs/I18N.md) décrit la génération hors ligne et les corrections éditoriales.
+**Red → Green → Refactor** cycles are recorded in the [RGR journal](docs/RGR.md). The [methodology](docs/DIAGNOSTICS.md) explains algorithms, scoring and primary sources. The [localization documentation](docs/I18N.md) describes offline generation and editorial overrides.
 
-Le [compte rendu de validation](docs/VALIDATION.md) précise les résultats obtenus, le contrôle de la fenêtre native et les plateformes restant à valider sur une machine physique.
+The [validation report](docs/VALIDATION.md) lists observed results, native window checks and platforms that still need testing on physical machines.

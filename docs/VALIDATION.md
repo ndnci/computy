@@ -1,21 +1,22 @@
-# Validation locale
+# Local validation
 
-Validation du 29 octobre 2026, sur Linux. Aucun service distant ni tunnel public n’a été ouvert pour les essais.
+Validated on Linux on October 29, 2026. No remote service or public tunnel was opened for testing.
 
-| Vérification | Résultat |
+| Check | Result |
 |---|---|
-| Moteur Rust | 43 tests réussis : domaine, firmware, vraies boucles RAM/disque/CPU, annulation, historique, préférences, MCP, import Windows, télémétrie réelle, classement des processus et cumul VRAM multi-GPU |
-| Analyse Rust | `cargo fmt --check` et Clippy, toutes les cibles, `-D warnings` |
-| Intégration Node | 17 tests réussis, dont CLI réelle, moniteur passif, paramètres de barre système, noms de marque dans les 25 langues et clients du SDK MCP officiel en stdio/HTTP |
-| Interface Playwright | Sélections indépendantes, progression, historique/comparaison, deux relances réelles avec paramètres identiques et nouveaux identifiants, cases indépendantes, mesures/processus, spinner USB, notifications et guide Secure Boot ; captures clair/sombre |
-| Internationalisation | 25 langues parcourues, directions LTR/RTL, thème système et choix explicite, 3 largeurs ; captures supplémentaires dans 5 langues et les deux thèmes |
-| Bureau natif | Binaire Tauri, IPC Rust réel, trois indicateurs persistants, trois cycles RAM et deux cycles globaux, états Active/Passive relus sur D-Bus, activation et menu réels, icône d’application récupérée, mesures/processus réels, diagnostics RAM/disque/CPU, thème enregistré ; 8 captures WebKitGTK, 1 test du rendu des trois styles et 1 test D-Bus isolé |
-| Compilation | Interface de production, paquet Linux `.deb`, CLI native et vérification Tauri dans Docker |
-| Dépendances JavaScript | `npm audit` : aucun avis de vulnérabilité déclaré au moment de la vérification |
+| Rust engine | 43 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
+| Rust analysis | `cargo fmt --check` and Clippy, all targets, `-D warnings` |
+| Node integration | 17 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
+| Playwright interface | Independent selections, progress, history/comparison, two real reruns with identical parameters and new identifiers, independent checkboxes, measurements/processes, USB spinner, notifications and Secure Boot guidance; light/dark screenshots |
+| Internationalization | 25 languages visited, LTR/RTL layouts, system theme and explicit choices, three widths; additional screenshots in five languages and both themes |
+| Native desktop | Tauri binary, real Rust IPC, three persistent indicators, three RAM toggle cycles and two global cycles, native window close preserving the process and indicators, reopening the same window, Active/Passive states read over D-Bus, real activation and menus, resolved application icon, real measurements/processes, RAM/disk/CPU diagnostics, saved theme; eight WebKitGTK screenshots, a three-style rendering test and an isolated D-Bus test |
+| GRUB package 0.1.4 | Real Debian and Ubuntu libraries in a container, syntax validated by `grub-script-check`, separate/shared `/boot`, custom default preserved, failed probe producing no partial entry, existing configuration unchanged |
+| Build | Production frontend, Linux `.deb`, native CLI and Tauri checks in Docker |
+| JavaScript dependencies | `npm audit`: no reported vulnerability advisory at validation time |
 
-Les résultats automatisés des essais UI sont dans [`screenshots/capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json) et [`native-results.json`](screenshots/native-results.json) et [`history-monitor-results.json`](screenshots/history-monitor-results.json). Le nouveau scénario des styles est dans [`tray-style-results.json`](screenshots/tray-style-results.json). Ils sont générés par les scripts de validation, sans valeurs de santé simulées.
+Automated UI results are recorded in [`capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json), [`native-results.json`](screenshots/native-results.json) and [`history-monitor-results.json`](screenshots/history-monitor-results.json). Style scenarios are recorded in [`tray-style-results.json`](screenshots/tray-style-results.json). Validation scripts generate these records without simulated health measurements.
 
-## Reproduire
+## Reproduction
 
 ```bash
 npm ci
@@ -26,13 +27,13 @@ npm run build
 npm run test:ui
 ```
 
-`test:ui` lance son propre serveur sur un port local disponible, crée un répertoire de données temporaire et le supprime après les captures. Il utilise Chrome installé dans `/usr/bin/google-chrome` ; `PLAYWRIGHT_CHROMIUM_EXECUTABLE` permet de choisir un autre Chromium de test. Ce navigateur appartient à l’outillage de développement, pas à la distribution Tauri.
+`test:ui` starts its own server on an available local port, creates a temporary data directory, and removes it after taking screenshots. It uses Chrome at `/usr/bin/google-chrome`; `PLAYWRIGHT_CHROMIUM_EXECUTABLE` selects another test Chromium. This browser belongs to development tooling, not the Tauri distribution.
 
-Le contrôle natif Linux utilise [tauri-driver et WebKitWebDriver](https://v2.tauri.app/develop/tests/webdriver/manual-setup/), avec un affichage Xvfb. Une image dédiée est fournie :
+Native Linux validation uses [tauri-driver and WebKitWebDriver](https://v2.tauri.app/develop/tests/webdriver/manual-setup/) with an Xvfb display. A dedicated image is provided:
 
 ```bash
 docker build --target desktop-qa -t computy-desktop-qa .
-# Préparer release/computy avec le binaire Linux compilé.
+# Prepare release/computy with the compiled Linux binary.
 docker run --rm --network none --cap-drop ALL \
   --security-opt no-new-privileges:true --shm-size=256m \
   -e LIBGL_ALWAYS_SOFTWARE=1 \
@@ -43,12 +44,25 @@ docker run --rm --network none --cap-drop ALL \
   xvfb-run -a -s '-screen 0 1600x1200x24' node scripts/check-desktop.mjs
 ```
 
-L’exception de sandbox WebKit concerne uniquement ce conteneur de test sans réseau, sans capacités Linux et avec les sources en lecture seule. Elle n’est pas ajoutée au binaire ou aux commandes de lancement de l’application. Le compte `computy` de cette image a l’UID 1000 et doit pouvoir écrire dans le répertoire des captures monté.
+The WebKit sandbox exception applies only to this test container, which has no network, no Linux capabilities and read-only sources. It is not added to the application binary or launch commands. The image's `computy` user has UID 1000 and needs write access to the mounted screenshot directory. The test sends a real `WM_DELETE_WINDOW` event inside its private Xvfb display, verifies that monitoring remains active, and checks the displayed version against `package.json`.
 
-## Portée
+The GRUB generator test uses another isolated image. It replaces probes only in the container's ephemeral filesystem and runs no program against real devices:
 
-Windows et macOS disposent des adaptateurs et d’une matrice de compilation CI, mais leurs paquets, l’intégration au démarrage et le diagnostic Windows n’ont pas été exécutés physiquement dans cet environnement Linux. Les parseurs SMBIOS et Windows, dont les événements au démarrage, sont testés avec des données de référence.
+```bash
+docker build --target boot-qa -t computy-boot-qa .
+docker run --rm --user 0 --network none --cap-drop ALL \
+  --security-opt no-new-privileges:true \
+  -e COMPUTY_PACKAGING_TEST_SANDBOX=1 \
+  -v "$PWD:/workspace:ro" -w /workspace \
+  computy-boot-qa node scripts/check-grub-package.mjs
+```
 
-Une compilation et des tests réussis ne certifient pas l’état de tous les composants. Les captures conservent les contrôles inconnus ou inaccessibles. Les limites de couverture, de firmware, de caches et de télémétrie sont exposées dans les rapports et dans la [méthodologie](DIAGNOSTICS.md).
+To also test the host GRUB library, mount that single file read-only at `/reference/grub-mkconfig_lib` and add `-e COMPUTY_HOST_GRUB_LIB=/reference/grub-mkconfig_lib`. `COMPUTY_TEST_GRUB_GENERATOR` selects a script extracted from a `.deb` inside the container for the same scenarios. The 0.1.4 package was extracted and its installed generator passed both libraries. An APT simulation confirmed an upgrade from 0.1.3, with no additional installation.
 
-Le parcours guidé et le composant avant démarrage de la version 0.1.1 sont détaillés dans [BOOT-DIAGNOSTICS.md](BOOT-DIAGNOSTICS.md). La sélection GRUB et la préparation USB réelles ne sont pas exécutées sur l’hôte pendant les vérifications.
+## Scope
+
+Windows and macOS have adapters and a CI build matrix, but their packages, startup integration and the Windows diagnostic have not been physically executed in this Linux environment. SMBIOS and Windows parsers, including boot result events, are tested with fixtures. Automatic GitHub Actions remain disabled.
+
+Successful builds and tests do not certify every component's health. Screenshots retain unknown or inaccessible checks. Coverage, firmware, cache and telemetry limitations appear in reports and the [methodology](DIAGNOSTICS.md).
+
+The guided workflow and preboot component are detailed in [BOOT-DIAGNOSTICS.md](BOOT-DIAGNOSTICS.md). Validation does not schedule real GRUB boots or prepare real USB drives on the host.
