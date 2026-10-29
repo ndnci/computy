@@ -4,7 +4,7 @@ Validated on Linux on October 29, 2026. No remote service or public tunnel was o
 
 | Check | Result |
 |---|---|
-| Rust engine | 61 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
+| Rust engine | 63 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
 | Rust analysis | `cargo fmt --check` and Clippy, all targets, `-D warnings` |
 | Node integration | 20 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
 | Playwright interface | Independent selections, progress, history/comparison, two real reruns with identical parameters and new identifiers, independent checkboxes, measurements/processes, USB spinner, notifications and Secure Boot guidance; light/dark screenshots |

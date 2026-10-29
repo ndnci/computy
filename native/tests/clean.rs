@@ -246,3 +246,56 @@ fn an_expired_preview_cannot_delete_or_create_an_automation() {
     assert!(p.join("cache/old.log").exists());
     fs::remove_dir_all(p).unwrap();
 }
+#[test]
+fn preview_normalizes_exclusions_including_future_children() {
+    let p = fixture();
+    let mut exclusion = p.join("cache/keep.json").to_string_lossy().into_owned();
+    #[cfg(windows)]
+    {
+        exclusion = exclusion.trim_start_matches(r"\\?\").to_owned();
+    }
+    // Windows exercises a normal path against verbatim canonical scan roots.
+    #[cfg(not(windows))]
+    {
+        exclusion = exclusion.replace("/cache/", "/cache//");
+    }
+    let plan = clean::preview(
+        &p.join("state"),
+        Policy {
+            roots: vec![p.join("cache")],
+            exclude: vec![exclusion.into(), p.join("cache/future/subfolder")],
+            rule: Rule::All { rules: vec![] },
+            ..Policy::default()
+        },
+    )
+    .unwrap();
+    assert_eq!(plan.files.len(), 1);
+    assert!(plan.files[0].path.ends_with("old.log"));
+    assert!(plan.policy.exclude[1].ends_with("future/subfolder"));
+    fs::remove_dir_all(p).unwrap();
+}
+#[test]
+fn cleanup_state_is_protected_when_the_scope_contains_its_parent() {
+    let p = fixture();
+    let state = p.join("state");
+    fs::create_dir_all(&state).unwrap();
+    fs::write(state.join("preferences.state"), "private state").unwrap();
+    #[cfg(windows)]
+    let state = std::path::PathBuf::from(state.to_string_lossy().trim_start_matches(r"\\?\"));
+    let plan = clean::preview(
+        &state,
+        Policy {
+            roots: vec![p.clone()],
+            rule: Rule::All { rules: vec![] },
+            ..Policy::default()
+        },
+    )
+    .unwrap();
+    assert_eq!(plan.files.len(), 2);
+    assert!(
+        plan.files
+            .iter()
+            .all(|f| f.path.starts_with(p.join("cache")))
+    );
+    fs::remove_dir_all(p).unwrap();
+}

@@ -25,7 +25,10 @@ The editor's dates are local time; JSON timestamps are Unix milliseconds.
 Unknown creation dates remain unknown through negation. Content detection reads
 at most 8 KiB; unrecognized UTF-8 content becomes `text/plain`, otherwise
 `application/octet-stream`. This is a filter, not authoritative file-format
-validation. Excluded paths override all inclusion/filter decisions. Filesystem
+validation. Excluded paths override all inclusion/filter decisions. Roots, exclusions and
+Computy’s protected data directory are matched in the same canonical path form,
+including Windows verbatim paths. Exclusions for future folders retain the
+canonical existing parent. Filesystem
 creation time is not a universal "date added" to a folder.
 
 The scan skips links, nonregular files, `.git`, `.ssh`, `.gnupg`, Computy's own

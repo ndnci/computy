@@ -65,19 +65,18 @@ pub fn inventory() -> FanInventory {
                 "@(Get-CimInstance Win32_Fan | Select-Object DeviceID,Name,DesiredSpeed) | ConvertTo-Json -Compress",
             ],
             10,
-        ) {
-            if let Ok(items) = serde_json::from_str::<Vec<serde_json::Value>>(&output) {
-                for item in items {
-                    fans.push(Fan {
-                        id: item["DeviceID"].as_str().unwrap_or("").into(),
-                        name: item["Name"].as_str().unwrap_or("Fan").into(),
-                        driver: "WMI".into(),
-                        rpm: None,
-                        pwm_percent: None,
-                        mode: None,
-                        manual_supported: false,
-                    });
-                }
+        ) && let Ok(items) = serde_json::from_str::<Vec<serde_json::Value>>(&output)
+        {
+            for item in items {
+                fans.push(Fan {
+                    id: item["DeviceID"].as_str().unwrap_or("").into(),
+                    name: item["Name"].as_str().unwrap_or("Fan").into(),
+                    driver: "WMI".into(),
+                    rpm: None,
+                    pwm_percent: None,
+                    mode: None,
+                    manual_supported: false,
+                });
             }
         }
     }

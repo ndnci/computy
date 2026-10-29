@@ -275,18 +275,17 @@ pub fn list() -> Catalog {
             "powershell.exe",
             &["-NoProfile", "-NonInteractive", "-Command", script],
             20,
-        ) {
-            if let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&output) {
-                for r in rows {
-                    let Some(id) = r["PackageFullName"].as_str() else {
-                        continue;
-                    };
-                    let mut a = app(id, r["Name"].as_str().unwrap_or(id), "appx", id);
-                    a.location = r["InstallLocation"].as_str().map(PathBuf::from);
-                    a.system = r["NonRemovable"].as_bool().unwrap_or(true);
-                    a.can_uninstall = false;
-                    apps.push(a);
-                }
+        ) && let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&output)
+        {
+            for r in rows {
+                let Some(id) = r["PackageFullName"].as_str() else {
+                    continue;
+                };
+                let mut a = app(id, r["Name"].as_str().unwrap_or(id), "appx", id);
+                a.location = r["InstallLocation"].as_str().map(PathBuf::from);
+                a.system = r["NonRemovable"].as_bool().unwrap_or(true);
+                a.can_uninstall = false;
+                apps.push(a);
             }
         }
     }
@@ -301,16 +300,15 @@ pub fn list() -> Catalog {
                 "@(Get-StartApps | Select-Object Name,AppID) | ConvertTo-Json -Compress",
             ],
             15,
-        ) {
-            if let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&output) {
-                for a in &mut apps {
-                    let found = rows
-                        .iter()
-                        .filter(|r| r["Name"].as_str() == Some(a.name.as_str()))
-                        .collect::<Vec<_>>();
-                    if found.len() == 1 {
-                        a.launch_target = found[0]["AppID"].as_str().map(str::to_owned);
-                    }
+        ) && let Ok(rows) = serde_json::from_str::<Vec<serde_json::Value>>(&output)
+        {
+            for a in &mut apps {
+                let found = rows
+                    .iter()
+                    .filter(|r| r["Name"].as_str() == Some(a.name.as_str()))
+                    .collect::<Vec<_>>();
+                if found.len() == 1 {
+                    a.launch_target = found[0]["AppID"].as_str().map(str::to_owned);
                 }
             }
         }

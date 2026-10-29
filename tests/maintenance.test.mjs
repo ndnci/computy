@@ -28,10 +28,7 @@ test('real CLI cleanup requires a preview and confirmation, preserves exclusions
         exclude: [path.join(root, 'cache/keep.log')],
         rule: {
           op: 'all',
-          rules: [
-            { op: 'extension', value: 'log' },
-            { op: 'path_regex', value: 'delete' },
-          ],
+          rules: [{ op: 'extension', value: 'log' }],
         },
       }),
     );

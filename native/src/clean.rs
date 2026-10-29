@@ -176,6 +176,19 @@ fn validate_root(path: &Path) -> Result<(), String> {
     }
     Ok(())
 }
+fn normalize_exclusion(path: &Path) -> Result<PathBuf, String> {
+    let mut existing = path;
+    let mut missing = Vec::new();
+    while !existing.exists() {
+        missing.push(existing.file_name().ok_or("Invalid exclusion")?.to_owned());
+        existing = existing.parent().ok_or("Invalid exclusion")?;
+    }
+    let mut canonical = existing.canonicalize().map_err(fail)?;
+    for name in missing.into_iter().rev() {
+        canonical.push(name);
+    }
+    Ok(canonical)
+}
 fn check_rule(
     rule: &Rule,
     depth: usize,
@@ -471,6 +484,12 @@ pub fn preview(root: &Path, mut policy: Policy) -> Result<Plan, String> {
     for path in &mut policy.roots {
         *path = path.canonicalize().map_err(fail)?;
     }
+    // Windows canonical paths use a verbatim prefix. Match exclusions in the
+    // same namespace, including paths that do not exist yet for future runs.
+    for path in &mut policy.exclude {
+        *path = normalize_exclusion(path)?;
+    }
+    let state_root = root.canonicalize().map_err(fail)?;
     policy.roots.sort();
     policy.roots.dedup();
     let now = timestamp_ms();
@@ -503,7 +522,7 @@ pub fn preview(root: &Path, mut policy: Policy) -> Result<Plan, String> {
         visited += 1;
         if depth > 48
             || policy.exclude.iter().any(|e| path.starts_with(e))
-            || path.starts_with(root)
+            || path.starts_with(&state_root)
             || !seen.insert(path.clone())
         {
             continue;

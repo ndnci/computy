@@ -37,6 +37,8 @@ commits and locally built packages, not from previously published store releases
 
 ### Fixed
 
+- Cleanup exclusions and protected application data use the same canonical
+  path form as scan roots, including Windows verbatim paths and future folders.
 - White corners around the tray popover by making its native surface transparent.
 - Linux menu summary follows the selected system-bar style; the detailed
   popover keeps its percentage ring independently.
