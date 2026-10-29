@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Amri hairuhusiwi.",
-  "En direct dans votre barre système.": "Taarifa za moja kwa moja katika eneo la arifa."
+  "En direct dans votre barre système.": "Taarifa za moja kwa moja katika eneo la arifa.",
+  "Installation et données": "Usakinishaji na data",
+  "Désinstaller Computy": "Ondoa Computy",
+  "Supprimer toutes les données": "Futa data zote",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, mapendeleo na uagizaji unaosubiri vitafutwa. Faili binafsi zilizohamishwa zitahifadhiwa.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "Mfumo utaomba ruhusa yako. Data itahifadhiwa.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Toleo linalobebeka: futa faili au folda ya programu.",
+  "Cette action est irréversible.": "Hatua hii haiwezi kutenduliwa."
 }

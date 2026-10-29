@@ -1,7 +1,7 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Computy",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "identifier": "com.ndnci.computy",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -10,10 +10,11 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "enableGTKAppId": true,
     "windows": [
       {
         "label": "main",
-        "title": "Computy — Votre matériel, en clair.",
+        "title": "Computy \u2014 Votre mat\u00e9riel, en clair.",
         "width": 1440,
         "height": 960,
         "minWidth": 1000,
@@ -30,7 +31,7 @@
     "active": true,
     "targets": "all",
     "category": "Utility",
-    "shortDescription": "Comprenez, testez et suivez votre matériel.",
+    "shortDescription": "Comprenez, testez et suivez votre mat\u00e9riel.",
     "copyright": "NDNCI",
     "icon": [
       "icons/32x32.png",
@@ -60,6 +61,12 @@
         "postInstallScript": "../packaging/postinst",
         "postRemoveScript": "../packaging/postrm"
       }
+    },
+    "license": "GPL-3.0-only",
+    "licenseFile": "../LICENSE",
+    "resources": {
+      "../LICENSE": "LICENSE",
+      "../NOTICE": "NOTICE"
     }
   }
 }

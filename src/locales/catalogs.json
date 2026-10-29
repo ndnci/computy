@@ -783,7 +783,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Command not allowed.",
-    "En direct dans votre barre système.": "Live in your system tray."
+    "En direct dans votre barre système.": "Live in your system tray.",
+    "Installation et données": "Installation and data",
+    "Désinstaller Computy": "Uninstall Computy",
+    "Supprimer toutes les données": "Erase all data",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "History, preferences and pending imports will be deleted. Personal exports are kept.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "The system will ask for your permission. Data is kept.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable version: delete the application file or folder.",
+    "Cette action est irréversible.": "This action cannot be undone."
   },
   "es": {
     "10": "10",
@@ -1568,7 +1575,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Comando no autorizado.",
-    "En direct dans votre barre système.": "En directo en la bandeja del sistema."
+    "En direct dans votre barre système.": "En directo en la bandeja del sistema.",
+    "Installation et données": "Instalación y datos",
+    "Désinstaller Computy": "Desinstalar Computy",
+    "Supprimer toutes les données": "Borrar todos los datos",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Se eliminarán el historial, las preferencias y las importaciones pendientes. Se conservan las exportaciones personales.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "El sistema solicitará tu autorización. Se conservan los datos.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Versión portátil: elimina el archivo o la carpeta de la aplicación.",
+    "Cette action est irréversible.": "Esta acción no se puede deshacer."
   },
   "pt-BR": {
     "10": "10",
@@ -2353,7 +2367,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Comando não autorizado.",
-    "En direct dans votre barre système.": "Ao vivo na bandeja do sistema."
+    "En direct dans votre barre système.": "Ao vivo na bandeja do sistema.",
+    "Installation et données": "Instalação e dados",
+    "Désinstaller Computy": "Desinstalar Computy",
+    "Supprimer toutes les données": "Apagar todos os dados",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "O histórico, as preferências e as importações pendentes serão excluídos. As exportações pessoais serão mantidas.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "O sistema pedirá sua autorização. Os dados serão mantidos.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Versão portátil: exclua o arquivo ou a pasta do aplicativo.",
+    "Cette action est irréversible.": "Esta ação não pode ser desfeita."
   },
   "de": {
     "10": "10",
@@ -3138,7 +3159,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Befehl nicht erlaubt.",
-    "En direct dans votre barre système.": "Live in Ihrer Statusleiste."
+    "En direct dans votre barre système.": "Live in Ihrer Statusleiste.",
+    "Installation et données": "Installation und Daten",
+    "Désinstaller Computy": "Computy deinstallieren",
+    "Supprimer toutes les données": "Alle Daten löschen",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Verlauf, Einstellungen und ausstehende Importe werden gelöscht. Persönliche Exporte bleiben erhalten.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Das System fragt nach Ihrer Erlaubnis. Die Daten bleiben erhalten.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable Version: Löschen Sie die Anwendungsdatei oder den Ordner.",
+    "Cette action est irréversible.": "Diese Aktion kann nicht rückgängig gemacht werden."
   },
   "it": {
     "10": "10",
@@ -3923,7 +3951,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Comando non autorizzato.",
-    "En direct dans votre barre système.": "In tempo reale nella barra di sistema."
+    "En direct dans votre barre système.": "In tempo reale nella barra di sistema.",
+    "Installation et données": "Installazione e dati",
+    "Désinstaller Computy": "Disinstalla Computy",
+    "Supprimer toutes les données": "Elimina tutti i dati",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Cronologia, preferenze e importazioni in attesa saranno eliminate. Le esportazioni personali saranno conservate.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Il sistema chiederà la tua autorizzazione. I dati saranno conservati.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Versione portatile: elimina il file o la cartella dell’applicazione.",
+    "Cette action est irréversible.": "Questa azione è irreversibile."
   },
   "nl": {
     "10": "10",
@@ -4708,7 +4743,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Opdracht niet toegestaan.",
-    "En direct dans votre barre système.": "Live in het systeemvak."
+    "En direct dans votre barre système.": "Live in het systeemvak.",
+    "Installation et données": "Installatie en gegevens",
+    "Désinstaller Computy": "Computy verwijderen",
+    "Supprimer toutes les données": "Alle gegevens wissen",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geschiedenis, voorkeuren en wachtende imports worden verwijderd. Persoonlijke exports blijven bewaard.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Het systeem vraagt om toestemming. Gegevens blijven bewaard.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Draagbare versie: verwijder het toepassingsbestand of de map.",
+    "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt."
   },
   "pl": {
     "10": "10",
@@ -5493,7 +5535,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Niedozwolone polecenie.",
-    "En direct dans votre barre système.": "Na żywo w zasobniku systemowym."
+    "En direct dans votre barre système.": "Na żywo w zasobniku systemowym.",
+    "Installation et données": "Instalacja i dane",
+    "Désinstaller Computy": "Odinstaluj Computy",
+    "Supprimer toutes les données": "Usuń wszystkie dane",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, preferencje i oczekujące importy zostaną usunięte. Własne eksporty zostaną zachowane.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "System poprosi o zgodę. Dane zostaną zachowane.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Wersja przenośna: usuń plik lub folder aplikacji.",
+    "Cette action est irréversible.": "Tej operacji nie można cofnąć."
   },
   "ru": {
     "10": "10",
@@ -6278,7 +6327,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Команда не разрешена.",
-    "En direct dans votre barre système.": "В реальном времени в системном трее."
+    "En direct dans votre barre système.": "В реальном времени в системном трее.",
+    "Installation et données": "Установка и данные",
+    "Désinstaller Computy": "Удалить Computy",
+    "Supprimer toutes les données": "Удалить все данные",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "История, настройки и ожидающие импорты будут удалены. Личные экспорты сохранятся.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Система запросит разрешение. Данные сохранятся.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Переносная версия: удалите файл или папку приложения.",
+    "Cette action est irréversible.": "Это действие нельзя отменить."
   },
   "uk": {
     "10": "10",
@@ -7063,7 +7119,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Команду не дозволено.",
-    "En direct dans votre barre système.": "У реальному часі в системному треї."
+    "En direct dans votre barre système.": "У реальному часі в системному треї.",
+    "Installation et données": "Встановлення та дані",
+    "Désinstaller Computy": "Видалити Computy",
+    "Supprimer toutes les données": "Видалити всі дані",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Історію, налаштування та імпорти в очікуванні буде видалено. Особисті експорти залишаться.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Система запитає ваш дозвіл. Дані залишаться.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Портативна версія: видаліть файл або папку програми.",
+    "Cette action est irréversible.": "Цю дію неможливо скасувати."
   },
   "tr": {
     "10": "10",
@@ -7848,7 +7911,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Komuta izin verilmiyor.",
-    "En direct dans votre barre système.": "Sistem tepsisinde canlı ölçümler."
+    "En direct dans votre barre système.": "Sistem tepsisinde canlı ölçümler.",
+    "Installation et données": "Kurulum ve veriler",
+    "Désinstaller Computy": "Computy uygulamasını kaldır",
+    "Supprimer toutes les données": "Tüm verileri sil",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geçmiş, tercihler ve bekleyen içe aktarmalar silinir. Kişisel dışa aktarmalar korunur.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Sistem izninizi isteyecektir. Veriler korunur.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Taşınabilir sürüm: uygulama dosyasını veya klasörünü silin.",
+    "Cette action est irréversible.": "Bu işlem geri alınamaz."
   },
   "ar": {
     "10": "10",
@@ -8633,7 +8703,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "الأمر غير مسموح.",
-    "En direct dans votre barre système.": "قياسات مباشرة في شريط النظام."
+    "En direct dans votre barre système.": "قياسات مباشرة في شريط النظام.",
+    "Installation et données": "التثبيت والبيانات",
+    "Désinstaller Computy": "إلغاء تثبيت Computy",
+    "Supprimer toutes les données": "حذف جميع البيانات",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "سيتم حذف السجل والتفضيلات وعمليات الاستيراد المعلقة. ستبقى الملفات المصدرة الشخصية.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "سيطلب النظام إذنك. ستبقى البيانات محفوظة.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "النسخة المحمولة: احذف ملف التطبيق أو مجلده.",
+    "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء."
   },
   "hi": {
     "10": "10",
@@ -9418,7 +9495,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "कमांड की अनुमति नहीं है।",
-    "En direct dans votre barre système.": "सिस्टम ट्रे में लाइव जानकारी।"
+    "En direct dans votre barre système.": "सिस्टम ट्रे में लाइव जानकारी।",
+    "Installation et données": "इंस्टॉलेशन और डेटा",
+    "Désinstaller Computy": "Computy अनइंस्टॉल करें",
+    "Supprimer toutes les données": "सारा डेटा मिटाएँ",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "इतिहास, प्राथमिकताएँ और लंबित आयात मिटा दिए जाएँगे। व्यक्तिगत निर्यात सुरक्षित रहेंगे।",
+    "Le système demandera votre autorisation. Les données sont conservées.": "सिस्टम आपकी अनुमति माँगेगा। डेटा सुरक्षित रहेगा।",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "पोर्टेबल संस्करण: एप्लिकेशन की फ़ाइल या फ़ोल्डर मिटाएँ।",
+    "Cette action est irréversible.": "इस कार्रवाई को वापस नहीं लिया जा सकता।"
   },
   "bn": {
     "10": "10",
@@ -10203,7 +10287,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "এই কমান্ডের অনুমতি নেই।",
-    "En direct dans votre barre système.": "সিস্টেম ট্রেতে সরাসরি তথ্য।"
+    "En direct dans votre barre système.": "সিস্টেম ট্রেতে সরাসরি তথ্য।",
+    "Installation et données": "ইনস্টলেশন ও ডেটা",
+    "Désinstaller Computy": "Computy আনইনস্টল করুন",
+    "Supprimer toutes les données": "সমস্ত ডেটা মুছুন",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ইতিহাস, পছন্দ এবং অপেক্ষমাণ আমদানি মুছে যাবে। ব্যক্তিগত রপ্তানি রাখা হবে।",
+    "Le système demandera votre autorisation. Les données sont conservées.": "সিস্টেম আপনার অনুমতি চাইবে। ডেটা রাখা হবে।",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "পোর্টেবল সংস্করণ: অ্যাপের ফাইল বা ফোল্ডার মুছুন।",
+    "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
   },
   "ur": {
     "10": "10",
@@ -10988,7 +11079,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "اس کمانڈ کی اجازت نہیں ہے۔",
-    "En direct dans votre barre système.": "سسٹم ٹرے میں براہ راست معلومات۔"
+    "En direct dans votre barre système.": "سسٹم ٹرے میں براہ راست معلومات۔",
+    "Installation et données": "تنصیب اور ڈیٹا",
+    "Désinstaller Computy": "Computy اَن انسٹال کریں",
+    "Supprimer toutes les données": "تمام ڈیٹا مٹائیں",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "تاریخ، ترجیحات اور زیر التوا درآمدات مٹا دی جائیں گی۔ ذاتی برآمدات محفوظ رہیں گی۔",
+    "Le système demandera votre autorisation. Les données sont conservées.": "سسٹم آپ کی اجازت مانگے گا۔ ڈیٹا محفوظ رہے گا۔",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "پورٹیبل ورژن: ایپ کی فائل یا فولڈر حذف کریں۔",
+    "Cette action est irréversible.": "اس عمل کو واپس نہیں لیا جا سکتا۔"
   },
   "id": {
     "10": "10",
@@ -11773,7 +11871,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Perintah tidak diizinkan.",
-    "En direct dans votre barre système.": "Langsung di baki sistem Anda."
+    "En direct dans votre barre système.": "Langsung di baki sistem Anda.",
+    "Installation et données": "Instalasi dan data",
+    "Désinstaller Computy": "Hapus instalasi Computy",
+    "Supprimer toutes les données": "Hapus semua data",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Riwayat, preferensi, dan impor tertunda akan dihapus. Ekspor pribadi tetap disimpan.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Sistem akan meminta izin Anda. Data tetap disimpan.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Versi portabel: hapus berkas atau folder aplikasi.",
+    "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan."
   },
   "vi": {
     "10": "10",
@@ -12558,7 +12663,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Lệnh không được phép.",
-    "En direct dans votre barre système.": "Trực tiếp trên khay hệ thống."
+    "En direct dans votre barre système.": "Trực tiếp trên khay hệ thống.",
+    "Installation et données": "Cài đặt và dữ liệu",
+    "Désinstaller Computy": "Gỡ cài đặt Computy",
+    "Supprimer toutes les données": "Xóa tất cả dữ liệu",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Lịch sử, tùy chọn và mục nhập đang chờ sẽ bị xóa. Các tệp xuất cá nhân được giữ lại.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Hệ thống sẽ yêu cầu bạn cho phép. Dữ liệu được giữ lại.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Bản di động: xóa tệp hoặc thư mục ứng dụng.",
+    "Cette action est irréversible.": "Không thể hoàn tác hành động này."
   },
   "th": {
     "10": "10",
@@ -13343,7 +13455,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "ไม่อนุญาตให้ใช้คำสั่งนี้",
-    "En direct dans votre barre système.": "ข้อมูลสดในถาดระบบ"
+    "En direct dans votre barre système.": "ข้อมูลสดในถาดระบบ",
+    "Installation et données": "การติดตั้งและข้อมูล",
+    "Désinstaller Computy": "ถอนการติดตั้ง Computy",
+    "Supprimer toutes les données": "ลบข้อมูลทั้งหมด",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ประวัติ การตั้งค่า และการนำเข้าที่รอดำเนินการจะถูกลบ ไฟล์ส่งออกส่วนตัวจะยังอยู่",
+    "Le système demandera votre autorisation. Les données sont conservées.": "ระบบจะขออนุญาตจากคุณ ข้อมูลจะยังคงอยู่",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "รุ่นพกพา: ลบไฟล์หรือโฟลเดอร์ของแอป",
+    "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
   },
   "ko": {
     "10": "10",
@@ -14128,7 +14247,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "허용되지 않는 명령입니다.",
-    "En direct dans votre barre système.": "시스템 트레이에서 실시간으로 확인하세요."
+    "En direct dans votre barre système.": "시스템 트레이에서 실시간으로 확인하세요.",
+    "Installation et données": "설치 및 데이터",
+    "Désinstaller Computy": "Computy 제거",
+    "Supprimer toutes les données": "모든 데이터 삭제",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "기록, 환경설정 및 대기 중인 가져오기가 삭제됩니다. 개인 내보내기 파일은 유지됩니다.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "시스템이 권한을 요청합니다. 데이터는 유지됩니다.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "휴대용 버전: 앱 파일 또는 폴더를 삭제하세요.",
+    "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다."
   },
   "ja": {
     "10": "10",
@@ -14913,7 +15039,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "このコマンドは許可されていません。",
-    "En direct dans votre barre système.": "システムトレイでリアルタイムに確認。"
+    "En direct dans votre barre système.": "システムトレイでリアルタイムに確認。",
+    "Installation et données": "インストールとデータ",
+    "Désinstaller Computy": "Computy をアンインストール",
+    "Supprimer toutes les données": "すべてのデータを削除",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "履歴、設定、保留中のインポートを削除します。個人のエクスポートは保持されます。",
+    "Le système demandera votre autorisation. Les données sont conservées.": "システムが許可を求めます。データは保持されます。",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "ポータブル版：アプリのファイルまたはフォルダーを削除してください。",
+    "Cette action est irréversible.": "この操作は取り消せません。"
   },
   "zh-CN": {
     "10": "10",
@@ -15698,7 +15831,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "不允许此命令。",
-    "En direct dans votre barre système.": "在系统托盘中实时查看。"
+    "En direct dans votre barre système.": "在系统托盘中实时查看。",
+    "Installation et données": "安装与数据",
+    "Désinstaller Computy": "卸载 Computy",
+    "Supprimer toutes les données": "删除所有数据",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "历史记录、偏好设置和待处理导入将被删除。个人导出文件将保留。",
+    "Le système demandera votre autorisation. Les données sont conservées.": "系统将请求您的授权。数据将保留。",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "便携版：删除应用程序文件或文件夹。",
+    "Cette action est irréversible.": "此操作无法撤销。"
   },
   "zh-TW": {
     "10": "10",
@@ -16483,7 +16623,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "不允許此命令。",
-    "En direct dans votre barre système.": "在系統匣中即時查看。"
+    "En direct dans votre barre système.": "在系統匣中即時查看。",
+    "Installation et données": "安裝與資料",
+    "Désinstaller Computy": "解除安裝 Computy",
+    "Supprimer toutes les données": "刪除所有資料",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "歷史記錄、偏好設定及待處理匯入將被刪除。個人匯出檔案會保留。",
+    "Le système demandera votre autorisation. Les données sont conservées.": "系統將要求您的授權。資料會保留。",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "可攜版：刪除應用程式檔案或資料夾。",
+    "Cette action est irréversible.": "此操作無法復原。"
   },
   "fa": {
     "10": "10",
@@ -17268,7 +17415,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "این فرمان مجاز نیست.",
-    "En direct dans votre barre système.": "نمایش زنده در سینی سیستم."
+    "En direct dans votre barre système.": "نمایش زنده در سینی سیستم.",
+    "Installation et données": "نصب و داده‌ها",
+    "Désinstaller Computy": "حذف نصب Computy",
+    "Supprimer toutes les données": "پاک کردن همه داده‌ها",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "تاریخچه، تنظیمات و واردسازی‌های در انتظار حذف می‌شوند. خروجی‌های شخصی حفظ می‌شوند.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "سیستم اجازه شما را درخواست می‌کند. داده‌ها حفظ می‌شوند.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "نسخه قابل حمل: فایل یا پوشه برنامه را حذف کنید.",
+    "Cette action est irréversible.": "این کار قابل بازگشت نیست."
   },
   "he": {
     "10": "10",
@@ -18053,7 +18207,14 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "הפקודה אינה מורשית.",
-    "En direct dans votre barre système.": "נתונים חיים במגש המערכת."
+    "En direct dans votre barre système.": "נתונים חיים במגש המערכת.",
+    "Installation et données": "התקנה ונתונים",
+    "Désinstaller Computy": "הסרת Computy",
+    "Supprimer toutes les données": "מחיקת כל הנתונים",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ההיסטוריה, ההעדפות והייבוא הממתין יימחקו. קובצי ייצוא אישיים יישמרו.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "המערכת תבקש את אישורך. הנתונים יישמרו.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "גרסה ניידת: יש למחוק את קובץ היישום או את התיקייה.",
+    "Cette action est irréversible.": "לא ניתן לבטל פעולה זו."
   },
   "sw": {
     "10": "10",
@@ -18838,6 +18999,13 @@
     "≥ 90 %": "≥ 90 %",
     "SSD / HDD": "SSD / HDD",
     "Commande non autorisée.": "Amri hairuhusiwi.",
-    "En direct dans votre barre système.": "Taarifa za moja kwa moja katika eneo la arifa."
+    "En direct dans votre barre système.": "Taarifa za moja kwa moja katika eneo la arifa.",
+    "Installation et données": "Usakinishaji na data",
+    "Désinstaller Computy": "Ondoa Computy",
+    "Supprimer toutes les données": "Futa data zote",
+    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, mapendeleo na uagizaji unaosubiri vitafutwa. Faili binafsi zilizohamishwa zitahifadhiwa.",
+    "Le système demandera votre autorisation. Les données sont conservées.": "Mfumo utaomba ruhusa yako. Data itahifadhiwa.",
+    "Version portable : supprimez le fichier ou le dossier de l’application.": "Toleo linalobebeka: futa faili au folda ya programu.",
+    "Cette action est irréversible.": "Hatua hii haiwezi kutenduliwa."
   }
 }

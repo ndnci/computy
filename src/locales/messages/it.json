@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Comando non autorizzato.",
-  "En direct dans votre barre système.": "In tempo reale nella barra di sistema."
+  "En direct dans votre barre système.": "In tempo reale nella barra di sistema.",
+  "Installation et données": "Installazione e dati",
+  "Désinstaller Computy": "Disinstalla Computy",
+  "Supprimer toutes les données": "Elimina tutti i dati",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Cronologia, preferenze e importazioni in attesa saranno eliminate. Le esportazioni personali saranno conservate.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "Il sistema chiederà la tua autorizzazione. I dati saranno conservati.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Versione portatile: elimina il file o la cartella dell’applicazione.",
+  "Cette action est irréversible.": "Questa azione è irreversibile."
 }

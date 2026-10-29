@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "এই কমান্ডের অনুমতি নেই।",
-  "En direct dans votre barre système.": "সিস্টেম ট্রেতে সরাসরি তথ্য।"
+  "En direct dans votre barre système.": "সিস্টেম ট্রেতে সরাসরি তথ্য।",
+  "Installation et données": "ইনস্টলেশন ও ডেটা",
+  "Désinstaller Computy": "Computy আনইনস্টল করুন",
+  "Supprimer toutes les données": "সমস্ত ডেটা মুছুন",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ইতিহাস, পছন্দ এবং অপেক্ষমাণ আমদানি মুছে যাবে। ব্যক্তিগত রপ্তানি রাখা হবে।",
+  "Le système demandera votre autorisation. Les données sont conservées.": "সিস্টেম আপনার অনুমতি চাইবে। ডেটা রাখা হবে।",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "পোর্টেবল সংস্করণ: অ্যাপের ফাইল বা ফোল্ডার মুছুন।",
+  "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
 }

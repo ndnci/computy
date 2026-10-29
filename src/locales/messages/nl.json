@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Opdracht niet toegestaan.",
-  "En direct dans votre barre système.": "Live in het systeemvak."
+  "En direct dans votre barre système.": "Live in het systeemvak.",
+  "Installation et données": "Installatie en gegevens",
+  "Désinstaller Computy": "Computy verwijderen",
+  "Supprimer toutes les données": "Alle gegevens wissen",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geschiedenis, voorkeuren en wachtende imports worden verwijderd. Persoonlijke exports blijven bewaard.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "Het systeem vraagt om toestemming. Gegevens blijven bewaard.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Draagbare versie: verwijder het toepassingsbestand of de map.",
+  "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt."
 }

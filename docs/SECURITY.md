@@ -69,3 +69,7 @@ Monitoring uses the current user's permissions. GPU commands use fixed arguments
 ## Indicator panel
 
 The panel uses local Computy assets and the same CSP. Its `engine_call` access is limited to telemetry and read-only preferences. Actions have fixed destinations; process names remain escaped text. Icons are resolved from local PIDs with 32 PIDs per request, a bounded cache and size-limited PNGs; the client supplies no paths. Executable paths used for resolution are not sent to CLI or MCP clients. StatusNotifier/DBusMenu is restricted to the user's session bus; no network port is opened. Watcher tests run in an isolated private bus.
+
+## Local maintenance
+
+Uninstall and full data-erasure commands require the main window and an explicit confirmation flag; neither is exposed through engine RPC or MCP. Erasure refuses an active diagnostic or another process's diagnostic lock, rejects symlinked managed paths, and preserves unrelated files and user exports. The CLI requires `erase-data --yes`. Linux removal uses fixed PolicyKit/APT arguments; Windows uses the adjacent NSIS uninstaller; macOS passes the current app bundle as a separate Finder argument. Portable installations receive manual removal guidance. Automated tests never invoke a real uninstaller or wipe host data.

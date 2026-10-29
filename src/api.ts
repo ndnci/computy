@@ -1,6 +1,7 @@
 import type { Preferences, Report } from './types';
 import { invoke } from '@tauri-apps/api/core';
 export const isDesktop = () => !!window.__TAURI_INTERNALS__;
+export const quitApplication = () => invoke('monitor_panel_action', { destination: 'quit' });
 export async function rpc<T>(method: string, params: unknown = {}): Promise<T> {
   if (isDesktop()) return invoke<T>('engine_call', { method, params });
   const response = await fetch('/api/computy', {

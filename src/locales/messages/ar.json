@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "الأمر غير مسموح.",
-  "En direct dans votre barre système.": "قياسات مباشرة في شريط النظام."
+  "En direct dans votre barre système.": "قياسات مباشرة في شريط النظام.",
+  "Installation et données": "التثبيت والبيانات",
+  "Désinstaller Computy": "إلغاء تثبيت Computy",
+  "Supprimer toutes les données": "حذف جميع البيانات",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "سيتم حذف السجل والتفضيلات وعمليات الاستيراد المعلقة. ستبقى الملفات المصدرة الشخصية.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "سيطلب النظام إذنك. ستبقى البيانات محفوظة.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "النسخة المحمولة: احذف ملف التطبيق أو مجلده.",
+  "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء."
 }

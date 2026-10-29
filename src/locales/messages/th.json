@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "ไม่อนุญาตให้ใช้คำสั่งนี้",
-  "En direct dans votre barre système.": "ข้อมูลสดในถาดระบบ"
+  "En direct dans votre barre système.": "ข้อมูลสดในถาดระบบ",
+  "Installation et données": "การติดตั้งและข้อมูล",
+  "Désinstaller Computy": "ถอนการติดตั้ง Computy",
+  "Supprimer toutes les données": "ลบข้อมูลทั้งหมด",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ประวัติ การตั้งค่า และการนำเข้าที่รอดำเนินการจะถูกลบ ไฟล์ส่งออกส่วนตัวจะยังอยู่",
+  "Le système demandera votre autorisation. Les données sont conservées.": "ระบบจะขออนุญาตจากคุณ ข้อมูลจะยังคงอยู่",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "รุ่นพกพา: ลบไฟล์หรือโฟลเดอร์ของแอป",
+  "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
 }

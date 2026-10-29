@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "不允许此命令。",
-  "En direct dans votre barre système.": "在系统托盘中实时查看。"
+  "En direct dans votre barre système.": "在系统托盘中实时查看。",
+  "Installation et données": "安装与数据",
+  "Désinstaller Computy": "卸载 Computy",
+  "Supprimer toutes les données": "删除所有数据",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "历史记录、偏好设置和待处理导入将被删除。个人导出文件将保留。",
+  "Le système demandera votre autorisation. Les données sont conservées.": "系统将请求您的授权。数据将保留。",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "便携版：删除应用程序文件或文件夹。",
+  "Cette action est irréversible.": "此操作无法撤销。"
 }

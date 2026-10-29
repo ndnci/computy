@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import { mkdtemp, readFile, rm, stat } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { createServer } from 'node:net';
@@ -14,6 +14,22 @@ const binary = path.resolve(
   process.env.COMPUTY_TEST_BINARY ||
     `native/target/release/computy-cli${process.platform === 'win32' ? '.exe' : ''}`,
 );
+test('CLI data erasure requires consent and keeps exported files', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'computy-erase-cli-'));
+  const call = async (args) =>
+    JSON.parse((await exec(binary, ['--data-dir', root, '--json', ...args])).stdout);
+  try {
+    await call(['diagnose', '--components', 'cpu', '--cpu-seconds', '1']);
+    await writeFile(path.join(root, 'export.json'), 'personal export');
+    await assert.rejects(call(['erase-data']));
+    assert.equal((await call(['history'])).reports.length, 1);
+    assert.deepEqual(await call(['erase-data', '--yes']), { erased: true });
+    assert.equal((await call(['history'])).reports.length, 0);
+    assert.equal(await readFile(path.join(root, 'export.json'), 'utf8'), 'personal export');
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 test('CLI monitor returns real passive measurements and all accessible processes without creating history', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'computy-monitor-'));
   try {

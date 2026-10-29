@@ -4,17 +4,19 @@ Validated on Linux on October 29, 2026. No remote service or public tunnel was o
 
 | Check | Result |
 |---|---|
-| Rust engine | 43 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
+| Rust engine | 46 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
 | Rust analysis | `cargo fmt --check` and Clippy, all targets, `-D warnings` |
-| Node integration | 17 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
+| Node integration | 18 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
 | Playwright interface | Independent selections, progress, history/comparison, two real reruns with identical parameters and new identifiers, independent checkboxes, measurements/processes, USB spinner, notifications and Secure Boot guidance; light/dark screenshots |
 | Internationalization | 25 languages visited, LTR/RTL layouts, system theme and explicit choices, three widths; additional screenshots in five languages and both themes |
-| Native desktop | Tauri binary, real Rust IPC, three persistent indicators, three RAM toggle cycles and two global cycles, native window close preserving the process and indicators, reopening the same window, Active/Passive states read over D-Bus, real activation and menus, resolved application icon, real measurements/processes, RAM/disk/CPU diagnostics, saved theme; eight WebKitGTK screenshots, a three-style rendering test and an isolated D-Bus test |
+| Native desktop | Tauri binary, real Rust IPC, three persistent indicators, three RAM toggle cycles and two global cycles, native window close preserving the process and indicators, reopening the same window, Active/Passive states read over D-Bus, real activation and menus, resolved application icon, D-Bus-only launcher without Exec, explicit dock/tray/in-app quit actions, confirmed erasure on disposable data, real measurements/processes, RAM/disk/CPU diagnostics, saved theme; ten WebKitGTK screenshots, a three-style rendering test and an isolated D-Bus test |
 | GRUB package 0.1.4 | Real Debian and Ubuntu libraries in a container, syntax validated by `grub-script-check`, separate/shared `/boot`, custom default preserved, failed probe producing no partial entry, existing configuration unchanged |
 | Build | Production frontend, Linux `.deb`, native CLI and Tauri checks in Docker |
 | JavaScript dependencies | `npm audit`: no reported vulnerability advisory at validation time |
 
 Automated UI results are recorded in [`capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json), [`native-results.json`](screenshots/native-results.json) and [`history-monitor-results.json`](screenshots/history-monitor-results.json). Style scenarios are recorded in [`tray-style-results.json`](screenshots/tray-style-results.json). Validation scripts generate these records without simulated health measurements.
+
+The 0.1.5 icon regression first crashed the native application with a valid D-Bus-only desktop fixture. After nullable executable handling was added, the same fixture passed and the application stayed open on the Ubuntu host. Separate private sessions verified dock, indicator-menu and in-app quit routes. No host data was erased or application uninstalled. `actionlint` validated both restored workflows; remote platform builds are reported by GitHub Actions.
 
 ## Reproduction
 
@@ -61,7 +63,7 @@ To also test the host GRUB library, mount that single file read-only at `/refere
 
 ## Scope
 
-Windows and macOS have adapters and a CI build matrix, but their packages, startup integration and the Windows diagnostic have not been physically executed in this Linux environment. SMBIOS and Windows parsers, including boot result events, are tested with fixtures. Automatic GitHub Actions remain disabled.
+Windows and macOS have adapters and a CI build matrix, but their packages, startup integration and the Windows diagnostic have not been physically executed in this Linux environment. SMBIOS and Windows parsers, including boot result events, are tested with fixtures. GitHub Actions are enabled; remote platform results must be checked on the actual workflow run.
 
 Successful builds and tests do not certify every component's health. Screenshots retain unknown or inaccessible checks. Coverage, firmware, cache and telemetry limitations appear in reports and the [methodology](DIAGNOSTICS.md).
 

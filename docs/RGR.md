@@ -57,3 +57,11 @@ Playwright screenshots verify the three persisted choices, RAM/CPU panels in bot
 The menu-generation test reproduced `grub_probe: parameter not set` in red using the real GRUB library: shell `set -u` interrupted normal optional-variable initialization. The generator now retains `set -e` without enabling `nounset`. Device setup is computed before any output so a failed probe cannot leave a partial entry.
 
 The check then passes with real Debian and Ubuntu libraries, the GRUB syntax validator, shared/separate `/boot` paths, and expected rejection cases. A failed probe produces no entry; custom defaults and the existing configuration are preserved. Tests run only in an isolated container without access to host disks. Native window closure is also checked with a real `WM_DELETE_WINDOW` event in Xvfb: the process and three indicators stay active, and the same window can be shown again. The final native test checks the visible application version against package metadata.
+
+## Update 0.1.5
+
+A valid `DBusActivatable=true` desktop fixture without `Exec` caused the existing native build to crash before its WebDriver session started. On the host, GDB stopped in `strlen`; the GIO application list contained an entry with a null executable. The non-optional gio 0.18 binding was replaced by an optional pointer conversion. The unchanged regression fixture then passed, and the corrected native application stayed open on the Ubuntu host.
+
+GNOME falls back to closing application windows when no explicit `app.quit` action is exported. Computy now registers its GTK ID and a quit action, while retaining window-close-to-tray behavior. Separate private native sessions exercise the GTK action used by the dock, the real DBusMenu Quit event with indicators active, and the main application's Quit button.
+
+Maintenance checks cover missing consent, active locks and symlink rejection, preserve unmanaged exports, and erase an actual disposable diagnostic history through CLI and native UI. Uninstall consent is tested without invoking the real uninstaller. Workflow syntax is checked with actionlint, release metadata is checked against the changelog, and the collector is run against actual Linux build artifacts.

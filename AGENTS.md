@@ -5,3 +5,4 @@
 - Never add `Co-authored-by`, a coauthor, or any signature or trailer attributing work to an agent, AI or tool.
 - Write a clear commit message describing the changes. Do not push commits without an explicit user request.
 - Maintain project documentation in English. Keep the application's supported UI languages and localization catalogs intact.
+- Record user-facing changes in root `CHANGELOG.md` using Keep a Changelog sections. Keep release tags, package versions and dated changelog entries consistent.

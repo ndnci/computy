@@ -14,6 +14,7 @@ use tauri_plugin_opener::OpenerExt;
 mod linux_indicator;
 #[cfg(target_os = "linux")]
 mod linux_menu;
+mod maintenance;
 mod monitor_tray;
 mod process_icons;
 mod tray_icon;
@@ -259,6 +260,17 @@ fn main() {
                 AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
             app.manage(service.clone());
             app.manage(monitor_tray::TrayState::default());
+            #[cfg(target_os = "linux")]
+            {
+                use gtk::prelude::*;
+                let window = app.get_webview_window("main").expect("main window");
+                let application = window.gtk_window()?.application().expect("GTK application");
+                let quit = gio::SimpleAction::new("quit", None);
+                let handle = app.handle().clone();
+                quit.connect_activate(move |_, _| handle.exit(0));
+                application.add_action(&quit);
+                application.set_accels_for_action("app.quit", &["<Primary>q"]);
+            }
             monitor_tray::setup_panel(app.handle())?;
             monitor_tray::start(app.handle().clone(), service);
             Ok(())
@@ -276,6 +288,8 @@ fn main() {
             monitor_panel_target,
             monitor_panel_action,
             monitor_tray_status,
+            maintenance::maintenance_info,
+            maintenance::maintenance_action,
             process_icons::process_icons
         ])
         .build(tauri::generate_context!())

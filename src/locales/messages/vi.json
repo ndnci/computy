@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Lệnh không được phép.",
-  "En direct dans votre barre système.": "Trực tiếp trên khay hệ thống."
+  "En direct dans votre barre système.": "Trực tiếp trên khay hệ thống.",
+  "Installation et données": "Cài đặt và dữ liệu",
+  "Désinstaller Computy": "Gỡ cài đặt Computy",
+  "Supprimer toutes les données": "Xóa tất cả dữ liệu",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Lịch sử, tùy chọn và mục nhập đang chờ sẽ bị xóa. Các tệp xuất cá nhân được giữ lại.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "Hệ thống sẽ yêu cầu bạn cho phép. Dữ liệu được giữ lại.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Bản di động: xóa tệp hoặc thư mục ứng dụng.",
+  "Cette action est irréversible.": "Không thể hoàn tác hành động này."
 }

@@ -1,0 +1,12 @@
+Computy
+Original Computy application code is licensed under GNU GPL version 3 only
+(SPDX: GPL-3.0-only). See LICENSE for the complete terms.
+
+Computy Memory Boot is a separately executed pre-OS component derived from
+Memtest86+ 9.00. It retains GNU GPL version 2 and its upstream copyright notices.
+See third_party/computy-memory-boot/LICENSE and COMPUTY.md. Its corresponding
+modified sources are included with the Debian package.
+
+Third-party Rust/JavaScript dependencies, fonts and other bundled components
+retain their respective licenses. The root license does not replace those terms.
+Source: https://github.com/sovetski/computy

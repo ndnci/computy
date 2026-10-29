@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "このコマンドは許可されていません。",
-  "En direct dans votre barre système.": "システムトレイでリアルタイムに確認。"
+  "En direct dans votre barre système.": "システムトレイでリアルタイムに確認。",
+  "Installation et données": "インストールとデータ",
+  "Désinstaller Computy": "Computy をアンインストール",
+  "Supprimer toutes les données": "すべてのデータを削除",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "履歴、設定、保留中のインポートを削除します。個人のエクスポートは保持されます。",
+  "Le système demandera votre autorisation. Les données sont conservées.": "システムが許可を求めます。データは保持されます。",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "ポータブル版：アプリのファイルまたはフォルダーを削除してください。",
+  "Cette action est irréversible.": "この操作は取り消せません。"
 }

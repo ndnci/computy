@@ -7,7 +7,7 @@ import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 const root = await mkdtemp(path.join(tmpdir(), 'computy-desktop-'));
-const destination = 'docs/screenshots';
+const destination = process.env.COMPUTY_SCREENSHOT_DIR || 'docs/screenshots';
 const expectedVersion = JSON.parse(await readFile('package.json', 'utf8')).version;
 await mkdir(destination, { recursive: true });
 await writeFile(
@@ -67,8 +67,8 @@ async function click(text) {
     `Missing button: ${text}`,
   );
 }
-async function capture(name) {
-  await execute('window.scrollTo(0,0)');
+async function capture(name, scroll = true) {
+  if (scroll) await execute('window.scrollTo(0,0)');
   // WebKit may expose updated DOM before its native screenshot surface is painted.
   await request('POST', `/session/${session}/execute/async`, {
     script:
@@ -86,6 +86,11 @@ try {
   await writeFile(
     path.join(root, 'applications/computy.desktop'),
     `[Desktop Entry]\nType=Application\nName=Computy\nExec=${path.resolve(process.env.COMPUTY_DESKTOP_BINARY || 'release/computy')}\nIcon=${path.resolve('public/computy-logo.png')}\n`,
+  );
+  // Valid D-Bus-only launchers may have no Exec key (seen on Ubuntu).
+  await writeFile(
+    path.join(root, 'applications/org.ndnci.ComputyNoExecutable.desktop'),
+    '[Desktop Entry]\nType=Application\nName=Computy no-executable fixture\nDBusActivatable=true\nNoDisplay=true\nIcon=application-x-executable\n',
   );
   for (let n = 0; n < 100; n++) {
     try {
@@ -323,11 +328,85 @@ try {
   await capture('overview-dark');
   assert.deepEqual(await execute('return window.__computyErrors||[]'), []);
   await click('Préférences');
-  await until("return !!document.querySelector('.monitor-settings [role=switch]')");
-  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+  await until("return !!document.querySelector('.maintenance-settings')");
+  await execute("document.querySelector('.maintenance-settings').scrollIntoView({block:'center'})");
+  await capture('maintenance-dark', false);
+  await click('Clair');
   await click('Enregistrer les préférences');
-  await trayCount(0);
-  await native('monitor_panel_action', { destination: 'quit' }).catch(() => {});
+  await until("return document.documentElement.dataset.theme==='light'");
+  await execute("document.querySelector('.maintenance-settings').scrollIntoView({block:'center'})");
+  await capture('maintenance-light', false);
+  await click('Supprimer toutes les données');
+  await until("return !!document.querySelector('[role=dialog]')");
+  assert.equal(
+    await execute("return document.querySelector('[role=dialog] .danger-button').disabled"),
+    true,
+  );
+  await click('Annuler');
+  await assert.rejects(native('maintenance_action', { action: 'erase', confirmed: false }));
+  await assert.rejects(native('maintenance_action', { action: 'uninstall', confirmed: false }));
+  assert.equal(
+    (await readdir(path.join(root, 'reports'))).filter((f) => f.endsWith('.json')).length,
+    2,
+  );
+  const quitMethod = process.env.COMPUTY_TEST_QUIT_METHOD || 'dock';
+  if (quitMethod === 'dock') {
+    await writeFile(path.join(root, 'export-sentinel.json'), 'user export');
+    await click('Supprimer toutes les données');
+    await execute("document.querySelector('[role=dialog] input[type=checkbox]').click()");
+    await execute("document.querySelector('[role=dialog] .danger-button').click()");
+    for (let n = 0; n < 100; n++) {
+      if (!(await readdir(path.join(root, 'reports'))).some((f) => f.endsWith('.json'))) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    assert.equal(
+      (await readdir(path.join(root, 'reports'))).filter((f) => f.endsWith('.json')).length,
+      0,
+    );
+    assert.equal(await readFile(path.join(root, 'export-sentinel.json'), 'utf8'), 'user export');
+    await until(
+      "return !!document.querySelector('.main-footer b') && !document.querySelector('[role=dialog]')",
+    );
+    assert.equal(
+      (await native('engine_call', { method: 'preferences', params: {} })).language,
+      'system',
+    );
+    await trayCount(3);
+    const actions = [
+      'call',
+      '--session',
+      '--dest',
+      'com.ndnci.computy',
+      '--object-path',
+      '/com/ndnci/computy',
+      '--method',
+    ];
+    assert.ok((await exec('gdbus', [...actions, 'org.gtk.Actions.List'])).stdout.includes('quit'));
+    await exec('gdbus', [...actions, 'org.gtk.Actions.Activate', 'quit', '[]', '{}']);
+  } else if (quitMethod === 'tray') {
+    await trayCount(3);
+    await exec('gdbus', [
+      'call',
+      '--session',
+      '--dest',
+      memory.bus,
+      '--object-path',
+      menuPath,
+      '--method',
+      'com.canonical.dbusmenu.Event',
+      '33',
+      'clicked',
+      '<0>',
+      '0',
+    ]);
+  } else if (quitMethod === 'button') {
+    await execute("document.querySelector('.quit-application').click()");
+  } else if (quitMethod === 'disabled') {
+    await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+    await click('Enregistrer les préférences');
+    await trayCount(0);
+    await native('monitor_panel_action', { destination: 'quit' }).catch(() => {});
+  } else throw Error('Unknown quit test method');
   let exited = false;
   for (let n = 0; n < 60; n++) {
     try {
@@ -345,7 +424,7 @@ try {
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-  assert.ok(exited, 'quitting with indicators disabled must exit the app');
+  assert.ok(exited, `quitting via ${quitMethod} must exit the app`);
   const result = {
     version: expectedVersion,
     native: 'Tauri / WebKitGTK',
@@ -357,8 +436,12 @@ try {
     real_dbus_status_and_activation: true,
     real_dbus_menu_activation: true,
     real_application_icon: true,
+    dbus_only_desktop_entry_survives: true,
     custom_popover: true,
-    quit_without_indicators_exits: true,
+    quit_method: quitMethod,
+    quit_exits: true,
+    maintenance_consent_verified: true,
+    maintenance_erasure_verified: quitMethod === 'dock',
     actual_process_telemetry: true,
     native_window_close_keeps_monitoring: true,
     reopening_keeps_same_process: true,
@@ -367,8 +450,9 @@ try {
   };
   await writeFile(`${destination}/native-results.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(
-    'Native Tauri, repeated tray toggles, D-Bus activation, application icons and 8 real WebKit captures verified.',
+    'Native Tauri, maintenance consent, tray toggles, quit actions and 10 real WebKit captures verified.',
   );
+  console.log(JSON.stringify(result));
 } catch (error) {
   console.error(logs.slice(-6000));
   throw error;

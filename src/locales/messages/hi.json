@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "कमांड की अनुमति नहीं है।",
-  "En direct dans votre barre système.": "सिस्टम ट्रे में लाइव जानकारी।"
+  "En direct dans votre barre système.": "सिस्टम ट्रे में लाइव जानकारी।",
+  "Installation et données": "इंस्टॉलेशन और डेटा",
+  "Désinstaller Computy": "Computy अनइंस्टॉल करें",
+  "Supprimer toutes les données": "सारा डेटा मिटाएँ",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "इतिहास, प्राथमिकताएँ और लंबित आयात मिटा दिए जाएँगे। व्यक्तिगत निर्यात सुरक्षित रहेंगे।",
+  "Le système demandera votre autorisation. Les données sont conservées.": "सिस्टम आपकी अनुमति माँगेगा। डेटा सुरक्षित रहेगा।",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "पोर्टेबल संस्करण: एप्लिकेशन की फ़ाइल या फ़ोल्डर मिटाएँ।",
+  "Cette action est irréversible.": "इस कार्रवाई को वापस नहीं लिया जा सकता।"
 }

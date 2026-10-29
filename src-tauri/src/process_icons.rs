@@ -88,13 +88,18 @@ fn load_icon(path: &Path) -> Option<Vec<u8>> {
     }
     let stem = normalized(path.file_name()?.to_str()?);
     let app = gio::AppInfo::all().into_iter().find(|app| {
-        let executable = app.executable();
+        // Some valid DBusActivatable desktop entries have no Exec key. gio 0.18's
+        // non-optional executable() binding passes that null pointer to strlen.
+        use gtk::glib::translate::{ToGlibPtr, from_glib_none};
+        let executable: Option<PathBuf> =
+            unsafe { from_glib_none(gio::ffi::g_app_info_get_executable(app.to_glib_none().0)) };
         let name = executable
-            .file_name()
+            .as_deref()
+            .and_then(Path::file_name)
             .and_then(|s| s.to_str())
             .unwrap_or("");
         normalized(name) == stem
-            || executable == path
+            || executable.as_deref() == Some(path)
             || app.id().is_some_and(|id| {
                 normalized(
                     id.trim_end_matches(".desktop")

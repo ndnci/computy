@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Perintah tidak diizinkan.",
-  "En direct dans votre barre système.": "Langsung di baki sistem Anda."
+  "En direct dans votre barre système.": "Langsung di baki sistem Anda.",
+  "Installation et données": "Instalasi dan data",
+  "Désinstaller Computy": "Hapus instalasi Computy",
+  "Supprimer toutes les données": "Hapus semua data",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Riwayat, preferensi, dan impor tertunda akan dihapus. Ekspor pribadi tetap disimpan.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "Sistem akan meminta izin Anda. Data tetap disimpan.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Versi portabel: hapus berkas atau folder aplikasi.",
+  "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan."
 }

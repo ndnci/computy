@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "Niedozwolone polecenie.",
-  "En direct dans votre barre système.": "Na żywo w zasobniku systemowym."
+  "En direct dans votre barre système.": "Na żywo w zasobniku systemowym.",
+  "Installation et données": "Instalacja i dane",
+  "Désinstaller Computy": "Odinstaluj Computy",
+  "Supprimer toutes les données": "Usuń wszystkie dane",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, preferencje i oczekujące importy zostaną usunięte. Własne eksporty zostaną zachowane.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "System poprosi o zgodę. Dane zostaną zachowane.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "Wersja przenośna: usuń plik lub folder aplikacji.",
+  "Cette action est irréversible.": "Tej operacji nie można cofnąć."
 }

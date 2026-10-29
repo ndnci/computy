@@ -15,6 +15,7 @@ import { useApp } from '../app-context';
 import { defaultPreferences, isDesktop, setStartup, startupStatus } from '../api';
 import { Notice, Panel, PanelHeader, SectionTitle, Spinner } from '../components';
 import MonitorSettings from './MonitorSettings';
+import MaintenanceSettings from './MaintenanceSettings';
 export default function SettingsPage() {
   const { preferences, savePreferences, notify } = useApp();
   const [draft, setDraft] = useState({
@@ -304,6 +305,7 @@ export default function SettingsPage() {
           {tx('Enregistrer les pr\xE9f\xE9rences')}
         </button>
       </div>
+      <MaintenanceSettings />
     </div>
   );
 }

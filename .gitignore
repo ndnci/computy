@@ -11,3 +11,5 @@ playwright-report/
 .DS_Store
 third_party/computy-memory-boot/build/*/memtest_text.bin
 third_party/computy-memory-boot/build/*/memtest_data.bin
+
+release-assets/

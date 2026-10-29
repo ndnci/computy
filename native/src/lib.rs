@@ -5,6 +5,7 @@ pub mod diagnostics;
 pub mod domain;
 pub mod inventory;
 pub mod linux_boot;
+pub mod maintenance;
 #[cfg(feature = "cli")]
 pub mod mcp;
 pub mod monitor;

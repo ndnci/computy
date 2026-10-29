@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "הפקודה אינה מורשית.",
-  "En direct dans votre barre système.": "נתונים חיים במגש המערכת."
+  "En direct dans votre barre système.": "נתונים חיים במגש המערכת.",
+  "Installation et données": "התקנה ונתונים",
+  "Désinstaller Computy": "הסרת Computy",
+  "Supprimer toutes les données": "מחיקת כל הנתונים",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ההיסטוריה, ההעדפות והייבוא הממתין יימחקו. קובצי ייצוא אישיים יישמרו.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "המערכת תבקש את אישורך. הנתונים יישמרו.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "גרסה ניידת: יש למחוק את קובץ היישום או את התיקייה.",
+  "Cette action est irréversible.": "לא ניתן לבטל פעולה זו."
 }

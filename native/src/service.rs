@@ -98,6 +98,16 @@ impl AppService {
     pub fn active_job(&self) -> Option<Job> {
         self.job.lock().unwrap_or_else(|e| e.into_inner()).clone()
     }
+    pub fn erase_data(&self, confirmed: bool) -> Result<(), String> {
+        let mut job = self.job.lock().unwrap_or_else(|e| e.into_inner());
+        if job.as_ref().is_some_and(|job| job.running) {
+            return Err("Stop the active diagnostic before erasing data.".into());
+        }
+        crate::maintenance::erase_data(&self.data_root(), confirmed)?;
+        crate::repository::FileRepository::new(self.data_root().join("reports"))?;
+        *job = None;
+        Ok(())
+    }
     pub fn cancel(&self, id: &str) -> Result<(), String> {
         let mut guard = self.job.lock().unwrap_or_else(|e| e.into_inner());
         let job = guard

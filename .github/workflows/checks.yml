@@ -1,20 +1,37 @@
-name: Computy
-on: [push, pull_request]
+name: Computy checks and packages
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
   native-and-desktop:
+    name: ${{ matrix.platform }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-22.04
-            bundles: deb
+          - os: ubuntu-24.04
+            platform: linux-x86_64
+            bundles: deb,appimage
           - os: windows-latest
+            platform: windows-x86_64
             bundles: nsis
-          - os: macos-latest
+          - os: macos-15-intel
+            platform: macos-x86_64
+            bundles: dmg
+          - os: macos-15
+            platform: macos-aarch64
             bundles: dmg
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      APPIMAGE_EXTRACT_AND_RUN: '1'
+      # Ad-hoc signing allows Apple Silicon testing; it is not Developer ID signing.
+      APPLE_SIGNING_IDENTITY: '-'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -27,17 +44,20 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
       - run: npm ci
       - run: cargo fmt --manifest-path native/Cargo.toml --check
+      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
       - run: cargo test --locked --manifest-path native/Cargo.toml
       - run: cargo clippy --locked --manifest-path native/Cargo.toml --all-targets -- -D warnings
       - run: npm run build:engine
       - run: npm test
-      - run: npm run build
-      - run: cargo check --locked --manifest-path src-tauri/Cargo.toml
+      - run: npm run format:check
       - run: npm run package -- --bundles ${{ matrix.bundles }}
+      - run: node scripts/collect-release.mjs
+        env:
+          COMPUTY_RELEASE_PLATFORM: ${{ matrix.platform }}
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
         with:
-          name: computy-${{ matrix.os }}
-          path: |
-            src-tauri/target/release/bundle/**
-            native/target/release/computy-cli
-            native/target/release/computy-cli.exe
+          name: computy-${{ matrix.platform }}
+          path: release-assets/*
+          if-no-files-found: error
+          retention-days: 1

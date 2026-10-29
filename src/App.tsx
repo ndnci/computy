@@ -17,13 +17,20 @@ import {
   MemoryStick,
   Monitor,
   Plus,
+  Power,
   RefreshCw,
   Settings2,
   ShieldCheck,
   X,
 } from 'lucide-react';
 import { AppContext } from './app-context';
-import { exportReport as exportFile, loadPreferences, rpc } from './api';
+import {
+  exportReport as exportFile,
+  isDesktop,
+  loadPreferences,
+  quitApplication,
+  rpc,
+} from './api';
 import { Logo, Modal, Progress, ReportDetails, Spinner } from './components';
 import Overview from './pages/Overview';
 import Hardware from './pages/Hardware';
@@ -497,6 +504,15 @@ export default function App() {
               <b>{tx('NDNCI')}</b>
               <ArrowUpRight size={13} />
             </a>
+            {isDesktop() && (
+              <button
+                className="nav-item quit-application"
+                onClick={() => void quitApplication().catch((e) => notify(e.message, true))}
+              >
+                <Power size={18} />
+                <span>{tx('Quitter Computy')}</span>
+              </button>
+            )}
           </div>
         </aside>
         <div className="main-shell">

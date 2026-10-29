@@ -781,5 +781,12 @@
   "≥ 90 %": "≥ 90 %",
   "SSD / HDD": "SSD / HDD",
   "Commande non autorisée.": "허용되지 않는 명령입니다.",
-  "En direct dans votre barre système.": "시스템 트레이에서 실시간으로 확인하세요."
+  "En direct dans votre barre système.": "시스템 트레이에서 실시간으로 확인하세요.",
+  "Installation et données": "설치 및 데이터",
+  "Désinstaller Computy": "Computy 제거",
+  "Supprimer toutes les données": "모든 데이터 삭제",
+  "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "기록, 환경설정 및 대기 중인 가져오기가 삭제됩니다. 개인 내보내기 파일은 유지됩니다.",
+  "Le système demandera votre autorisation. Les données sont conservées.": "시스템이 권한을 요청합니다. 데이터는 유지됩니다.",
+  "Version portable : supprimez le fichier ou le dossier de l’application.": "휴대용 버전: 앱 파일 또는 폴더를 삭제하세요.",
+  "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다."
 }

@@ -22,6 +22,12 @@ Created by **[NDNCI](https://www.ndnci.com)**. No account or usage tracking. You
 
 **An error-free result means no error was observed under the test conditions. It does not certify fault-free hardware.** Computy shows missing information and the scope of each check. Its score out of 10 summarizes usable checks; it is not a probability of good health.
 
+See the [changelog](CHANGELOG.md) for the complete version history and the [distribution guide](docs/DISTRIBUTION.md) for GitHub releases, uninstallation, data erasure and stores.
+
+## License
+
+Computy’s original code is licensed under [GNU GPLv3](LICENSE). The separately executed preboot component retains GPLv2; bundled dependencies keep their own licenses. See [NOTICE](NOTICE).
+
 ## Getting started
 
 ### Try the existing Linux development build
@@ -41,7 +47,7 @@ In the application, open **Diagnostics**, select components, choose the quick pr
 On Ubuntu/Debian, installing the package also adds Computy to the applications menu:
 
 ```bash
-sudo apt install ./release/Computy_0.1.4_amd64.deb
+sudo apt install ./release/Computy_0.1.5_amd64.deb
 ```
 
 Runtime libraries are present on the development PC used for validation. Files in `release/` are local build artifacts excluded from Git; after cloning the repository, build them using the commands below.
@@ -61,9 +67,9 @@ Build a native package for the current platform:
 npm run package
 ```
 
-Packages are written to `src-tauri/target/release/bundle/`. Build Windows and macOS packages on their respective operating systems. The three-platform workflow is preserved in `.github/workflows/checks.yml.disabled`; automatic GitHub Actions are currently disabled. Releases are not signed or notarized yet.
+Packages are written to `src-tauri/target/release/bundle/`. Build Windows and macOS packages on their respective operating systems. GitHub Actions build Linux, Windows, Intel Mac and Apple Silicon packages. Publishing a matching GitHub release attaches downloadable installers and CLI binaries automatically. Releases are not signed or notarized yet.
 
-The locally validated Linux package is [`release/Computy_0.1.4_amd64.deb`](release/Computy_0.1.4_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
+The locally validated Linux package is [`release/Computy_0.1.5_amd64.deb`](release/Computy_0.1.5_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
 
 ### Develop and validate with Docker
 
@@ -165,11 +171,11 @@ See [behavior, limits and confirmations](docs/BOOT-DIAGNOSTICS.md).
 Choose **Quit Computy** from an indicator's menu, then run these commands from the repository root:
 
 ```bash
-sudo apt install ./release/Computy_0.1.4_amd64.deb
+sudo apt install ./release/Computy_0.1.5_amd64.deb
 /usr/bin/computy
 ```
 
-The package name remains `computy`: APT upgrades the existing installation to 0.1.4. History and preferences stay in the same user data directory. The header's **Refresh hardware info** action rereads hardware information and shows a notification; it does not update the application. A portable copy launched with `./release/computy` is separate from the APT installation: use the applications menu or `/usr/bin/computy` to test the installed package.
+The package name remains `computy`: APT upgrades the existing installation to 0.1.5. History and preferences stay in the same user data directory. The header's **Refresh hardware info** action rereads hardware information and shows a notification; it does not update the application. A portable copy launched with `./release/computy` is separate from the APT installation: use the applications menu or `/usr/bin/computy` to test the installed package.
 
 **Closing the window keeps Computy running in the background while its indicators are present.** APT replaces the installed file, but an already running process keeps executing the previous version. Single-instance handling also sends subsequent launches to that process. Choose **Quit Computy**, then reopen the application to load the updated version without restarting your PC. Use `dpkg-query -W computy` to check the installed package version separately.
 
@@ -227,6 +233,14 @@ Screenshots show information exposed by the validation machine. Reports come fro
 |---|---|
 | ![History in light mode](docs/screenshots/history-light.png) | ![History in dark mode](docs/screenshots/history-dark.png) |
 | ![Comparison in light mode](docs/screenshots/comparison-light.png) | ![Comparison in dark mode](docs/screenshots/comparison-dark.png) |
+
+### Installation and data
+
+Uninstallation and data erasure are separate confirmed actions in Preferences. The installed package uses the platform uninstaller; portable builds show file-manager guidance. See the [distribution guide](docs/DISTRIBUTION.md) for details and limits.
+
+| Light | Dark |
+|---|---|
+| ![Maintenance settings in light mode](docs/screenshots/native-linux-maintenance-light.png) | ![Maintenance settings in dark mode](docs/screenshots/native-linux-maintenance-dark.png) |
 
 ### Hardware and preferences
 

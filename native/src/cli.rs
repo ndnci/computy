@@ -92,6 +92,11 @@ pub enum Commands {
         #[arg(long)]
         yes: bool,
     },
+    /// Erase saved reports, preferences and pending imports (requires --yes).
+    EraseData {
+        #[arg(long)]
+        yes: bool,
+    },
     /// Read/update settings shared with the UI.
     Settings {
         #[command(subcommand)]
@@ -198,6 +203,13 @@ pub fn run(cli: Cli) -> Result<i32, String> {
     let repository = Arc::new(FileRepository::new(root.join("reports"))?);
     let service = AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
     let result = match cli.command {
+        Commands::EraseData { yes } => {
+            service.erase_data(yes)?;
+            if cli.json {
+                println!("{{\"erased\":true}}");
+            }
+            0
+        }
         Commands::Monitor { watch } => {
             let running = Arc::new(AtomicBool::new(true));
             let signal = running.clone();
