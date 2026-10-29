@@ -20,7 +20,8 @@ commits and locally built packages, not from previously published store releases
 - Headless `computy-cli erase-data --yes`, with diagnostic locking and symlink
   checks. Erasure is not exposed through MCP.
 - GitHub release builds for Linux x86-64, Windows x86-64, Intel Mac and Apple
-  Silicon, including native CLI downloads and per-platform SHA-256 manifests.
+  Silicon, including native CLI archives with license notices and per-platform
+  SHA-256 manifests.
 - Store distribution guidance and this changelog, covering the project from its
   first local release.
 
@@ -41,6 +42,7 @@ commits and locally built packages, not from previously published store releases
   variable. Obsolete branch builds are cancelled when a newer push arrives.
 - Windows preboot-import compilation and portable USB-test fixture paths, while
   preserving the production rejection of noncanonical USB destinations.
+- Consistent LF source checkouts on Windows so formatting checks agree across OSes.
 
 ## [0.1.4] - 2026-10-29
 

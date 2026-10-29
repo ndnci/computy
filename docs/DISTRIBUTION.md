@@ -9,9 +9,13 @@ manual runs also produce downloadable workflow artifacts. The same workflow is r
 | Target | Installer | CLI asset suffix |
 |---|---|---|
 | Linux x86-64 | `.deb`, `.AppImage` | `linux-x86_64` |
-| Windows x86-64 | NSIS `.exe` | `windows-x86_64.exe` |
+| Windows x86-64 | NSIS `.exe` | `windows-x86_64` |
 | Intel Mac | `.dmg` | `macos-x86_64` |
 | Apple Silicon Mac | `.dmg` | `macos-aarch64` |
+
+CLI downloads are `.tar.gz` archives containing the native executable, `LICENSE`
+and `NOTICE`. Extract before running (`tar -xzf FILE.tar.gz`, also available on
+current Windows versions). Each archive and installer has a SHA-256 entry.
 
 Linux's `.deb` includes the boot helper and GPL preboot component with its sources.
 The portable AppImage does not install privileged boot integration under `/boot`;
