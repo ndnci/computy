@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ההיסטוריה, ההעדפות והייבוא הממתין יימחקו. קובצי ייצוא אישיים יישמרו.",
   "Le système demandera votre autorisation. Les données sont conservées.": "המערכת תבקש את אישורך. הנתונים יישמרו.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "גרסה ניידת: יש למחוק את קובץ היישום או את התיקייה.",
-  "Cette action est irréversible.": "לא ניתן לבטל פעולה זו."
+  "Cette action est irréversible.": "לא ניתן לבטל פעולה זו.",
+  "Démarrage automatique": "הפעלה אוטומטית",
+  "Afficher les indicateurs à la connexion": "הצגת מחוונים בכניסה",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "מפעיל ניטור ברקע בלי לפתוח את החלון הראשי.",
+  "Le moniteur démarrera à la connexion.": "הניטור יתחיל בכניסה."
 }

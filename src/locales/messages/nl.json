@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geschiedenis, voorkeuren en wachtende imports worden verwijderd. Persoonlijke exports blijven bewaard.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Het systeem vraagt om toestemming. Gegevens blijven bewaard.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Draagbare versie: verwijder het toepassingsbestand of de map.",
-  "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt."
+  "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt.",
+  "Démarrage automatique": "Automatisch starten",
+  "Afficher les indicateurs à la connexion": "Indicatoren tonen bij aanmelden",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Start de monitor op de achtergrond zonder het hoofdvenster te openen.",
+  "Le moniteur démarrera à la connexion.": "De monitor start bij het aanmelden."
 }

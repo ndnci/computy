@@ -789,5 +789,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "History, preferences and pending imports will be deleted. Personal exports are kept.",
   "Le système demandera votre autorisation. Les données sont conservées.": "The system will ask for your permission. Data is kept.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable version: delete the application file or folder.",
-  "Cette action est irréversible.": "This action cannot be undone."
+  "Cette action est irréversible.": "This action cannot be undone.",
+  "Démarrage automatique": "Login startup",
+  "Afficher les indicateurs à la connexion": "Show indicators at login",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Starts monitoring in the background without opening the main window.",
+  "Le moniteur démarrera à la connexion.": "Monitoring will start at login."
 }

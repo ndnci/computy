@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, preferencje i oczekujące importy zostaną usunięte. Własne eksporty zostaną zachowane.",
   "Le système demandera votre autorisation. Les données sont conservées.": "System poprosi o zgodę. Dane zostaną zachowane.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Wersja przenośna: usuń plik lub folder aplikacji.",
-  "Cette action est irréversible.": "Tej operacji nie można cofnąć."
+  "Cette action est irréversible.": "Tej operacji nie można cofnąć.",
+  "Démarrage automatique": "Automatyczne uruchamianie",
+  "Afficher les indicateurs à la connexion": "Pokaż wskaźniki po zalogowaniu",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Uruchamia monitor w tle bez otwierania głównego okna.",
+  "Le moniteur démarrera à la connexion.": "Monitor uruchomi się po zalogowaniu."
 }

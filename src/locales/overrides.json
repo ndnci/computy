@@ -180,7 +180,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "History, preferences and pending imports will be deleted. Personal exports are kept.",
     "Le système demandera votre autorisation. Les données sont conservées.": "The system will ask for your permission. Data is kept.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable version: delete the application file or folder.",
-    "Cette action est irréversible.": "This action cannot be undone."
+    "Cette action est irréversible.": "This action cannot be undone.",
+    "Démarrage automatique": "Login startup",
+    "Afficher les indicateurs à la connexion": "Show indicators at login",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Starts monitoring in the background without opening the main window.",
+    "Le moniteur démarrera à la connexion.": "Monitoring will start at login."
   },
   "es": {
     "Vue d’ensemble": "Vista general",
@@ -250,7 +254,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Se eliminarán el historial, las preferencias y las importaciones pendientes. Se conservan las exportaciones personales.",
     "Le système demandera votre autorisation. Les données sont conservées.": "El sistema solicitará tu autorización. Se conservan los datos.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Versión portátil: elimina el archivo o la carpeta de la aplicación.",
-    "Cette action est irréversible.": "Esta acción no se puede deshacer."
+    "Cette action est irréversible.": "Esta acción no se puede deshacer.",
+    "Démarrage automatique": "Inicio automático",
+    "Afficher les indicateurs à la connexion": "Mostrar indicadores al iniciar sesión",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Inicia el monitor en segundo plano sin abrir la ventana principal.",
+    "Le moniteur démarrera à la connexion.": "El monitor se iniciará al iniciar sesión."
   },
   "pt-BR": {
     "Vue d’ensemble": "Visão geral",
@@ -320,7 +328,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "O histórico, as preferências e as importações pendentes serão excluídos. As exportações pessoais serão mantidas.",
     "Le système demandera votre autorisation. Les données sont conservées.": "O sistema pedirá sua autorização. Os dados serão mantidos.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Versão portátil: exclua o arquivo ou a pasta do aplicativo.",
-    "Cette action est irréversible.": "Esta ação não pode ser desfeita."
+    "Cette action est irréversible.": "Esta ação não pode ser desfeita.",
+    "Démarrage automatique": "Inicialização automática",
+    "Afficher les indicateurs à la connexion": "Mostrar indicadores ao entrar",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Inicia o monitor em segundo plano sem abrir a janela principal.",
+    "Le moniteur démarrera à la connexion.": "O monitor iniciará ao entrar."
   },
   "de": {
     "Vue d’ensemble": "Übersicht",
@@ -390,7 +402,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Verlauf, Einstellungen und ausstehende Importe werden gelöscht. Persönliche Exporte bleiben erhalten.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Das System fragt nach Ihrer Erlaubnis. Die Daten bleiben erhalten.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable Version: Löschen Sie die Anwendungsdatei oder den Ordner.",
-    "Cette action est irréversible.": "Diese Aktion kann nicht rückgängig gemacht werden."
+    "Cette action est irréversible.": "Diese Aktion kann nicht rückgängig gemacht werden.",
+    "Démarrage automatique": "Automatischer Start",
+    "Afficher les indicateurs à la connexion": "Anzeigen bei der Anmeldung einblenden",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Startet die Überwachung im Hintergrund, ohne das Hauptfenster zu öffnen.",
+    "Le moniteur démarrera à la connexion.": "Die Überwachung startet bei der Anmeldung."
   },
   "it": {
     "Vue d’ensemble": "Panoramica",
@@ -460,7 +476,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Cronologia, preferenze e importazioni in attesa saranno eliminate. Le esportazioni personali saranno conservate.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Il sistema chiederà la tua autorizzazione. I dati saranno conservati.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Versione portatile: elimina il file o la cartella dell’applicazione.",
-    "Cette action est irréversible.": "Questa azione è irreversibile."
+    "Cette action est irréversible.": "Questa azione è irreversibile.",
+    "Démarrage automatique": "Avvio automatico",
+    "Afficher les indicateurs à la connexion": "Mostra gli indicatori all’accesso",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Avvia il monitoraggio in background senza aprire la finestra principale.",
+    "Le moniteur démarrera à la connexion.": "Il monitoraggio si avvierà all’accesso."
   },
   "nl": {
     "Vue d’ensemble": "Overzicht",
@@ -530,7 +550,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geschiedenis, voorkeuren en wachtende imports worden verwijderd. Persoonlijke exports blijven bewaard.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Het systeem vraagt om toestemming. Gegevens blijven bewaard.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Draagbare versie: verwijder het toepassingsbestand of de map.",
-    "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt."
+    "Cette action est irréversible.": "Deze actie kan niet ongedaan worden gemaakt.",
+    "Démarrage automatique": "Automatisch starten",
+    "Afficher les indicateurs à la connexion": "Indicatoren tonen bij aanmelden",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Start de monitor op de achtergrond zonder het hoofdvenster te openen.",
+    "Le moniteur démarrera à la connexion.": "De monitor start bij het aanmelden."
   },
   "pl": {
     "Vue d’ensemble": "Przegląd",
@@ -600,7 +624,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, preferencje i oczekujące importy zostaną usunięte. Własne eksporty zostaną zachowane.",
     "Le système demandera votre autorisation. Les données sont conservées.": "System poprosi o zgodę. Dane zostaną zachowane.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Wersja przenośna: usuń plik lub folder aplikacji.",
-    "Cette action est irréversible.": "Tej operacji nie można cofnąć."
+    "Cette action est irréversible.": "Tej operacji nie można cofnąć.",
+    "Démarrage automatique": "Automatyczne uruchamianie",
+    "Afficher les indicateurs à la connexion": "Pokaż wskaźniki po zalogowaniu",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Uruchamia monitor w tle bez otwierania głównego okna.",
+    "Le moniteur démarrera à la connexion.": "Monitor uruchomi się po zalogowaniu."
   },
   "ru": {
     "Vue d’ensemble": "Обзор",
@@ -670,7 +698,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "История, настройки и ожидающие импорты будут удалены. Личные экспорты сохранятся.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Система запросит разрешение. Данные сохранятся.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Переносная версия: удалите файл или папку приложения.",
-    "Cette action est irréversible.": "Это действие нельзя отменить."
+    "Cette action est irréversible.": "Это действие нельзя отменить.",
+    "Démarrage automatique": "Автозапуск",
+    "Afficher les indicateurs à la connexion": "Показывать индикаторы при входе",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Запускает мониторинг в фоне без открытия главного окна.",
+    "Le moniteur démarrera à la connexion.": "Мониторинг запустится при входе."
   },
   "uk": {
     "Vue d’ensemble": "Огляд",
@@ -740,7 +772,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Історію, налаштування та імпорти в очікуванні буде видалено. Особисті експорти залишаться.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Система запитає ваш дозвіл. Дані залишаться.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Портативна версія: видаліть файл або папку програми.",
-    "Cette action est irréversible.": "Цю дію неможливо скасувати."
+    "Cette action est irréversible.": "Цю дію неможливо скасувати.",
+    "Démarrage automatique": "Автозапуск",
+    "Afficher les indicateurs à la connexion": "Показувати індикатори після входу",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Запускає моніторинг у фоні без відкриття головного вікна.",
+    "Le moniteur démarrera à la connexion.": "Моніторинг запуститься після входу."
   },
   "tr": {
     "Vue d’ensemble": "Genel bakış",
@@ -810,7 +846,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geçmiş, tercihler ve bekleyen içe aktarmalar silinir. Kişisel dışa aktarmalar korunur.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Sistem izninizi isteyecektir. Veriler korunur.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Taşınabilir sürüm: uygulama dosyasını veya klasörünü silin.",
-    "Cette action est irréversible.": "Bu işlem geri alınamaz."
+    "Cette action est irréversible.": "Bu işlem geri alınamaz.",
+    "Démarrage automatique": "Otomatik başlatma",
+    "Afficher les indicateurs à la connexion": "Oturum açıldığında göstergeleri göster",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Ana pencereyi açmadan izlemeyi arka planda başlatır.",
+    "Le moniteur démarrera à la connexion.": "İzleme oturum açıldığında başlayacak."
   },
   "ar": {
     "Vue d’ensemble": "نظرة عامة",
@@ -880,7 +920,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "سيتم حذف السجل والتفضيلات وعمليات الاستيراد المعلقة. ستبقى الملفات المصدرة الشخصية.",
     "Le système demandera votre autorisation. Les données sont conservées.": "سيطلب النظام إذنك. ستبقى البيانات محفوظة.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "النسخة المحمولة: احذف ملف التطبيق أو مجلده.",
-    "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء."
+    "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء.",
+    "Démarrage automatique": "التشغيل التلقائي",
+    "Afficher les indicateurs à la connexion": "عرض المؤشرات عند تسجيل الدخول",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "يبدأ المراقبة في الخلفية دون فتح النافذة الرئيسية.",
+    "Le moniteur démarrera à la connexion.": "ستبدأ المراقبة عند تسجيل الدخول."
   },
   "hi": {
     "Vue d’ensemble": "अवलोकन",
@@ -950,7 +994,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "इतिहास, प्राथमिकताएँ और लंबित आयात मिटा दिए जाएँगे। व्यक्तिगत निर्यात सुरक्षित रहेंगे।",
     "Le système demandera votre autorisation. Les données sont conservées.": "सिस्टम आपकी अनुमति माँगेगा। डेटा सुरक्षित रहेगा।",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "पोर्टेबल संस्करण: एप्लिकेशन की फ़ाइल या फ़ोल्डर मिटाएँ।",
-    "Cette action est irréversible.": "इस कार्रवाई को वापस नहीं लिया जा सकता।"
+    "Cette action est irréversible.": "इस कार्रवाई को वापस नहीं लिया जा सकता।",
+    "Démarrage automatique": "स्वचालित शुरुआत",
+    "Afficher les indicateurs à la connexion": "लॉगिन पर संकेतक दिखाएँ",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "मुख्य विंडो खोले बिना पृष्ठभूमि में निगरानी शुरू करता है।",
+    "Le moniteur démarrera à la connexion.": "लॉगिन पर निगरानी शुरू होगी।"
   },
   "bn": {
     "Vue d’ensemble": "সারসংক্ষেপ",
@@ -1020,7 +1068,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ইতিহাস, পছন্দ এবং অপেক্ষমাণ আমদানি মুছে যাবে। ব্যক্তিগত রপ্তানি রাখা হবে।",
     "Le système demandera votre autorisation. Les données sont conservées.": "সিস্টেম আপনার অনুমতি চাইবে। ডেটা রাখা হবে।",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "পোর্টেবল সংস্করণ: অ্যাপের ফাইল বা ফোল্ডার মুছুন।",
-    "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+    "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।",
+    "Démarrage automatique": "স্বয়ংক্রিয় চালু",
+    "Afficher les indicateurs à la connexion": "লগইনে সূচক দেখান",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "মূল উইন্ডো না খুলে পটভূমিতে পর্যবেক্ষণ শুরু করে।",
+    "Le moniteur démarrera à la connexion.": "লগইনে পর্যবেক্ষণ শুরু হবে।"
   },
   "ur": {
     "Vue d’ensemble": "جائزہ",
@@ -1090,7 +1142,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "تاریخ، ترجیحات اور زیر التوا درآمدات مٹا دی جائیں گی۔ ذاتی برآمدات محفوظ رہیں گی۔",
     "Le système demandera votre autorisation. Les données sont conservées.": "سسٹم آپ کی اجازت مانگے گا۔ ڈیٹا محفوظ رہے گا۔",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "پورٹیبل ورژن: ایپ کی فائل یا فولڈر حذف کریں۔",
-    "Cette action est irréversible.": "اس عمل کو واپس نہیں لیا جا سکتا۔"
+    "Cette action est irréversible.": "اس عمل کو واپس نہیں لیا جا سکتا۔",
+    "Démarrage automatique": "خودکار آغاز",
+    "Afficher les indicateurs à la connexion": "لاگ اِن پر اشارے دکھائیں",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "مرکزی ونڈو کھولے بغیر پس منظر میں نگرانی شروع کرتا ہے۔",
+    "Le moniteur démarrera à la connexion.": "لاگ اِن پر نگرانی شروع ہوگی۔"
   },
   "id": {
     "Vue d’ensemble": "Ringkasan",
@@ -1160,7 +1216,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Riwayat, preferensi, dan impor tertunda akan dihapus. Ekspor pribadi tetap disimpan.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Sistem akan meminta izin Anda. Data tetap disimpan.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Versi portabel: hapus berkas atau folder aplikasi.",
-    "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan."
+    "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan.",
+    "Démarrage automatique": "Mulai otomatis",
+    "Afficher les indicateurs à la connexion": "Tampilkan indikator saat masuk",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Memulai pemantauan di latar belakang tanpa membuka jendela utama.",
+    "Le moniteur démarrera à la connexion.": "Pemantauan akan dimulai saat masuk."
   },
   "vi": {
     "Vue d’ensemble": "Tổng quan",
@@ -1230,7 +1290,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Lịch sử, tùy chọn và mục nhập đang chờ sẽ bị xóa. Các tệp xuất cá nhân được giữ lại.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Hệ thống sẽ yêu cầu bạn cho phép. Dữ liệu được giữ lại.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Bản di động: xóa tệp hoặc thư mục ứng dụng.",
-    "Cette action est irréversible.": "Không thể hoàn tác hành động này."
+    "Cette action est irréversible.": "Không thể hoàn tác hành động này.",
+    "Démarrage automatique": "Khởi động tự động",
+    "Afficher les indicateurs à la connexion": "Hiện chỉ báo khi đăng nhập",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Bắt đầu giám sát nền mà không mở cửa sổ chính.",
+    "Le moniteur démarrera à la connexion.": "Giám sát sẽ bắt đầu khi đăng nhập."
   },
   "th": {
     "Vue d’ensemble": "ภาพรวม",
@@ -1300,7 +1364,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ประวัติ การตั้งค่า และการนำเข้าที่รอดำเนินการจะถูกลบ ไฟล์ส่งออกส่วนตัวจะยังอยู่",
     "Le système demandera votre autorisation. Les données sont conservées.": "ระบบจะขออนุญาตจากคุณ ข้อมูลจะยังคงอยู่",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "รุ่นพกพา: ลบไฟล์หรือโฟลเดอร์ของแอป",
-    "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
+    "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้",
+    "Démarrage automatique": "เริ่มอัตโนมัติ",
+    "Afficher les indicateurs à la connexion": "แสดงตัวบ่งชี้เมื่อเข้าสู่ระบบ",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "เริ่มตรวจสอบเบื้องหลังโดยไม่เปิดหน้าต่างหลัก",
+    "Le moniteur démarrera à la connexion.": "การตรวจสอบจะเริ่มเมื่อเข้าสู่ระบบ"
   },
   "ko": {
     "Vue d’ensemble": "개요",
@@ -1370,7 +1438,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "기록, 환경설정 및 대기 중인 가져오기가 삭제됩니다. 개인 내보내기 파일은 유지됩니다.",
     "Le système demandera votre autorisation. Les données sont conservées.": "시스템이 권한을 요청합니다. 데이터는 유지됩니다.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "휴대용 버전: 앱 파일 또는 폴더를 삭제하세요.",
-    "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다."
+    "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다.",
+    "Démarrage automatique": "자동 시작",
+    "Afficher les indicateurs à la connexion": "로그인 시 표시기 표시",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "기본 창을 열지 않고 백그라운드 모니터링을 시작합니다.",
+    "Le moniteur démarrera à la connexion.": "로그인 시 모니터링이 시작됩니다."
   },
   "ja": {
     "Vue d’ensemble": "概要",
@@ -1440,7 +1512,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "履歴、設定、保留中のインポートを削除します。個人のエクスポートは保持されます。",
     "Le système demandera votre autorisation. Les données sont conservées.": "システムが許可を求めます。データは保持されます。",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "ポータブル版：アプリのファイルまたはフォルダーを削除してください。",
-    "Cette action est irréversible.": "この操作は取り消せません。"
+    "Cette action est irréversible.": "この操作は取り消せません。",
+    "Démarrage automatique": "自動起動",
+    "Afficher les indicateurs à la connexion": "ログイン時にインジケーターを表示",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "メインウィンドウを開かずにバックグラウンドで監視を開始します。",
+    "Le moniteur démarrera à la connexion.": "ログイン時に監視が開始されます。"
   },
   "zh-CN": {
     "Vue d’ensemble": "概览",
@@ -1510,7 +1586,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "历史记录、偏好设置和待处理导入将被删除。个人导出文件将保留。",
     "Le système demandera votre autorisation. Les données sont conservées.": "系统将请求您的授权。数据将保留。",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "便携版：删除应用程序文件或文件夹。",
-    "Cette action est irréversible.": "此操作无法撤销。"
+    "Cette action est irréversible.": "此操作无法撤销。",
+    "Démarrage automatique": "自动启动",
+    "Afficher les indicateurs à la connexion": "登录时显示指示器",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "在后台启动监控，不打开主窗口。",
+    "Le moniteur démarrera à la connexion.": "登录时将启动监控。"
   },
   "zh-TW": {
     "Vue d’ensemble": "總覽",
@@ -1580,7 +1660,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "歷史記錄、偏好設定及待處理匯入將被刪除。個人匯出檔案會保留。",
     "Le système demandera votre autorisation. Les données sont conservées.": "系統將要求您的授權。資料會保留。",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "可攜版：刪除應用程式檔案或資料夾。",
-    "Cette action est irréversible.": "此操作無法復原。"
+    "Cette action est irréversible.": "此操作無法復原。",
+    "Démarrage automatique": "自動啟動",
+    "Afficher les indicateurs à la connexion": "登入時顯示指示器",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "在背景啟動監控，不開啟主視窗。",
+    "Le moniteur démarrera à la connexion.": "登入時將啟動監控。"
   },
   "fa": {
     "Vue d’ensemble": "نمای کلی",
@@ -1650,7 +1734,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "تاریخچه، تنظیمات و واردسازی‌های در انتظار حذف می‌شوند. خروجی‌های شخصی حفظ می‌شوند.",
     "Le système demandera votre autorisation. Les données sont conservées.": "سیستم اجازه شما را درخواست می‌کند. داده‌ها حفظ می‌شوند.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "نسخه قابل حمل: فایل یا پوشه برنامه را حذف کنید.",
-    "Cette action est irréversible.": "این کار قابل بازگشت نیست."
+    "Cette action est irréversible.": "این کار قابل بازگشت نیست.",
+    "Démarrage automatique": "شروع خودکار",
+    "Afficher les indicateurs à la connexion": "نمایش نشانگرها هنگام ورود",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "نظارت را در پس‌زمینه بدون باز کردن پنجره اصلی آغاز می‌کند.",
+    "Le moniteur démarrera à la connexion.": "نظارت هنگام ورود آغاز خواهد شد."
   },
   "he": {
     "Vue d’ensemble": "סקירה",
@@ -1720,7 +1808,11 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ההיסטוריה, ההעדפות והייבוא הממתין יימחקו. קובצי ייצוא אישיים יישמרו.",
     "Le système demandera votre autorisation. Les données sont conservées.": "המערכת תבקש את אישורך. הנתונים יישמרו.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "גרסה ניידת: יש למחוק את קובץ היישום או את התיקייה.",
-    "Cette action est irréversible.": "לא ניתן לבטל פעולה זו."
+    "Cette action est irréversible.": "לא ניתן לבטל פעולה זו.",
+    "Démarrage automatique": "הפעלה אוטומטית",
+    "Afficher les indicateurs à la connexion": "הצגת מחוונים בכניסה",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "מפעיל ניטור ברקע בלי לפתוח את החלון הראשי.",
+    "Le moniteur démarrera à la connexion.": "הניטור יתחיל בכניסה."
   },
   "sw": {
     "Vue d’ensemble": "Muhtasari",
@@ -1790,6 +1882,10 @@
     "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Historia, mapendeleo na uagizaji unaosubiri vitafutwa. Faili binafsi zilizohamishwa zitahifadhiwa.",
     "Le système demandera votre autorisation. Les données sont conservées.": "Mfumo utaomba ruhusa yako. Data itahifadhiwa.",
     "Version portable : supprimez le fichier ou le dossier de l’application.": "Toleo linalobebeka: futa faili au folda ya programu.",
-    "Cette action est irréversible.": "Hatua hii haiwezi kutenduliwa."
+    "Cette action est irréversible.": "Hatua hii haiwezi kutenduliwa.",
+    "Démarrage automatique": "Kuanzisha kiotomatiki",
+    "Afficher les indicateurs à la connexion": "Onyesha viashiria wakati wa kuingia",
+    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Huanzisha ufuatiliaji chinichini bila kufungua dirisha kuu.",
+    "Le moniteur démarrera à la connexion.": "Ufuatiliaji utaanza wakati wa kuingia."
   }
 }

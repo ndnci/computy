@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ইতিহাস, পছন্দ এবং অপেক্ষমাণ আমদানি মুছে যাবে। ব্যক্তিগত রপ্তানি রাখা হবে।",
   "Le système demandera votre autorisation. Les données sont conservées.": "সিস্টেম আপনার অনুমতি চাইবে। ডেটা রাখা হবে।",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "পোর্টেবল সংস্করণ: অ্যাপের ফাইল বা ফোল্ডার মুছুন।",
-  "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+  "Cette action est irréversible.": "এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।",
+  "Démarrage automatique": "স্বয়ংক্রিয় চালু",
+  "Afficher les indicateurs à la connexion": "লগইনে সূচক দেখান",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "মূল উইন্ডো না খুলে পটভূমিতে পর্যবেক্ষণ শুরু করে।",
+  "Le moniteur démarrera à la connexion.": "লগইনে পর্যবেক্ষণ শুরু হবে।"
 }

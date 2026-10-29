@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Se eliminarán el historial, las preferencias y las importaciones pendientes. Se conservan las exportaciones personales.",
   "Le système demandera votre autorisation. Les données sont conservées.": "El sistema solicitará tu autorización. Se conservan los datos.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Versión portátil: elimina el archivo o la carpeta de la aplicación.",
-  "Cette action est irréversible.": "Esta acción no se puede deshacer."
+  "Cette action est irréversible.": "Esta acción no se puede deshacer.",
+  "Démarrage automatique": "Inicio automático",
+  "Afficher les indicateurs à la connexion": "Mostrar indicadores al iniciar sesión",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Inicia el monitor en segundo plano sin abrir la ventana principal.",
+  "Le moniteur démarrera à la connexion.": "El monitor se iniciará al iniciar sesión."
 }

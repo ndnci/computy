@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Історію, налаштування та імпорти в очікуванні буде видалено. Особисті експорти залишаться.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Система запитає ваш дозвіл. Дані залишаться.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Портативна версія: видаліть файл або папку програми.",
-  "Cette action est irréversible.": "Цю дію неможливо скасувати."
+  "Cette action est irréversible.": "Цю дію неможливо скасувати.",
+  "Démarrage automatique": "Автозапуск",
+  "Afficher les indicateurs à la connexion": "Показувати індикатори після входу",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Запускає моніторинг у фоні без відкриття головного вікна.",
+  "Le moniteur démarrera à la connexion.": "Моніторинг запуститься після входу."
 }

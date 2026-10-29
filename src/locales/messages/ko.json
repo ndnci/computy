@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "기록, 환경설정 및 대기 중인 가져오기가 삭제됩니다. 개인 내보내기 파일은 유지됩니다.",
   "Le système demandera votre autorisation. Les données sont conservées.": "시스템이 권한을 요청합니다. 데이터는 유지됩니다.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "휴대용 버전: 앱 파일 또는 폴더를 삭제하세요.",
-  "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다."
+  "Cette action est irréversible.": "이 작업은 되돌릴 수 없습니다.",
+  "Démarrage automatique": "자동 시작",
+  "Afficher les indicateurs à la connexion": "로그인 시 표시기 표시",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "기본 창을 열지 않고 백그라운드 모니터링을 시작합니다.",
+  "Le moniteur démarrera à la connexion.": "로그인 시 모니터링이 시작됩니다."
 }

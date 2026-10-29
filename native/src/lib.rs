@@ -13,5 +13,6 @@ pub mod offline;
 pub mod preferences;
 pub mod repository;
 pub mod service;
+pub mod startup;
 pub mod transport;
 pub mod usb_boot;

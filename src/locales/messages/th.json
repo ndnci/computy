@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "ประวัติ การตั้งค่า และการนำเข้าที่รอดำเนินการจะถูกลบ ไฟล์ส่งออกส่วนตัวจะยังอยู่",
   "Le système demandera votre autorisation. Les données sont conservées.": "ระบบจะขออนุญาตจากคุณ ข้อมูลจะยังคงอยู่",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "รุ่นพกพา: ลบไฟล์หรือโฟลเดอร์ของแอป",
-  "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้"
+  "Cette action est irréversible.": "การดำเนินการนี้ไม่สามารถยกเลิกได้",
+  "Démarrage automatique": "เริ่มอัตโนมัติ",
+  "Afficher les indicateurs à la connexion": "แสดงตัวบ่งชี้เมื่อเข้าสู่ระบบ",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "เริ่มตรวจสอบเบื้องหลังโดยไม่เปิดหน้าต่างหลัก",
+  "Le moniteur démarrera à la connexion.": "การตรวจสอบจะเริ่มเมื่อเข้าสู่ระบบ"
 }

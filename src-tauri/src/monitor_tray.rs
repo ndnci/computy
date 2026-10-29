@@ -173,6 +173,9 @@ pub fn panel_action(app: &tauri::AppHandle, destination: &str) -> Result<(), Str
         _ => return Err("Commande non autorisée.".into()),
     };
     if let Some(window) = app.get_webview_window("main") {
+        #[cfg(target_os = "macos")]
+        app.set_activation_policy(tauri::ActivationPolicy::Regular)
+            .map_err(|e| e.to_string())?;
         window.eval(route).map_err(|e| e.to_string())?;
         let _ = window.unminimize();
         let _ = window.show();
@@ -403,6 +406,8 @@ pub fn start(app: tauri::AppHandle, service: Arc<AppService>) {
                 };
                 let values = values(&preferences, &snapshot);
                 #[cfg(target_os = "linux")]
+                let monitoring_disabled = values.is_empty();
+                #[cfg(target_os = "linux")]
                 {
                     let state = app.state::<TrayState>();
                     let was_active = state.has_icons();
@@ -490,7 +495,7 @@ pub fn start(app: tauri::AppHandle, service: Arc<AppService>) {
                             Err(error) => eprintln!("Computy tray: {error}"),
                         }
                     }
-                    if was_active && !state.has_icons() {
+                    if was_active && !state.has_icons() && monitoring_disabled {
                         let handle = app.clone();
                         let _ = app.run_on_main_thread(move || {
                             if let Some(w) = handle.get_webview_window("main")

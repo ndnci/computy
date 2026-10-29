@@ -757,5 +757,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Le système demandera votre autorisation. Les données sont conservées.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Version portable : supprimez le fichier ou le dossier de l’application.",
-  "Cette action est irréversible.": "Cette action est irréversible."
+  "Cette action est irréversible.": "Cette action est irréversible.",
+  "Démarrage automatique": "Démarrage automatique",
+  "Afficher les indicateurs à la connexion": "Afficher les indicateurs à la connexion",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.",
+  "Le moniteur démarrera à la connexion.": "Le moniteur démarrera à la connexion."
 }

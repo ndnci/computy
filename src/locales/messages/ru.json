@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "История, настройки и ожидающие импорты будут удалены. Личные экспорты сохранятся.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Система запросит разрешение. Данные сохранятся.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Переносная версия: удалите файл или папку приложения.",
-  "Cette action est irréversible.": "Это действие нельзя отменить."
+  "Cette action est irréversible.": "Это действие нельзя отменить.",
+  "Démarrage automatique": "Автозапуск",
+  "Afficher les indicateurs à la connexion": "Показывать индикаторы при входе",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Запускает мониторинг в фоне без открытия главного окна.",
+  "Le moniteur démarrera à la connexion.": "Мониторинг запустится при входе."
 }

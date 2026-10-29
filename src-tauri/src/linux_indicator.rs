@@ -140,6 +140,8 @@ impl Item {
     fn scroll(&self, _delta: i32, _orientation: &str) {}
 }
 struct Registration {
+    connection: Connection,
+    service: String,
     path: String,
     data: Arc<RwLock<ItemData>>,
     registered_owner: String,
@@ -156,12 +158,6 @@ impl LinuxIndicators {
             .map_err(|e| e.to_string())?
             .method_timeout(Duration::from_millis(1200))
             .build()
-            .map_err(|e| e.to_string())?;
-        connection
-            .request_name(format!(
-                "org.kde.StatusNotifierItem-{}-Computy",
-                std::process::id()
-            ))
             .map_err(|e| e.to_string())?;
         Ok(Self {
             connection,
@@ -183,23 +179,60 @@ impl LinuxIndicators {
             .ok()
             .and_then(|r| r.body().deserialize::<String>().ok())
             .unwrap_or_default();
+        let registered: Option<Vec<String>> = self
+            .connection
+            .call_method(
+                Some("org.kde.StatusNotifierWatcher"),
+                "/StatusNotifierWatcher",
+                Some("org.freedesktop.DBus.Properties"),
+                "Get",
+                &(
+                    "org.kde.StatusNotifierWatcher",
+                    "RegisteredStatusNotifierItems",
+                ),
+            )
+            .ok()
+            .and_then(|reply| {
+                reply
+                    .body()
+                    .deserialize::<zbus::zvariant::OwnedValue>()
+                    .ok()
+            })
+            .and_then(|value| Vec::<String>::try_from(value).ok());
         for (id, registration) in &self.items {
             if !values.iter().any(|v| &v.id == id) {
                 let mut data = registration.data.write().unwrap_or_else(|e| e.into_inner());
                 if data.active {
                     data.active = false;
                     drop(data);
-                    self.signal(&registration.path, "NewStatus", &("Passive",));
+                    Self::signal(
+                        &registration.connection,
+                        &registration.path,
+                        "NewStatus",
+                        &("Passive",),
+                    );
                 }
             }
         }
         for mut value in values {
             let id = value.id.clone();
             if !self.items.contains_key(&id) {
-                let path = format!("/org/ndnci/Computy/Indicator/i{}", self.next);
+                // One persistent bus identity per indicator also survives GNOME's
+                // service-based discovery, which coalesces objects sharing a service.
+                let service = format!(
+                    "org.kde.StatusNotifierItem-{}-Computy-{}",
+                    std::process::id(),
+                    self.next
+                );
                 self.next += 1;
-                let data = Arc::new(RwLock::new(ItemData::default()));
-                self.connection
+                let path = "/StatusNotifierItem".to_owned();
+                let connection = Builder::session()
+                    .map_err(|e| e.to_string())?
+                    .method_timeout(Duration::from_millis(1200))
+                    .build()
+                    .map_err(|e| e.to_string())?;
+                let data = Arc::new(RwLock::new(value.clone()));
+                connection
                     .object_server()
                     .at(
                         path.as_str(),
@@ -210,7 +243,7 @@ impl LinuxIndicators {
                         },
                     )
                     .map_err(|e| e.to_string())?;
-                self.connection
+                connection
                     .object_server()
                     .at(
                         format!("{path}/Menu"),
@@ -220,9 +253,14 @@ impl LinuxIndicators {
                         },
                     )
                     .map_err(|e| e.to_string())?;
+                connection
+                    .request_name(service.as_str())
+                    .map_err(|e| e.to_string())?;
                 self.items.insert(
                     id.clone(),
                     Registration {
+                        connection,
+                        service,
                         path,
                         data,
                         registered_owner: String::new(),
@@ -238,37 +276,53 @@ impl LinuxIndicators {
             value.revision = before.revision + u32::from(before.menu.len() != value.menu.len());
             *registration.data.write().unwrap_or_else(|e| e.into_inner()) = value.clone();
             let path = registration.path.clone();
+            let unique = registration
+                .connection
+                .unique_name()
+                .map(|name| name.as_str())
+                .unwrap_or("");
+            if registered.as_ref().is_some_and(|items| {
+                !items.iter().any(|item| {
+                    item == &registration.service
+                        || item == &format!("{}{path}", registration.service)
+                        || item == &format!("{unique}{path}")
+                        || item == &format!("{unique}@{path}")
+                })
+            }) {
+                registration.registered_owner.clear();
+            }
             if !owner.is_empty()
                 && (registration.registered_owner != owner || !before.active)
-                && self
+                && registration
                     .connection
                     .call_method(
                         Some("org.kde.StatusNotifierWatcher"),
                         "/StatusNotifierWatcher",
                         Some("org.kde.StatusNotifierWatcher"),
                         "RegisterStatusNotifierItem",
-                        &(path.as_str(),),
+                        &(registration.service.as_str(),),
                     )
                     .is_ok()
             {
                 registration.registered_owner = owner.clone();
             }
             if before.active != value.active {
-                self.signal(
+                Self::signal(
+                    &registration.connection,
                     &path,
                     "NewStatus",
                     &(if value.active { "Active" } else { "Passive" },),
                 );
             }
             if before.pixels != value.pixels {
-                self.signal(&path, "NewIcon", &());
+                Self::signal(&registration.connection, &path, "NewIcon", &());
             }
             if before.title != value.title {
-                self.signal(&path, "NewTitle", &());
-                self.signal(&path, "NewToolTip", &());
+                Self::signal(&registration.connection, &path, "NewTitle", &());
+                Self::signal(&registration.connection, &path, "NewToolTip", &());
             }
             if before.menu.len() != value.menu.len() {
-                let _ = self.connection.emit_signal(
+                let _ = registration.connection.emit_signal(
                     None::<&str>,
                     format!("{path}/Menu"),
                     "com.canonical.dbusmenu",
@@ -278,7 +332,7 @@ impl LinuxIndicators {
             } else if before.menu != value.menu {
                 let changed: Vec<_> = value.menu.iter().map(|r| (r.id, r.properties())).collect();
                 let removed: Vec<(i32, Vec<String>)> = vec![];
-                let _ = self.connection.emit_signal(
+                let _ = registration.connection.emit_signal(
                     None::<&str>,
                     format!("{path}/Menu"),
                     "com.canonical.dbusmenu",
@@ -287,7 +341,12 @@ impl LinuxIndicators {
                 );
             }
             if before.label != value.label {
-                self.signal(&path, "XAyatanaNewLabel", &(value.label.as_str(), "100%"));
+                Self::signal(
+                    &registration.connection,
+                    &path,
+                    "XAyatanaNewLabel",
+                    &(value.label.as_str(), "100%"),
+                );
             }
         }
         Ok(if owner.is_empty() {
@@ -295,26 +354,24 @@ impl LinuxIndicators {
         } else {
             self.items
                 .values()
-                .filter(|i| i.data.read().unwrap_or_else(|e| e.into_inner()).active)
+                .filter(|i| {
+                    i.registered_owner == owner
+                        && i.data.read().unwrap_or_else(|e| e.into_inner()).active
+                })
                 .count()
         })
     }
     fn signal<T: serde::Serialize + zbus::zvariant::DynamicType>(
-        &self,
+        connection: &Connection,
         path: &str,
         name: &str,
         body: &T,
     ) {
-        let _ = self.connection.emit_signal(
-            None::<&str>,
-            path,
-            "org.kde.StatusNotifierItem",
-            name,
-            body,
-        );
+        let _ =
+            connection.emit_signal(None::<&str>, path, "org.kde.StatusNotifierItem", name, body);
     }
     pub fn entries(&self) -> Vec<serde_json::Value> {
-        self.items.iter().map(|(id,item)|serde_json::json!({"id":id,"path":item.path,"bus":self.connection.unique_name().map(|n|n.as_str()),"active":item.data.read().unwrap_or_else(|e|e.into_inner()).active})).collect()
+        self.items.iter().map(|(id,item)|serde_json::json!({"id":id,"path":item.path,"bus":item.connection.unique_name().map(|n|n.as_str()),"service":item.service,"active":item.data.read().unwrap_or_else(|e|e.into_inner()).active})).collect()
     }
 }
 #[cfg(test)]
@@ -364,7 +421,15 @@ mod tests {
         let path = client.entries()[0]["path"].as_str().unwrap().to_owned();
         let proxy = zbus::blocking::Proxy::new(
             &watcher,
-            client.connection.unique_name().unwrap().as_str(),
+            client
+                .items
+                .values()
+                .next()
+                .unwrap()
+                .connection
+                .unique_name()
+                .unwrap()
+                .as_str(),
             path.as_str(),
             "org.kde.StatusNotifierItem",
         )

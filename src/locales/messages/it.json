@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Cronologia, preferenze e importazioni in attesa saranno eliminate. Le esportazioni personali saranno conservate.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Il sistema chiederà la tua autorizzazione. I dati saranno conservati.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Versione portatile: elimina il file o la cartella dell’applicazione.",
-  "Cette action est irréversible.": "Questa azione è irreversibile."
+  "Cette action est irréversible.": "Questa azione è irreversibile.",
+  "Démarrage automatique": "Avvio automatico",
+  "Afficher les indicateurs à la connexion": "Mostra gli indicatori all’accesso",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Avvia il monitoraggio in background senza aprire la finestra principale.",
+  "Le moniteur démarrera à la connexion.": "Il monitoraggio si avvierà all’accesso."
 }

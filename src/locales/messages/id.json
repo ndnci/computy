@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Riwayat, preferensi, dan impor tertunda akan dihapus. Ekspor pribadi tetap disimpan.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Sistem akan meminta izin Anda. Data tetap disimpan.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Versi portabel: hapus berkas atau folder aplikasi.",
-  "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan."
+  "Cette action est irréversible.": "Tindakan ini tidak dapat dibatalkan.",
+  "Démarrage automatique": "Mulai otomatis",
+  "Afficher les indicateurs à la connexion": "Tampilkan indikator saat masuk",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Memulai pemantauan di latar belakang tanpa membuka jendela utama.",
+  "Le moniteur démarrera à la connexion.": "Pemantauan akan dimulai saat masuk."
 }

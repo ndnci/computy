@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Verlauf, Einstellungen und ausstehende Importe werden gelöscht. Persönliche Exporte bleiben erhalten.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Das System fragt nach Ihrer Erlaubnis. Die Daten bleiben erhalten.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Portable Version: Löschen Sie die Anwendungsdatei oder den Ordner.",
-  "Cette action est irréversible.": "Diese Aktion kann nicht rückgängig gemacht werden."
+  "Cette action est irréversible.": "Diese Aktion kann nicht rückgängig gemacht werden.",
+  "Démarrage automatique": "Automatischer Start",
+  "Afficher les indicateurs à la connexion": "Anzeigen bei der Anmeldung einblenden",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Startet die Überwachung im Hintergrund, ohne das Hauptfenster zu öffnen.",
+  "Le moniteur démarrera à la connexion.": "Die Überwachung startet bei der Anmeldung."
 }

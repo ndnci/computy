@@ -8,6 +8,23 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-10-29
+
+### Fixed
+
+- CPU/RAM indicators disappearing after GNOME rediscovers a shared D-Bus service.
+  Every indicator now has a persistent independent service identity, and missing
+  registrations are recovered even when the watcher keeps the same bus owner.
+- Missing spacing between Save preferences and Installation and data.
+
+### Changed
+
+- Login startup now uses `--background`: enabled indicators appear without the
+  main window. Manual launches reopen the existing window; duplicate background
+  launches do not raise it. A background launch with no enabled indicators exits.
+- Startup settings explicitly describe monitoring at login in all 25 languages.
+  Startup remains opt-in, and existing legacy startup arguments stay supported.
+
 ## [0.1.5] - 2026-10-29
 
 ### Added

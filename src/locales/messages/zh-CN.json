@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "历史记录、偏好设置和待处理导入将被删除。个人导出文件将保留。",
   "Le système demandera votre autorisation. Les données sont conservées.": "系统将请求您的授权。数据将保留。",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "便携版：删除应用程序文件或文件夹。",
-  "Cette action est irréversible.": "此操作无法撤销。"
+  "Cette action est irréversible.": "此操作无法撤销。",
+  "Démarrage automatique": "自动启动",
+  "Afficher les indicateurs à la connexion": "登录时显示指示器",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "在后台启动监控，不打开主窗口。",
+  "Le moniteur démarrera à la connexion.": "登录时将启动监控。"
 }

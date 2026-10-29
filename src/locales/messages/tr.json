@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Geçmiş, tercihler ve bekleyen içe aktarmalar silinir. Kişisel dışa aktarmalar korunur.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Sistem izninizi isteyecektir. Veriler korunur.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Taşınabilir sürüm: uygulama dosyasını veya klasörünü silin.",
-  "Cette action est irréversible.": "Bu işlem geri alınamaz."
+  "Cette action est irréversible.": "Bu işlem geri alınamaz.",
+  "Démarrage automatique": "Otomatik başlatma",
+  "Afficher les indicateurs à la connexion": "Oturum açıldığında göstergeleri göster",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Ana pencereyi açmadan izlemeyi arka planda başlatır.",
+  "Le moniteur démarrera à la connexion.": "İzleme oturum açıldığında başlayacak."
 }

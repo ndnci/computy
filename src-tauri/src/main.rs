@@ -212,8 +212,13 @@ fn open_external(app: tauri::AppHandle, url: String) -> Result<(), String> {
 }
 fn main() {
     let application = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+        .plugin(tauri_plugin_single_instance::init(|app, args, _| {
+            if computy_engine::startup::is_background(&args) {
+                return;
+            }
             if let Some(window) = app.get_webview_window("main") {
+                #[cfg(target_os = "macos")]
+                let _ = app.set_activation_policy(tauri::ActivationPolicy::Regular);
                 let _ = window.unminimize();
                 let _ = window.show();
                 let _ = window.set_focus();
@@ -224,7 +229,7 @@ fn main() {
         .plugin(
             tauri_plugin_autostart::Builder::new()
                 .app_name("Computy")
-                .args(["--return-from-diagnostic"])
+                .args([computy_engine::startup::BACKGROUND_ARGUMENT])
                 .build(),
         )
         .on_window_event(|window, event| {
@@ -272,7 +277,25 @@ fn main() {
                 application.set_accels_for_action("app.quit", &["<Primary>q"]);
             }
             monitor_tray::setup_panel(app.handle())?;
-            monitor_tray::start(app.handle().clone(), service);
+            let preferences = computy_engine::preferences::load(&service.data_root())
+                .map_err(std::io::Error::other)?;
+            match computy_engine::startup::launch_mode(
+                &std::env::args().collect::<Vec<_>>(),
+                &preferences,
+            ) {
+                computy_engine::startup::LaunchMode::Window => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        window.show()?;
+                    }
+                    monitor_tray::start(app.handle().clone(), service);
+                }
+                computy_engine::startup::LaunchMode::Monitor => {
+                    #[cfg(target_os = "macos")]
+                    app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+                    monitor_tray::start(app.handle().clone(), service)
+                }
+                computy_engine::startup::LaunchMode::Exit => app.handle().exit(0),
+            }
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![

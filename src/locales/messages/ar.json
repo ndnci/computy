@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "سيتم حذف السجل والتفضيلات وعمليات الاستيراد المعلقة. ستبقى الملفات المصدرة الشخصية.",
   "Le système demandera votre autorisation. Les données sont conservées.": "سيطلب النظام إذنك. ستبقى البيانات محفوظة.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "النسخة المحمولة: احذف ملف التطبيق أو مجلده.",
-  "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء."
+  "Cette action est irréversible.": "لا يمكن التراجع عن هذا الإجراء.",
+  "Démarrage automatique": "التشغيل التلقائي",
+  "Afficher les indicateurs à la connexion": "عرض المؤشرات عند تسجيل الدخول",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "يبدأ المراقبة في الخلفية دون فتح النافذة الرئيسية.",
+  "Le moniteur démarrera à la connexion.": "ستبدأ المراقبة عند تسجيل الدخول."
 }

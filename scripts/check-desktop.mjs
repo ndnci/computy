@@ -3,9 +3,13 @@ import assert from 'node:assert/strict';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 const exec = promisify(execFile);
-import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+// This suite changes a login entry and sends native window events: container only.
+await access('/.dockerenv');
+const startupFile = path.join(process.env.HOME, '.config/autostart/Computy.desktop');
+await assert.rejects(access(startupFile), 'Never overwrite an existing startup entry in a test');
 const root = await mkdtemp(path.join(tmpdir(), 'computy-desktop-'));
 const destination = process.env.COMPUTY_SCREENSHOT_DIR || 'docs/screenshots';
 const expectedVersion = JSON.parse(await readFile('package.json', 'utf8')).version;
@@ -21,7 +25,7 @@ await writeFile(
     cpu_seconds: 1,
   }),
 );
-const watcher = spawn('python3', ['scripts/mock-status-watcher.py'], {
+let watcher = spawn('python3', ['scripts/mock-status-watcher.py'], {
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 let watcherReady = false;
@@ -49,6 +53,15 @@ async function request(method, endpoint, body) {
 }
 const execute = (script, args = []) =>
   request('POST', `/session/${session}/execute/sync`, { script, args });
+const native = async (command, args = {}) => {
+  const envelope = await request('POST', `/session/${session}/execute/async`, {
+    script:
+      'const done=arguments[arguments.length-1];window.__TAURI_INTERNALS__.invoke(arguments[0],arguments[1]).then(value=>done({value})).catch(error=>done({error:String(error)}));',
+    args: [command, args],
+  });
+  if (envelope.error) throw Error(envelope.error);
+  return envelope.value;
+};
 async function until(script) {
   const deadline = Date.now() + 30000;
   while (Date.now() < deadline) {
@@ -105,12 +118,25 @@ try {
       alwaysMatch: {
         'tauri:options': {
           application: path.resolve(process.env.COMPUTY_DESKTOP_BINARY || 'release/computy'),
+          args: process.env.COMPUTY_TEST_BACKGROUND === '1' ? ['--background'] : [],
         },
       },
     },
   });
   session = created.sessionId;
   assert.ok(session);
+  await until("return typeof window.__TAURI_INTERNALS__?.invoke==='function'");
+  assert.equal(
+    await native('plugin:window|is_visible', { label: 'main' }),
+    process.env.COMPUTY_TEST_BACKGROUND !== '1',
+  );
+  if (process.env.COMPUTY_TEST_BACKGROUND === '1') {
+    await trayCount(3);
+    await native('monitor_panel_action', { destination: 'overview' });
+    assert.equal(await native('plugin:window|is_visible', { label: 'main' }), true);
+  }
+
+  await request('POST', `/session/${session}/window/rect`, { width: 1440, height: 1000 });
   await until("return document.body.innerText.includes('Moteur Rust connecté')");
   assert.equal(
     await execute("return document.querySelector('.main-footer b')?.textContent"),
@@ -118,7 +144,6 @@ try {
     'The packaged interface must display the current application version',
   );
   assert.equal(await execute('return typeof window.__TAURI_INTERNALS__?.invoke'), 'function');
-  await request('POST', `/session/${session}/window/rect`, { width: 1440, height: 1000 });
   await execute(
     "window.addEventListener('error',event=>(window.__computyErrors??=[]).push(event.message));window.addEventListener('unhandledrejection',event=>(window.__computyErrors??=[]).push(String(event.reason)));",
   );
@@ -132,15 +157,6 @@ try {
     "window.__monitorReady=false;window.__TAURI_INTERNALS__.invoke('engine_call',{method:'monitor',params:{}}).then(value=>{window.__monitorReady=value.processes.length>0&&value.memory_percent>0;});",
   );
   await until('return window.__monitorReady===true');
-  const native = async (command, args = {}) => {
-    const envelope = await request('POST', `/session/${session}/execute/async`, {
-      script:
-        'const done=arguments[arguments.length-1];window.__TAURI_INTERNALS__.invoke(arguments[0],arguments[1]).then(value=>done({value})).catch(error=>done({error:String(error)}));',
-      args: [command, args],
-    });
-    if (envelope.error) throw Error(envelope.error);
-    return envelope.value;
-  };
   async function trayCount(expected) {
     for (let n = 0; n < 40; n++) {
       const state = await native('monitor_tray_status');
@@ -165,8 +181,48 @@ try {
     ).stdout;
   }
   await trayCount(3);
+  const watcherCall = async (method) =>
+    (
+      await exec('gdbus', [
+        'call',
+        '--session',
+        '--dest',
+        'org.kde.StatusNotifierWatcher',
+        '--object-path',
+        '/StatusNotifierWatcher',
+        '--method',
+        `com.ndnci.TestWatcher.${method}`,
+      ])
+    ).stdout;
+  assert.equal(
+    (await watcherCall('SimulateDesktopRediscovery')).trim(),
+    '(3,)',
+    'GNOME rediscovery must retain three distinct indicators',
+  );
+  await watcherCall('ForgetRegistrations');
+  let recovered = false;
+  for (let n = 0; n < 40; n++) {
+    if ((await watcherCall('Count')).trim() === '(3,)') {
+      recovered = true;
+      break;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 150));
+  }
+  assert.ok(recovered, 'the same watcher owner must recover forgotten registrations');
   await click('Préférences');
   await until("return document.querySelectorAll('.monitor-metrics input:checked').length===3");
+  const startupSwitch = "button[aria-label='Afficher les indicateurs à la connexion']";
+  await execute('document.querySelector(arguments[0]).click()', [startupSwitch]);
+  await until(
+    `return document.querySelector(${JSON.stringify(startupSwitch)}).getAttribute('aria-checked')==='true'`,
+  );
+  assert.equal(await native('startup_status'), true);
+  assert.ok((await readFile(startupFile, 'utf8')).includes('--background'));
+  await execute(
+    'document.querySelector(arguments[0]).closest(".panel").scrollIntoView({block:"center"})',
+    [startupSwitch],
+  );
+  await capture('startup-light', false);
   await capture('monitor-light');
   for (let n = 0; n < 3; n++) {
     await execute("document.querySelector('.monitor-metrics input').click()");
@@ -221,6 +277,26 @@ try {
   assert.equal(await native('plugin:window|is_visible', { label: 'main' }), false);
   process.kill(appProcess.pid, 0);
   await trayCount(3);
+  const watcherExited = new Promise((resolve) => watcher.once('exit', resolve));
+  watcher.kill('SIGTERM');
+  await watcherExited;
+  await trayCount(0);
+  assert.equal(
+    await native('plugin:window|is_visible', { label: 'main' }),
+    false,
+    'a temporary tray host loss must not open the main window',
+  );
+  watcherReady = false;
+  watcher = spawn('python3', ['scripts/mock-status-watcher.py'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  watcher.stdout.on('data', (data) => {
+    if (data.toString().includes('WATCHER_READY')) watcherReady = true;
+  });
+  for (let n = 0; n < 100 && !watcherReady; n++)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(watcherReady);
+  await trayCount(3);
   assert.ok(
     (
       await dbus(memory, 'org.freedesktop.DBus.Properties.Get', [
@@ -229,7 +305,11 @@ try {
       ])
     ).includes('Active'),
   );
-  await native('monitor_panel_action', { destination: 'overview' });
+  const binary = path.resolve(process.env.COMPUTY_DESKTOP_BINARY || 'release/computy');
+  const launchEnv = { ...process.env, COMPUTY_DATA_DIR: root, XDG_DATA_HOME: root };
+  await exec(binary, ['--background'], { env: launchEnv, timeout: 10000 });
+  assert.equal(await native('plugin:window|is_visible', { label: 'main' }), false);
+  await exec(binary, [], { env: launchEnv, timeout: 10000 });
   assert.equal(await native('plugin:window|is_visible', { label: 'main' }), true);
   const layout = (
     await exec('gdbus', [
@@ -313,6 +393,19 @@ try {
   await click('Sombre');
   await click('Enregistrer les préférences');
   await until("return document.documentElement.dataset.theme==='dark'");
+  await until(
+    `return document.querySelector(${JSON.stringify(startupSwitch)}).getAttribute('aria-checked')==='true'`,
+  );
+  await execute(
+    'document.querySelector(arguments[0]).closest(".panel").scrollIntoView({block:"center"})',
+    [startupSwitch],
+  );
+  await capture('startup-dark', false);
+  await execute('document.querySelector(arguments[0]).click()', [startupSwitch]);
+  await until(
+    `return document.querySelector(${JSON.stringify(startupSwitch)}).getAttribute('aria-checked')==='false'`,
+  );
+  assert.equal(await native('startup_status'), false);
   await click('Diagnostics');
   await until("return document.querySelectorAll('.test-component-option input').length===3");
   await click('Lancer le diagnostic');
@@ -336,6 +429,12 @@ try {
   await until("return document.documentElement.dataset.theme==='light'");
   await execute("document.querySelector('.maintenance-settings').scrollIntoView({block:'center'})");
   await capture('maintenance-light', false);
+  assert.ok(
+    await execute(
+      "const save=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Enregistrer les préférences').getBoundingClientRect();const panel=document.querySelector('.maintenance-settings').getBoundingClientRect();return panel.top-save.bottom>=23;",
+    ),
+    'Save actions must be separated from the maintenance panel',
+  );
   await click('Supprimer toutes les données');
   await until("return !!document.querySelector('[role=dialog]')");
   assert.equal(
@@ -436,6 +535,14 @@ try {
     real_dbus_status_and_activation: true,
     real_dbus_menu_activation: true,
     real_application_icon: true,
+    gnome_rediscovery_verified: true,
+    same_owner_watcher_recovery: true,
+    tray_host_restart_keeps_window_hidden: true,
+    background_start_hidden: process.env.COMPUTY_TEST_BACKGROUND === '1',
+    login_entry_uses_background: true,
+    background_relaunch_does_not_open_window: true,
+    manual_relaunch_opens_existing_window: true,
+    maintenance_spacing_verified: true,
     dbus_only_desktop_entry_survives: true,
     custom_popover: true,
     quit_method: quitMethod,
@@ -450,7 +557,7 @@ try {
   };
   await writeFile(`${destination}/native-results.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(
-    'Native Tauri, maintenance consent, tray toggles, quit actions and 10 real WebKit captures verified.',
+    'Native Tauri, maintenance consent, tray toggles, quit actions and 12 real WebKit captures verified.',
   );
   console.log(JSON.stringify(result));
 } catch (error) {

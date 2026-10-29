@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "履歴、設定、保留中のインポートを削除します。個人のエクスポートは保持されます。",
   "Le système demandera votre autorisation. Les données sont conservées.": "システムが許可を求めます。データは保持されます。",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "ポータブル版：アプリのファイルまたはフォルダーを削除してください。",
-  "Cette action est irréversible.": "この操作は取り消せません。"
+  "Cette action est irréversible.": "この操作は取り消せません。",
+  "Démarrage automatique": "自動起動",
+  "Afficher les indicateurs à la connexion": "ログイン時にインジケーターを表示",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "メインウィンドウを開かずにバックグラウンドで監視を開始します。",
+  "Le moniteur démarrera à la connexion.": "ログイン時に監視が開始されます。"
 }

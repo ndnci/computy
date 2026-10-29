@@ -35,7 +35,9 @@ export default function SettingsPage() {
     try {
       await setStartup(!startup);
       setStartupValue(!startup);
-      notify(!startup ? 'Computy s’ouvrira à la connexion.' : 'Démarrage automatique désactivé.');
+      notify(
+        !startup ? 'Le moniteur démarrera à la connexion.' : 'Démarrage automatique désactivé.',
+      );
     } catch (e) {
       notify((e as Error).message, true);
     } finally {
@@ -243,21 +245,14 @@ export default function SettingsPage() {
         </Notice>
       </section>
       <section className="panel">
-        <PanelHeader
-          title={tx('Au retour dans votre session')}
-          subtitle={tx('Retrouvez Computy après un test au démarrage.')}
-        />
+        <PanelHeader title={tx('Démarrage automatique')} />
         <div className="setting-row">
           <span className="setting-icon">
             <Laptop size={22} />
           </span>
           <div>
-            <b>{tx('Ouvrir Computy \xE0 la connexion')}</b>
-            <p>
-              {tx(
-                'Rouvre Computy à la connexion. La recherche des résultats de tests au démarrage est automatique à chaque ouverture.',
-              )}
-            </p>
+            <b>{tx('Afficher les indicateurs à la connexion')}</b>
+            <p>{tx('Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.')}</p>
             {tx(
               !isDesktop() && (
                 <small>{tx('Disponible dans l\u2019application Tauri install\xE9e.')}</small>
@@ -267,7 +262,7 @@ export default function SettingsPage() {
           <button
             role="switch"
             aria-checked={startup}
-            aria-label={tx('Ouvrir Computy à la connexion')}
+            aria-label={tx('Afficher les indicateurs à la connexion')}
             className={`toggle ${startup ? 'on' : ''}`}
             disabled={!isDesktop() || startupBusy}
             onClick={() => void toggleStartup()}

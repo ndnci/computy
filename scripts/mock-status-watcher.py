@@ -13,6 +13,30 @@ class Watcher(dbus.service.Object):
         super().__init__(bus, '/StatusNotifierWatcher')
         self.items = []
 
+    @dbus.service.method('com.ndnci.TestWatcher', in_signature='', out_signature='i')
+    def SimulateDesktopRediscovery(self):
+        # GNOME's discovery uses a well-known service as the identity when present.
+        # Multiple objects on that one service are consequently coalesced.
+        names = [str(name) for name in bus.list_names() if str(name).startswith('org.kde.StatusNotifierItem-')]
+        found = []
+        for item in self.items:
+            owner = item.split('/')[0].split('@')[0]
+            unique = owner if owner.startswith(':') else str(bus.get_name_owner(owner))
+            aliases = [name for name in names if str(bus.get_name_owner(name)) == unique]
+            identity = aliases[0] if aliases else item
+            if identity not in found:
+                found.append(identity)
+        self.items = found
+        return len(found)
+
+    @dbus.service.method('com.ndnci.TestWatcher', in_signature='', out_signature='')
+    def ForgetRegistrations(self):
+        self.items = []
+
+    @dbus.service.method('com.ndnci.TestWatcher', in_signature='', out_signature='i')
+    def Count(self):
+        return len(self.items)
+
     @dbus.service.method('org.kde.StatusNotifierWatcher', in_signature='s', out_signature='', sender_keyword='sender')
     def RegisterStatusNotifierItem(self, service, sender=None):
         item = str(sender) + str(service) if service.startswith('/') else str(service) + '/StatusNotifierItem'

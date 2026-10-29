@@ -602,7 +602,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                 .set_app_name("Computy")
                 .set_app_path(&executable.to_string_lossy())
                 .set_use_launch_agent(true)
-                .set_args(&["--return-from-diagnostic"])
+                .set_args(&[crate::startup::BACKGROUND_ARGUMENT])
                 .build()
                 .map_err(|e| e.to_string())?;
             match action {

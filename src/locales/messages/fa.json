@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "تاریخچه، تنظیمات و واردسازی‌های در انتظار حذف می‌شوند. خروجی‌های شخصی حفظ می‌شوند.",
   "Le système demandera votre autorisation. Les données sont conservées.": "سیستم اجازه شما را درخواست می‌کند. داده‌ها حفظ می‌شوند.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "نسخه قابل حمل: فایل یا پوشه برنامه را حذف کنید.",
-  "Cette action est irréversible.": "این کار قابل بازگشت نیست."
+  "Cette action est irréversible.": "این کار قابل بازگشت نیست.",
+  "Démarrage automatique": "شروع خودکار",
+  "Afficher les indicateurs à la connexion": "نمایش نشانگرها هنگام ورود",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "نظارت را در پس‌زمینه بدون باز کردن پنجره اصلی آغاز می‌کند.",
+  "Le moniteur démarrera à la connexion.": "نظارت هنگام ورود آغاز خواهد شد."
 }

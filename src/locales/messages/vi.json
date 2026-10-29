@@ -788,5 +788,9 @@
   "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.": "Lịch sử, tùy chọn và mục nhập đang chờ sẽ bị xóa. Các tệp xuất cá nhân được giữ lại.",
   "Le système demandera votre autorisation. Les données sont conservées.": "Hệ thống sẽ yêu cầu bạn cho phép. Dữ liệu được giữ lại.",
   "Version portable : supprimez le fichier ou le dossier de l’application.": "Bản di động: xóa tệp hoặc thư mục ứng dụng.",
-  "Cette action est irréversible.": "Không thể hoàn tác hành động này."
+  "Cette action est irréversible.": "Không thể hoàn tác hành động này.",
+  "Démarrage automatique": "Khởi động tự động",
+  "Afficher les indicateurs à la connexion": "Hiện chỉ báo khi đăng nhập",
+  "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.": "Bắt đầu giám sát nền mà không mở cửa sổ chính.",
+  "Le moniteur démarrera à la connexion.": "Giám sát sẽ bắt đầu khi đăng nhập."
 }

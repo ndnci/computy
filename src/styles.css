@@ -5442,6 +5442,9 @@ summary::-webkit-details-marker {
   color: #889e74;
 }
 
+.settings-page > .settings-actions {
+  margin-bottom: 24px;
+}
 .maintenance-settings .setting-row {
   align-items: center;
 }
