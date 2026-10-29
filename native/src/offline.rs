@@ -156,10 +156,10 @@ pub fn collect(service: &Arc<AppService>) -> Result<Value, String> {
         let root = service.data_root();
         let mut state = read(&root)?;
         let Some(pending) = state.pending.as_ref() else {
-            Ok(json!({"imported":false}));
+            return Ok(json!({"imported":false}));
         };
         if service.active_job().is_some_and(|j| j.running) {
-            Ok(json!({"imported":false,"reason":"Un diagnostic est en cours."}));
+            return Ok(json!({"imported":false,"reason":"Un diagnostic est en cours."}));
         }
         let script = r#"[Console]::OutputEncoding=[System.Text.UTF8Encoding]::new(); $items=@(Get-WinEvent -FilterHashtable @{LogName='System';ProviderName='Microsoft-Windows-MemoryDiagnostics-Results'} -MaxEvents 32 -ErrorAction Stop | ForEach-Object { $x=[xml]$_.ToXml();$d=@{};foreach($n in $x.Event.EventData.Data){if($n.Name){$d[$n.Name]=[string]$n.'#text'}};[pscustomobject]@{provider=$_.ProviderName;event_id=$_.Id;record_id=$_.RecordId;created_at=([DateTimeOffset]$_.TimeCreated).ToUnixTimeMilliseconds();completion_type=[string]$x.Event.UserData.Results.CompletionType;num_bad_pages=$d['NumBadPages'];message=$_.Message;xml=$_.ToXml()} });ConvertTo-Json -InputObject $items -Depth 6 -Compress"#;
         let output = crate::inventory::command(

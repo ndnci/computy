@@ -67,7 +67,10 @@ pub fn run(root: &Path, mib: usize, cancel: &AtomicBool, progress: &dyn Fn(f64, 
     let mut mismatches = 0u64;
     let mut write_ms = 0u128;
     let mut read_ms = 0u128;
+    #[cfg(target_os = "linux")]
     let mut cache_advice = false;
+    #[cfg(not(target_os = "linux"))]
+    let cache_advice = false;
     let result = (|| -> Result<bool, String> {
         let mut expected = vec![0u8; 1024 * 1024];
         let write_start = Instant::now();

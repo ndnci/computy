@@ -1,10 +1,11 @@
 //! Prepare an existing mounted FAT USB without formatting or overwriting files.
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+#[cfg(target_os = "linux")]
+use std::time::Duration;
 use std::{
     io::{Read, Write},
     path::Path,
-    time::Duration,
 };
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Target {

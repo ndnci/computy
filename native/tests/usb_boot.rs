@@ -25,6 +25,8 @@ fn preparation_preserves_existing_files_and_refuses_to_overwrite_a_bootloader() 
     std::fs::write(&payload, b"payload fixture").unwrap();
     let mount = root.join("usb");
     std::fs::create_dir(&mount).unwrap();
+    // macOS temp folders and Windows extended paths can have canonical aliases.
+    let mount = mount.canonicalize().unwrap();
     std::fs::write(mount.join("personal.txt"), b"keep").unwrap();
     copy_payload(&payload, &mount).unwrap();
     assert_eq!(
@@ -43,6 +45,7 @@ fn a_usb_directory_symlink_cannot_redirect_writes() {
         computy_engine::domain::new_id()
     ));
     std::fs::create_dir_all(root.join("usb")).unwrap();
+    let root = root.canonicalize().unwrap();
     std::os::unix::fs::symlink(&root, root.join("usb/EFI")).unwrap();
     assert!(copy_payload(&root.join("missing.efi"), &root.join("usb")).is_err());
     assert!(!root.join("BOOT").exists());

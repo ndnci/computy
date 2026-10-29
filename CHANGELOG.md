@@ -37,6 +37,10 @@ commits and locally built packages, not from previously published store releases
   D-Bus-activated desktop entries containing no executable, reproduced on Ubuntu.
 - GNOME dock Quit falling back to window-close behavior and leaving monitoring
   running. Exported application actions now provide an explicit quit request.
+- Strict Windows/macOS Clippy checks failing on a Linux-only mutable cache-advice
+  variable. Obsolete branch builds are cancelled when a newer push arrives.
+- Windows preboot-import compilation and portable USB-test fixture paths, while
+  preserving the production rejection of noncanonical USB destinations.
 
 ## [0.1.4] - 2026-10-29
 
