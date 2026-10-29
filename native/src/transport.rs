@@ -8,6 +8,53 @@ pub fn dispatch(service: &Arc<AppService>, method: &str, params: &Value) -> Resu
             .ok_or_else(|| "Identifiant requis.".to_owned())
     };
     match method {
+        "clean_sources" => Ok(crate::clean::sources()),
+        "clean_preview" => Ok(json!(crate::clean::preview(
+            &service.data_root(),
+            serde_json::from_value(params.clone()).map_err(|e| e.to_string())?
+        )?)),
+        "clean_execute" => {
+            if service.active_job().is_some_and(|j| j.running) {
+                return Err("Stop the diagnostic before cleaning".into());
+            }
+            let excluded: Vec<usize> =
+                serde_json::from_value(params.get("excluded").cloned().unwrap_or(json!([])))
+                    .map_err(|e| e.to_string())?;
+            Ok(json!(crate::clean::execute(
+                &service.data_root(),
+                id()?,
+                &excluded,
+                params["confirmed"] == true
+            )?))
+        }
+        "clean_schedules" => Ok(json!(crate::clean::schedules(&service.data_root())?)),
+        "clean_schedule" => Ok(json!(crate::clean::schedule(
+            &service.data_root(),
+            id()?,
+            params["interval_hours"]
+                .as_u64()
+                .ok_or("Interval required")?,
+            params["max_bytes"].as_u64().ok_or("Byte limit required")?,
+            params["confirmed"] == true
+        )?)),
+        "clean_unschedule" => {
+            crate::clean::remove_schedule(&service.data_root(), id()?)?;
+            Ok(json!(true))
+        }
+        "clean_run_due" => {
+            if service.active_job().is_some_and(|j| j.running) {
+                return Err("A diagnostic is active".into());
+            }
+            Ok(json!(crate::clean::run_due(&service.data_root())?))
+        }
+        "applications" => Ok(json!(crate::applications::list())),
+        "application_action" => crate::applications::action(
+            id()?,
+            params["action"].as_str().ok_or("Action required")?,
+            params["remove_data"] == true,
+            params["confirmed"] == true,
+        ),
+        "fans" => Ok(json!(crate::fans::inventory())),
         "monitor" => Ok(json!(service.monitor(true))),
         "inventory" => Ok(json!(
             service.inventory(params["refresh"].as_bool().unwrap_or(false))

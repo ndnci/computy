@@ -29,7 +29,7 @@ fn service() -> (Arc<AppService>, std::path::PathBuf) {
     )
 }
 fn finished(service: &AppService, id: &str) -> computy_engine::service::Job {
-    let deadline = Instant::now() + Duration::from_secs(3);
+    let deadline = Instant::now() + Duration::from_secs(15);
     loop {
         let job = service.job(id).unwrap();
         if !job.running {

@@ -1,8 +1,8 @@
 {
   "name": "computy",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "private": true,
-  "description": "Comprendre, tester et suivre la santé de son ordinateur.",
+  "description": "Comprendre, tester et suivre la sant\u00e9 de son ordinateur.",
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",

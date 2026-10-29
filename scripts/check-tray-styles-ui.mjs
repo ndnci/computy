@@ -38,7 +38,12 @@ try {
     tray_style: 'icon_text',
   });
   await page.goto(base + '/#settings');
-  await page.getByText('Moteur Rust connecté', { exact: true }).waitFor();
+  await page.waitForFunction(
+    () =>
+      !!document.querySelector('.main-footer b') &&
+      !document.querySelector('.connection') &&
+      !document.querySelector('.engine-error'),
+  );
   for (const style of ['ring', 'fill', 'icon_text']) {
     await page.locator(`.tray-style-option input[value="${style}"]`).check();
     await page.getByRole('button', { name: 'Enregistrer les préférences', exact: true }).click();

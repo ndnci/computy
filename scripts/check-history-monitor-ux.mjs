@@ -69,7 +69,12 @@ try {
   };
   const original = await finished((await call('start', options)).id);
   await page.goto(base + '/#history');
-  await page.getByText('Moteur Rust connecté', { exact: true }).waitFor();
+  await page.waitForFunction(
+    () =>
+      !!document.querySelector('.main-footer b') &&
+      !document.querySelector('.connection') &&
+      !document.querySelector('.engine-error'),
+  );
   const row = page.locator('.history-table tbody tr').filter({ hasText: options.label }).first();
   await row.locator('td').nth(2).click();
   await page.getByRole('dialog').waitFor();

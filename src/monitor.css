@@ -388,3 +388,7 @@
     transition: none;
   }
 }
+
+.popover-document {
+  scrollbar-gutter: auto;
+}

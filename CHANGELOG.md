@@ -8,6 +8,41 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-29
+
+### Added
+
+- Cleanup workspace and native CLI with a mandatory persisted dry run, reviewed
+  selection, logical-byte totals, and explicit confirmation before deletion.
+- Nested AND/OR/NOT conditions for paths/regex, names, extensions, content MIME,
+  size, age and creation/modification dates; included/excluded directories and
+  a project `node_modules` mode.
+- Opt-in local Docker image/stopped-container/unused-volume inspection and exact
+  object removal, without blanket prune commands or automated volume deletion.
+- File cleanup automations created from reviewed previews, with fresh scans,
+  per-run byte limits, missed-run handling and retained last results.
+- Searchable installed-application inventory, launch/reveal actions, manager
+  removal previews and confirmed uninstall. Flatpak/Snap can optionally remove
+  package-managed data; unsupported data ownership remains explicit.
+- Read-only fan RPM/PWM capabilities where the OS exposes them, plus application
+  and fan inventory tools for MCP. Unvalidated manual fan controls stay disabled.
+
+### Changed
+
+- Indicators at login are enabled by default for installed builds. Explicit
+  opt-outs persist; background launches keep the main window hidden.
+- Removed repeated privacy slogans and the normal Rust-engine connection badge.
+  Connection errors and loading feedback remain actionable.
+- New maintenance pages use the existing themes and 25-language interface.
+
+### Fixed
+
+- White corners around the tray popover by making its native surface transparent.
+- Linux menu summary follows the selected system-bar style; the detailed
+  popover keeps its percentage ring independently.
+- Sidebar scrolling uses a separate compositing layer and a stable scrollbar gutter.
+
+
 ## [0.1.6] - 2026-10-29
 
 ### Fixed

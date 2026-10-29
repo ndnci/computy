@@ -35,7 +35,13 @@ def download(url, destination):
 def model(package):
     code = package["from_code"]+"_"+package["to_code"]
     archive = CACHE/(code+".argosmodel")
-    download(next(link for link in package["links"] if link.startswith("https://")), archive)
+    url = next(link for link in package["links"] if link.startswith("https://"))
+    try:
+        download(url, archive)
+    except urllib.error.HTTPError as error:
+        if error.code != 403: raise
+        # Official package mirror; the pinned SHA-256 is still verified below.
+        download("https://data.argosopentech.com/argospm/v1/" + url.rsplit("/", 1)[-1], archive)
     folder = CACHE/code
     if not folder.exists():
         folder.mkdir(parents=True)
@@ -48,7 +54,7 @@ def model(package):
 
 def translate_texts(folder, texts):
     # Product names are invariant, even in technical paragraphs.
-    texts = [text.replace("Computy", "{{computyBrand}}").replace("NDNCI", "{{ndnciBrand}}") for text in texts]
+    texts = [text.replace("Computy", "{{computyBrand}}").replace("NDNCI", "{{ndnciBrand}}").replace("Docker", "{{dockerBrand}}").replace("node_modules", "{{nodeModules}}") for text in texts]
     import ctranslate2
     import sentencepiece
     tokenizer_path = folder/"sentencepiece.model"
@@ -90,7 +96,7 @@ def translate_texts(folder, texts):
                     fixed.append((" " if part.startswith(" ") else "")+value+(" " if part.endswith(" ") else ""))
             translated[i] = "".join(fixed)
         if not translated[i]: translated[i] = original
-    return [text.replace("{{computyBrand}}", "Computy").replace("{{ndnciBrand}}", "NDNCI") for text in translated]
+    return [text.replace("{{computyBrand}}", "Computy").replace("{{ndnciBrand}}", "NDNCI").replace("{{dockerBrand}}", "Docker").replace("{{nodeModules}}", "node_modules") for text in translated]
 
 def main():
     CACHE.mkdir(parents=True,exist_ok=True)

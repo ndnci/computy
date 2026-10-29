@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libwebkit2gtk-4.1-dev build-essential curl file libssl-dev \
     libayatana-appindicator3-dev librsvg2-dev patchelf ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+RUN rustup component add rustfmt clippy
 WORKDIR /workspace
 ENV CARGO_BUILD_JOBS=2
 

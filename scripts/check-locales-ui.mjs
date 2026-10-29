@@ -20,7 +20,13 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
 await page.goto(base + '/#settings');
-await page.getByText('Moteur Rust connecté', { exact: true }).waitFor({ timeout: 30000 });
+await page.waitForFunction(
+  () =>
+    !!document.querySelector('.main-footer b') &&
+    !document.querySelector('.connection') &&
+    !document.querySelector('.engine-error'),
+  { timeout: 30000 },
+);
 // Verify explicit override, then restoration of the system-controlled theme.
 await page.locator('.theme-option').nth(2).click();
 await page.locator('.settings-actions .primary').click();

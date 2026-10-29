@@ -28,10 +28,12 @@ function nativeApi() {
           let size = 0;
           for await (const chunk of req) {
             size += chunk.length;
-            if (size > 16384) throw new Error('Requête trop volumineuse.');
+            if (size > 262144) throw new Error('Requête trop volumineuse.');
             chunks.push(chunk);
           }
           const { method, params = {} } = JSON.parse(Buffer.concat(chunks).toString());
+          if (method !== 'clean_execute' && size > 16384)
+            throw new Error('Requête trop volumineuse.');
           if (!METHODS.has(method)) throw new Error('Commande refusée.');
           const result = await bridge.call(method, params);
           res.end(JSON.stringify({ result }));

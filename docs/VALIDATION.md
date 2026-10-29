@@ -4,9 +4,9 @@ Validated on Linux on October 29, 2026. No remote service or public tunnel was o
 
 | Check | Result |
 |---|---|
-| Rust engine | 48 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
+| Rust engine | 61 passing tests: domain, firmware, actual RAM/disk/CPU loops, cancellation, history, preferences, MCP, Windows imports, real telemetry, process ranking and multi-GPU VRAM aggregation |
 | Rust analysis | `cargo fmt --check` and Clippy, all targets, `-D warnings` |
-| Node integration | 18 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
+| Node integration | 20 passing tests, including the real CLI, passive monitoring, tray settings, brand names across 25 languages, and official MCP SDK clients over stdio/HTTP |
 | Playwright interface | Independent selections, progress, history/comparison, two real reruns with identical parameters and new identifiers, independent checkboxes, measurements/processes, USB spinner, notifications and Secure Boot guidance; light/dark screenshots |
 | Internationalization | 25 languages visited, LTR/RTL layouts, system theme and explicit choices, three widths; additional screenshots in five languages and both themes |
 | Native desktop | Tauri binary, real Rust IPC, three persistent indicators, three RAM toggle cycles and two global cycles, native window close preserving the process and indicators, reopening the same window, Active/Passive states read over D-Bus, real activation and menus, resolved application icon, D-Bus-only launcher without Exec, explicit dock/tray/in-app quit actions, confirmed erasure on disposable data, real measurements/processes, RAM/disk/CPU diagnostics, saved theme; twelve WebKitGTK screenshots, a three-style rendering test and an isolated D-Bus test |
@@ -72,3 +72,21 @@ Windows and macOS have adapters and a CI build matrix, but their packages, start
 Successful builds and tests do not certify every component's health. Screenshots retain unknown or inaccessible checks. Coverage, firmware, cache and telemetry limitations appear in reports and the [methodology](DIAGNOSTICS.md).
 
 The guided workflow and preboot component are detailed in [BOOT-DIAGNOSTICS.md](BOOT-DIAGNOSTICS.md). Validation does not schedule real GRUB boots or prepare real USB drives on the host.
+
+
+## 0.2 maintenance validation
+
+The isolated Rust suite covers mandatory cleanup confirmation, one-use/expired
+plans, metadata changes, symlink replacement, protected roots, operation locking,
+Boolean rules and automation byte limits. CLI integration covers real temporary
+file deletion, preserved exclusions, schedule creation/removal, and read-only
+application/fan inventory. Real Docker objects, installed applications and fan
+controls are never removed or modified by these tests.
+
+The native WebKit suite captures cleanup configuration/preview, applications and
+fan capabilities in both themes. It verifies the new default login entry,
+independent ring popover and constant sidebar geometry across scrolling.
+The screenshot server is an isolated Xvfb session; its lack of a compositor can
+render transparent window corners black. GNOME uses its compositor for those
+transparent pixels. The installed application uses a transparent native popover
+surface instead of an opaque white background.

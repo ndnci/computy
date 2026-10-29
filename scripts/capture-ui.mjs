@@ -19,7 +19,13 @@ const page = await context.newPage();
 const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
 await page.goto(process.env.COMPUTY_TEST_BASE_URL || 'http://127.0.0.1:1420');
-await page.getByText('Moteur Rust connecté', { exact: true }).waitFor({ timeout: 30000 });
+await page.waitForFunction(
+  () =>
+    !!document.querySelector('.main-footer b') &&
+    !document.querySelector('.connection') &&
+    !document.querySelector('.engine-error'),
+  { timeout: 30000 },
+);
 // Explicitly use the UI's shared preferences API, not test fixtures or mocked hardware.
 await page.evaluate(async () => {
   const response = await fetch('/api/computy', {
@@ -40,7 +46,12 @@ await page.evaluate(async () => {
   if (!response.ok) throw new Error(await response.text());
 });
 await page.reload();
-await page.getByText('Moteur Rust connecté', { exact: true }).waitFor();
+await page.waitForFunction(
+  () =>
+    !!document.querySelector('.main-footer b') &&
+    !document.querySelector('.connection') &&
+    !document.querySelector('.engine-error'),
+);
 const captures = [];
 async function capture(name) {
   for (const theme of ['light', 'dark']) {

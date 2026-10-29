@@ -125,7 +125,7 @@ export default function MonitorPopover() {
         </button>
       </header>
       <section className="popover-hero">
-        <MetricVisual value={value} metric={metric} />
+        <MetricVisual value={value} metric={metric} style="ring" />
         <div>
           <span className="popover-device">
             <Icon size={22} />

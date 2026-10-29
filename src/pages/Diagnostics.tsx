@@ -520,10 +520,6 @@ export default function Diagnostics() {
                     {tx(launching ? 'Préparation…' : 'Lancer le diagnostic')}
                     <ArrowRight size={17} />
                   </button>
-                  <span className="summary-reassurance">
-                    <LockKeyhole size={12} />
-                    {tx('Ex\xE9cution locale \xB7 Historique automatique')}
-                  </span>
                 </div>
                 <div className="scope-card">
                   <div className="inline-icon-heading">

@@ -30,13 +30,18 @@ async function capture(name) {
   await page.emulateMedia({ colorScheme: 'light' });
 }
 await page.goto(base + '/#diagnostics');
-await page.getByText('Moteur Rust connecté', { exact: true }).waitFor();
+await page.waitForFunction(
+  () =>
+    !!document.querySelector('.main-footer b') &&
+    !document.querySelector('.connection') &&
+    !document.querySelector('.engine-error'),
+);
 await page
   .getByText('Tous ces profils s’exécutent dans votre session. Aucun ne redémarre le PC.', {
     exact: true,
   })
   .waitFor();
-for (const selector of ['.scope-card .inline-icon-heading', '.local-card .inline-icon-heading']) {
+for (const selector of ['.scope-card .inline-icon-heading']) {
   const icon = await page.locator(selector).locator('svg').boundingBox();
   const title = await page.locator(selector).locator('h3,b').boundingBox();
   assert.ok(icon && title);

@@ -141,10 +141,6 @@ export default function Overview() {
               {tx(job?.running ? 'Voir le diagnostic' : 'Lancer un diagnostic')}
               <ArrowUpRight size={17} />
             </button>
-            <span className="hero-reassurance">
-              <ShieldCheck size={13} />
-              {tx('Local. Transparent. Sans abonnement.')}
-            </span>
           </div>
           <div className="hero-art" aria-hidden="true">
             <div className="orbit orbit-one" />

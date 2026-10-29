@@ -33,7 +33,11 @@ async fn engine_call(
     if serde_json::to_vec(&params)
         .map_err(|e| e.to_string())?
         .len()
-        > 16384
+        > if method == "clean_execute" {
+            262144
+        } else {
+            16384
+        }
     {
         return Err("Requête trop volumineuse.".into());
     }
@@ -90,7 +94,11 @@ fn startup_status(app: tauri::AppHandle) -> Result<bool, String> {
     app.autolaunch().is_enabled().map_err(|e| e.to_string())
 }
 #[tauri::command]
-fn set_startup(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
+fn set_startup(
+    app: tauri::AppHandle,
+    service: tauri::State<'_, Arc<AppService>>,
+    enabled: bool,
+) -> Result<(), String> {
     if cfg!(debug_assertions) {
         return Err("Activez le démarrage automatique depuis une version installée de Computy, pas depuis le mode développement.".into());
     }
@@ -99,7 +107,8 @@ fn set_startup(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
     } else {
         app.autolaunch().disable()
     }
-    .map_err(|e| e.to_string())
+    .map_err(|e| e.to_string())?;
+    computy_engine::startup::save_desired(&service.data_root(), enabled)
 }
 #[tauri::command]
 async fn open_offline_tool(service: tauri::State<'_, Arc<AppService>>) -> Result<(), String> {
@@ -264,6 +273,18 @@ fn main() {
             let service =
                 AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
             app.manage(service.clone());
+            let housekeeping = service.clone();
+            std::thread::spawn(move || {
+                loop {
+                    if !housekeeping.active_job().is_some_and(|j| j.running)
+                        && let Err(error) =
+                            computy_engine::clean::run_due(&housekeeping.data_root())
+                    {
+                        eprintln!("Computy automation: {error}");
+                    }
+                    std::thread::sleep(std::time::Duration::from_secs(60));
+                }
+            });
             app.manage(monitor_tray::TrayState::default());
             #[cfg(target_os = "linux")]
             {
@@ -275,6 +296,13 @@ fn main() {
                 quit.connect_activate(move |_, _| handle.exit(0));
                 application.add_action(&quit);
                 application.set_accels_for_action("app.quit", &["<Primary>q"]);
+            }
+            // Login monitoring is enabled on first installed launch, never in development.
+            if !cfg!(debug_assertions)
+                && computy_engine::startup::desired(&root).unwrap_or(false)
+                && let Err(error) = app.autolaunch().enable()
+            {
+                eprintln!("Computy login startup: {error}");
             }
             monitor_tray::setup_panel(app.handle())?;
             let preferences = computy_engine::preferences::load(&service.data_root())

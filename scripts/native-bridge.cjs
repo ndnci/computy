@@ -3,6 +3,16 @@ const { existsSync } = require('node:fs');
 const path = require('node:path');
 const { createInterface } = require('node:readline');
 const METHODS = new Set([
+  'clean_sources',
+  'clean_preview',
+  'clean_execute',
+  'clean_schedules',
+  'clean_schedule',
+  'clean_unschedule',
+  'clean_run_due',
+  'applications',
+  'application_action',
+  'fans',
   'inventory',
   'monitor',
   'history',

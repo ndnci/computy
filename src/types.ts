@@ -105,6 +105,9 @@ export interface Job {
   cancel_requested: boolean;
 }
 export type Page =
+  | 'clean'
+  | 'applications'
+  | 'fans'
   | 'overview'
   | 'memory'
   | 'storage'

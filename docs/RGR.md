@@ -69,3 +69,12 @@ Maintenance checks cover missing consent, active locks and symlink rejection, pr
 ## Update 0.1.6
 
 The native regression first reproduced GNOME's service-based rediscovery reducing three exported indicators to one. Per-indicator persistent connections and names avoid that collision. Another scenario forgets registrations without changing the watcher's bus owner, verifying automatic recovery. Native startup checks cover a hidden `--background` launch, a background duplicate that must not raise the window, manual reopening of the same instance, and a real login entry containing `--background`, created only inside the disposable container. Pure Rust policy tests initially failed on the absent startup module and cover normal, legacy, disabled and disk-only configurations. A bounding-box assertion verifies the gap before the maintenance panel.
+
+The 0.2 cleanup cycle first reproduced two unsafe cases: `/var/lib` was accepted
+and a symlinked cleanup-state directory received a lock file before rejection.
+A third regression showed that an active diagnostic did not prevent a preview.
+After hardening, all three pass alongside one-use confirmed plans, modified-file
+skipping, symlink-parent replacement, nested filters and bounded recurring runs.
+The CLI integration test deletes only an isolated temporary fixture and verifies
+that excluded files remain. Native UI checks exercise the same engine through
+the complete preview/confirmation flow, not a simulated cleanup result.

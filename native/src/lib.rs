@@ -16,3 +16,8 @@ pub mod service;
 pub mod startup;
 pub mod transport;
 pub mod usb_boot;
+
+pub mod applications;
+pub mod clean;
+mod commands;
+pub mod fans;

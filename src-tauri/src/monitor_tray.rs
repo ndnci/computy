@@ -73,7 +73,9 @@ pub fn setup_panel(app: &tauri::AppHandle) -> tauri::Result<()> {
     .skip_taskbar(true)
     .always_on_top(true)
     .visible(false)
-    .shadow(true)
+    .shadow(false)
+    .transparent(true)
+    .background_color(tauri::window::Color(0, 0, 0, 0))
     .build()?;
     Ok(())
 }
@@ -270,7 +272,7 @@ fn linux_menu_rows(
         _ => "Stockage",
     };
     let png = crate::process_icons::encode_rgba(
-        &crate::tray_icon::render_style(value.label, value.value, "ring", false),
+        &crate::tray_icon::render_style(value.label, value.value, &preferences.tray_style, false),
         64,
         64,
     )

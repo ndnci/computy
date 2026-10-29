@@ -24,3 +24,23 @@ pub fn launch_mode(arguments: &[String], preferences: &Preferences) -> LaunchMod
         LaunchMode::Exit
     }
 }
+
+/// An absent preference opts in; an explicit opt-out is never overwritten.
+pub fn desired(root: &std::path::Path) -> Result<bool, String> {
+    let path = root.join("startup.state");
+    if !path.exists() {
+        return Ok(true);
+    }
+    let m = std::fs::symlink_metadata(&path).map_err(|e| e.to_string())?;
+    if m.file_type().is_symlink() || m.len() > 16 {
+        return Err("Invalid login preference".into());
+    }
+    serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())
+}
+pub fn save_desired(root: &std::path::Path, enabled: bool) -> Result<(), String> {
+    std::fs::create_dir_all(root).map_err(|e| e.to_string())?;
+    let temp = root.join(format!("startup-{}.tmp", crate::domain::new_id()));
+    std::fs::write(&temp, if enabled { "true" } else { "false" }).map_err(|e| e.to_string())?;
+    std::fs::rename(temp, root.join("startup.state")).map_err(|e| e.to_string())
+}

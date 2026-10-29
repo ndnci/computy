@@ -29,7 +29,7 @@ To publish a release:
 2. Add a dated section to root `CHANGELOG.md`; keep future changes in `Unreleased`.
 3. Run the relevant checks and commit/push the version.
 4. In GitHub **Releases → Draft a new release**, choose the matching tag, for
-   example `v0.1.6`, and the intended commit. Copy the corresponding changelog
+   example `v0.2.0`, and the intended commit. Copy the corresponding changelog
    section into the release notes, then publish the release.
 5. **Release downloads** validates the version and changelog, runs all builds and
    attaches installers, native CLI binaries and per-platform SHA-256 manifests.

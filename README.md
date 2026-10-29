@@ -17,6 +17,12 @@ Created by **[NDNCI](https://www.ndnci.com)**. No account or usage tracking. You
 - Keep a hardware snapshot for each report, rename it, export JSON, and compare **2–4 reports**.
 - **Rerun a diagnostic** from its history row or report. The same settings create a new diagnostic while preserving the original. The whole row opens the report; checkboxes and actions work independently. Rerunning a Windows preboot report opens the wizard and requires fresh confirmation.
 - Monitor RAM/CPU/GPU through configurable **system tray indicators**, enabled by default, with optional volume indicators. Open the **top 10 processes**, then **View all** for the complete searchable, sortable list. Missing measurements remain explicit. See [monitoring behavior and limits](docs/MONITORING.md).
+- **Clean up with a mandatory dry run**: review individual files, combine AND/OR/NOT
+  filters, inspect unused Docker objects and authorize bounded recurring file
+  cleanup. [Safety, scope and CLI examples](docs/MAINTENANCE.md).
+- **Find installed applications**, launch them, reveal their location and confirm
+  manager-owned removal. Optional package-data removal is supported where its
+  ownership is known. Read available **fan sensors** without overriding firmware.
 - Follow the **system theme by default**, or choose **light/dark**. Select from **25 languages**, with localized formatting and appropriate text direction.
 - Use the same checks, reports, preferences and comparisons from the terminal or an MCP agent.
 
@@ -47,7 +53,7 @@ In the application, open **Diagnostics**, select components, choose the quick pr
 On Ubuntu/Debian, installing the package also adds Computy to the applications menu:
 
 ```bash
-sudo apt install ./release/Computy_0.1.6_amd64.deb
+sudo apt install ./release/Computy_0.2.0_amd64.deb
 ```
 
 Runtime libraries are present on the development PC used for validation. Files in `release/` are local build artifacts excluded from Git; after cloning the repository, build them using the commands below.
@@ -69,7 +75,7 @@ npm run package
 
 Packages are written to `src-tauri/target/release/bundle/`. Build Windows and macOS packages on their respective operating systems. GitHub Actions build Linux, Windows, Intel Mac and Apple Silicon packages. Publishing a matching GitHub release attaches downloadable installers and CLI binaries automatically. Releases are not signed or notarized yet.
 
-The locally validated Linux package is [`release/Computy_0.1.6_amd64.deb`](release/Computy_0.1.6_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
+The locally validated Linux package is [`release/Computy_0.2.0_amd64.deb`](release/Computy_0.2.0_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
 
 ### Develop and validate with Docker
 
@@ -171,7 +177,7 @@ See [behavior, limits and confirmations](docs/BOOT-DIAGNOSTICS.md).
 Choose **Quit Computy** from an indicator's menu, then run these commands from the repository root:
 
 ```bash
-sudo apt install ./release/Computy_0.1.6_amd64.deb
+sudo apt install ./release/Computy_0.2.0_amd64.deb
 /usr/bin/computy
 ```
 
@@ -236,7 +242,7 @@ Screenshots show information exposed by the validation machine. Reports come fro
 
 ### Monitoring at login
 
-Enable **Show indicators at login** to start only the selected indicators, without opening the main window. Normal launches still open Computy. This setting remains opt-in.
+**Show indicators at login** is enabled by default. It starts the selected indicators without opening the main window; a normal launch opens Computy. An explicit opt-out is preserved.
 
 | Light | Dark |
 |---|---|
@@ -304,6 +310,16 @@ The same report may contain successful tests and unavailable counters. The inter
 The integrated preboot component in a UEFI VM (its display environment depends on firmware):
 
 ![Integrated memory test running in QEMU UEFI](docs/screenshots/boot-engine-uefi.png)
+
+### Cleanup and application management
+
+![Cleanup in light and dark mode](docs/screenshots/presentation-cleanup.png)
+
+| Light | Dark |
+| --- | --- |
+| ![Cleanup preview in light mode](docs/screenshots/native-linux-clean-light.png) | ![Cleanup in dark mode](docs/screenshots/native-linux-clean-dark.png) |
+| ![Applications in light mode](docs/screenshots/native-linux-applications-light.png) | ![Applications in dark mode](docs/screenshots/native-linux-applications-dark.png) |
+| ![Cooling capabilities in light mode](docs/screenshots/native-linux-fans-light.png) | ![Cooling capabilities in dark mode](docs/screenshots/native-linux-fans-dark.png) |
 
 ## Architecture and verification
 

@@ -1,19 +1,9 @@
 import { t, tx, currentLocale, languages } from '../i18n.mjs';
 import { useEffect, useState } from 'react';
-import {
-  Check,
-  HardDrive,
-  Laptop,
-  LockKeyhole,
-  Moon,
-  RotateCcw,
-  Save,
-  ShieldCheck,
-  Sun,
-} from 'lucide-react';
+import { Check, HardDrive, Laptop, Moon, RotateCcw, Save, Sun } from 'lucide-react';
 import { useApp } from '../app-context';
 import { defaultPreferences, isDesktop, setStartup, startupStatus } from '../api';
-import { Notice, Panel, PanelHeader, SectionTitle, Spinner } from '../components';
+import { Notice, PanelHeader, SectionTitle, Spinner } from '../components';
 import MonitorSettings from './MonitorSettings';
 import MaintenanceSettings from './MaintenanceSettings';
 export default function SettingsPage() {
@@ -272,17 +262,6 @@ export default function SettingsPage() {
         </div>
       </section>
       <MonitorSettings draft={draft} onChange={setDraft} />
-      <Panel className="privacy-settings">
-        <LockKeyhole size={24} />
-        <div>
-          <h3>{tx('Vos donn\xE9es vous appartiennent.')}</h3>
-          <p>
-            {tx(
-              'L\u2019historique et les pr\xE9f\xE9rences restent sur cet appareil. Aucun compte, aucune t\xE9l\xE9m\xE9trie et aucun envoi automatique. L\u2019export JSON vous permet de garder une copie lisible de chaque rapport.',
-            )}
-          </p>
-        </div>
-      </Panel>
       <div className="settings-actions">
         <button
           className="button secondary"

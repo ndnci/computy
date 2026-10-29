@@ -34,3 +34,12 @@ fn background_start_without_enabled_indicators_exits_without_a_window() {
         LaunchMode::Monitor
     );
 }
+#[test]
+fn login_defaults_on_and_keeps_explicit_opt_out() {
+    let root = std::env::temp_dir().join(computy_engine::domain::new_id());
+    std::fs::create_dir_all(&root).unwrap();
+    assert!(computy_engine::startup::desired(&root).unwrap());
+    computy_engine::startup::save_desired(&root, false).unwrap();
+    assert!(!computy_engine::startup::desired(&root).unwrap());
+    std::fs::remove_dir_all(root).unwrap();
+}

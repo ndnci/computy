@@ -38,7 +38,56 @@ pub struct Cli {
     pub command: Commands,
 }
 #[derive(Debug, Subcommand)]
+pub enum CleanAction {
+    Sources,
+    Preview {
+        /// JSON policy file; omitted uses OS caches older than seven days.
+        #[arg(long)]
+        policy: Option<PathBuf>,
+    },
+    Execute {
+        id: String,
+        #[arg(long, value_delimiter = ',')]
+        exclude: Vec<usize>,
+        #[arg(long)]
+        yes: bool,
+    },
+    Schedules,
+    Schedule {
+        id: String,
+        #[arg(long)]
+        hours: u64,
+        #[arg(long)]
+        max_bytes: u64,
+        #[arg(long)]
+        yes: bool,
+    },
+    Unschedule {
+        id: String,
+    },
+    /// Process only due, pre-approved automations.
+    RunDue,
+}
+#[derive(Debug, Subcommand)]
 pub enum Commands {
+    /// Preview and execute cleanup plans. Deletion requires a saved dry run.
+    Clean {
+        #[command(subcommand)]
+        action: CleanAction,
+    },
+    /// List installed applications or invoke an OS-owned action.
+    Applications {
+        #[arg(long)]
+        id: Option<String>,
+        #[arg(long, default_value = "list")]
+        action: String,
+        #[arg(long)]
+        remove_data: bool,
+        #[arg(long)]
+        yes: bool,
+    },
+    /// Read available fan sensors and control capabilities.
+    Fans,
     /// Read actual hardware, firmware information and visible sensors.
     Inventory,
     /// Passive CPU/RAM/GPU/disk telemetry. --watch streams JSON until Ctrl+C.
@@ -203,6 +252,61 @@ pub fn run(cli: Cli) -> Result<i32, String> {
     let repository = Arc::new(FileRepository::new(root.join("reports"))?);
     let service = AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
     let result = match cli.command {
+        Commands::Fans => {
+            print_json(&crate::fans::inventory())?;
+            0
+        }
+        Commands::Applications {
+            id,
+            action,
+            remove_data,
+            yes,
+        } => {
+            if action == "list" {
+                print_json(&crate::applications::list())?;
+            } else {
+                print_json(&crate::applications::action(
+                    &id.ok_or("--id is required")?,
+                    &action,
+                    remove_data,
+                    yes,
+                )?)?;
+            }
+            0
+        }
+        Commands::Clean { action } => {
+            let root = service.data_root();
+            match action {
+                CleanAction::Sources => print_json(&crate::clean::sources())?,
+                CleanAction::Preview { policy } => {
+                    let policy = if let Some(path) = policy {
+                        serde_json::from_slice(&std::fs::read(path).map_err(|e| e.to_string())?)
+                            .map_err(|e| e.to_string())?
+                    } else {
+                        crate::clean::Policy {
+                            roots: serde_json::from_value(crate::clean::sources()["roots"].clone())
+                                .map_err(|e| e.to_string())?,
+                            ..Default::default()
+                        }
+                    };
+                    print_json(&crate::clean::preview(&root, policy)?)?;
+                }
+                CleanAction::Execute { id, exclude, yes } => {
+                    print_json(&crate::clean::execute(&root, &id, &exclude, yes)?)?
+                }
+                CleanAction::Schedules => print_json(&crate::clean::schedules(&root)?)?,
+                CleanAction::Schedule {
+                    id,
+                    hours,
+                    max_bytes,
+                    yes,
+                } => print_json(&crate::clean::schedule(&root, &id, hours, max_bytes, yes)?)?,
+                CleanAction::Unschedule { id } => crate::clean::remove_schedule(&root, &id)?,
+                CleanAction::RunDue => print_json(&crate::clean::run_due(&root)?)?,
+            };
+            0
+        }
+
         Commands::EraseData { yes } => {
             service.erase_data(yes)?;
             if cli.json {
@@ -606,8 +710,14 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                 .build()
                 .map_err(|e| e.to_string())?;
             match action {
-                StartupAction::Enable => entry.enable().map_err(|e| e.to_string())?,
-                StartupAction::Disable => entry.disable().map_err(|e| e.to_string())?,
+                StartupAction::Enable => {
+                    entry.enable().map_err(|e| e.to_string())?;
+                    crate::startup::save_desired(&service.data_root(), true)?;
+                }
+                StartupAction::Disable => {
+                    entry.disable().map_err(|e| e.to_string())?;
+                    crate::startup::save_desired(&service.data_root(), false)?;
+                }
                 StartupAction::Status => {}
             }
             print_json(&json!({"enabled":entry.is_enabled().map_err(|e|e.to_string())?}))?;
@@ -670,14 +780,14 @@ fn serve_rpc(service: &Arc<AppService>) -> Result<(), String> {
         let mut line = String::new();
         if input
             .by_ref()
-            .take(65537)
+            .take(262145)
             .read_line(&mut line)
             .map_err(|e| e.to_string())?
             == 0
         {
             break;
         }
-        if line.len() > 65536 {
+        if line.len() > 262144 {
             return Err("Request too large".into());
         }
         let response = match serde_json::from_str::<Request>(&line) {

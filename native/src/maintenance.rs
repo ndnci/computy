@@ -13,6 +13,8 @@ pub fn erase_data(root: &Path, confirmed: bool) -> Result<(), String> {
         "reports",
         "scratch",
         "preferences.state",
+        "startup.state",
+        "clean",
         "boot-diagnostic.state",
         "diagnostic.lock",
     ];
@@ -40,6 +42,8 @@ pub fn erase_data(root: &Path, confirmed: bool) -> Result<(), String> {
         "reports",
         "scratch",
         "preferences.state",
+        "startup.state",
+        "clean",
         "boot-diagnostic.state",
     ] {
         let path = root.join(name);

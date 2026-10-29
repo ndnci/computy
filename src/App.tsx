@@ -3,6 +3,9 @@ import { version } from '../package.json';
 import { useTranslation } from 'react-i18next';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  AppWindow,
+  BrushCleaning,
+  Fan,
   Activity,
   ArrowLeftRight,
   ArrowUpRight,
@@ -13,14 +16,12 @@ import {
   HardDrive,
   History,
   LayoutDashboard,
-  LockKeyhole,
   MemoryStick,
   Monitor,
   Plus,
   Power,
   RefreshCw,
   Settings2,
-  ShieldCheck,
   X,
 } from 'lucide-react';
 import { AppContext } from './app-context';
@@ -40,6 +41,9 @@ import Compare from './pages/Compare';
 import SettingsPage from './pages/Settings';
 import About from './pages/About';
 import Processes from './pages/Processes';
+import Clean from './pages/Clean';
+import Applications from './pages/Applications';
+import Fans from './pages/Fans';
 import type { Inventory, Job, Page, Preferences, Report, RunOptions } from './types';
 const navigation: {
   id: Page;
@@ -83,6 +87,9 @@ const navigation: {
     icon: History,
     group: 2,
   },
+  { id: 'fans', label: 'Ventilateurs', icon: Fan, group: 1 },
+  { id: 'applications', label: 'Applications', icon: AppWindow, group: 2 },
+  { id: 'clean', label: 'Nettoyage', icon: BrushCleaning, group: 2 },
   { id: 'processes', label: 'Processus', icon: Activity, group: 1 },
   {
     id: 'compare',
@@ -423,11 +430,6 @@ export default function App() {
               <small>{tx('VOTRE MAT\xC9RIEL, EN CLAIR')}</small>
             </span>
           </button>
-          <div className="workspace-label">
-            <span className="online-dot" />
-            {tx(' Espace personnel ')}
-            <span className="local-tag">{tx('LOCAL')}</span>
-          </div>
           <nav aria-label={tx('Navigation principale')}>
             {tx(
               [0, 1, 2].map((group) => (
@@ -468,23 +470,6 @@ export default function App() {
             )}
           </nav>
           <div className="sidebar-bottom">
-            <div className="local-card">
-              <div className="inline-icon-heading">
-                <span className="local-card-icon">
-                  <LockKeyhole size={18} />
-                </span>
-                <b>{tx('Votre PC. Vos donn\xE9es.')}</b>
-              </div>
-              <p>
-                {tx('Les diagnostics restent')}
-                <br />
-                {tx('sur votre ordinateur.')}
-              </p>
-              <span>
-                <span className="online-dot" />
-                {tx(' Aucune t\xE9l\xE9m\xE9trie')}
-              </span>
-            </div>
             <button
               className={`nav-item ${page === 'settings' ? 'active' : ''}`}
               onClick={() => navigate('settings')}
@@ -499,11 +484,6 @@ export default function App() {
               <CircleHelp size={18} />
               <span>{tx('\xC0 propos de Computy')}</span>
             </button>
-            <a className="made-by" href="https://www.ndnci.com" target="_blank" rel="noreferrer">
-              {tx('Con\xE7u par ')}
-              <b>{tx('NDNCI')}</b>
-              <ArrowUpRight size={13} />
-            </a>
             {isDesktop() && (
               <button
                 className="nav-item quit-application"
@@ -524,17 +504,11 @@ export default function App() {
               <b>{tx(label)}</b>
             </div>
             <div className="topbar-right">
-              <span className="connection">
-                <span className={`online-dot ${error ? 'offline' : ''}`} />
-                {tx(
-                  loading
-                    ? 'Connexion au moteur'
-                    : error
-                      ? 'Moteur indisponible'
-                      : 'Moteur Rust connecté',
-                )}
-              </span>
-              <span className="topbar-divider" />
+              {(loading || error) && (
+                <span className="connection">
+                  {tx(loading ? 'Connexion au moteur' : 'Moteur indisponible')}
+                </span>
+              )}
               <button
                 className="icon-button refresh-button"
                 onClick={() => void refresh()}
@@ -577,6 +551,12 @@ export default function App() {
                 <Compare />
               ) : page === 'processes' ? (
                 <Processes />
+              ) : page === 'clean' ? (
+                <Clean />
+              ) : page === 'applications' ? (
+                <Applications />
+              ) : page === 'fans' ? (
+                <Fans />
               ) : page === 'settings' ? (
                 <SettingsPage />
               ) : (
@@ -585,10 +565,6 @@ export default function App() {
             )}
           </main>
           <footer className="main-footer">
-            <span>
-              <ShieldCheck size={14} />
-              {tx(' Diagnostics locaux, donn\xE9es priv\xE9es.')}
-            </span>
             <span>
               {tx('Computy ')}
               <b>{version}</b>

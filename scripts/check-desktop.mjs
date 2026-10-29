@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawn, execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 const exec = promisify(execFile);
-import { access, mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, mkdir, readdir, readFile, rm, writeFile, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 // This suite changes a login entry and sends native window events: container only.
@@ -11,6 +11,7 @@ await access('/.dockerenv');
 const startupFile = path.join(process.env.HOME, '.config/autostart/Computy.desktop');
 await assert.rejects(access(startupFile), 'Never overwrite an existing startup entry in a test');
 const root = await mkdtemp(path.join(tmpdir(), 'computy-desktop-'));
+const cleanupFixture = await mkdtemp(path.join(tmpdir(), 'computy-clean-fixture-'));
 const destination = process.env.COMPUTY_SCREENSHOT_DIR || 'docs/screenshots';
 const expectedVersion = JSON.parse(await readFile('package.json', 'utf8')).version;
 await mkdir(destination, { recursive: true });
@@ -71,6 +72,11 @@ async function until(script) {
   throw new Error(`Timed out: ${script}\n${await execute('return document.body.innerText')}`);
 }
 async function click(text) {
+  await until(
+    "return [...document.querySelectorAll('button')].some(item=>item.textContent.trim()===" +
+      JSON.stringify(text) +
+      ' && !item.disabled)',
+  );
   assert.equal(
     await execute(
       "const button=[...document.querySelectorAll('button')].find(item=>item.textContent.trim()===arguments[0]);if(button){button.click();return true;}return false;",
@@ -137,7 +143,9 @@ try {
   }
 
   await request('POST', `/session/${session}/window/rect`, { width: 1440, height: 1000 });
-  await until("return document.body.innerText.includes('Moteur Rust connecté')");
+  await until(
+    "return !!document.querySelector('.main-footer b') && !document.querySelector('.connection') && !document.querySelector('.engine-error')",
+  );
   assert.equal(
     await execute("return document.querySelector('.main-footer b')?.textContent"),
     expectedVersion,
@@ -212,7 +220,7 @@ try {
   await click('Préférences');
   await until("return document.querySelectorAll('.monitor-metrics input:checked').length===3");
   const startupSwitch = "button[aria-label='Afficher les indicateurs à la connexion']";
-  await execute('document.querySelector(arguments[0]).click()', [startupSwitch]);
+  // Fresh installations opt into login monitoring without opening the main window.
   await until(
     `return document.querySelector(${JSON.stringify(startupSwitch)}).getAttribute('aria-checked')==='true'`,
   );
@@ -357,6 +365,11 @@ try {
   }
   assert.ok(popupHandle);
   await until("return document.querySelectorAll('.popover-process').length>0");
+  assert.equal(
+    await execute("return !!document.querySelector('.metric-visual-ring')"),
+    true,
+    'Popover must keep its ring independently of the system-bar style',
+  );
   await capture('tray-panel');
   await click('Voir tout');
   await request('POST', `/session/${session}/window`, { handle: mainHandle });
@@ -388,6 +401,61 @@ try {
     16 * 1024 ** 2,
   );
   assert.ok(report.checks.find((check) => check.id === 'cpu-known-answers').metrics.iterations > 0);
+  // Actual filesystem fixture in this container's private temporary directory.
+  const cache = cleanupFixture;
+  await writeFile(path.join(cache, 'old.log'), 'temporary fixture');
+  await utimes(path.join(cache, 'old.log'), new Date(0), new Date(0));
+  await click('Nettoyage');
+  await until("return !!document.querySelector('.clean-page textarea')");
+  await execute(
+    "const el=document.querySelector('.clean-page textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el,arguments[0]);el.dispatchEvent(new Event('input',{bubbles:true}));",
+    [cache],
+  );
+  await click('Analyser sans supprimer');
+  await until("return !!document.querySelector('.clean-summary')");
+  assert.ok((await readFile(path.join(cache, 'old.log'), 'utf8')).includes('temporary'));
+  assert.equal(
+    await execute("return document.querySelectorAll('.utility-table tbody tr').length"),
+    1,
+    'The dry run must contain the actual fixture',
+  );
+  await capture('clean-rules-light');
+  await execute(
+    "document.querySelector('.clean-summary').closest('section').scrollIntoView({block:'start'})",
+  );
+  await capture('clean-light', false);
+  const sidebarBefore = await execute(
+    "const r=document.querySelector('.sidebar').getBoundingClientRect();return {x:r.x,y:r.y,width:r.width}",
+  );
+  await execute('window.scrollBy(0,100)');
+  assert.deepEqual(
+    await execute(
+      "const r=document.querySelector('.sidebar').getBoundingClientRect();return {x:r.x,y:r.y,width:r.width}",
+    ),
+    sidebarBefore,
+    'Sidebar must stay fixed while the main page scrolls',
+  );
+  await click('Automatiser cette règle');
+  await click('Autoriser cette automatisation');
+  await until(
+    "return !!document.querySelector('.schedule-row') && !document.querySelector('.modal-backdrop')",
+  );
+  await click('Vérifier et nettoyer');
+  await click('Confirmer la suppression');
+  await until("return !document.querySelector('.clean-summary')");
+  await assert.rejects(access(path.join(cache, 'old.log')));
+  await click('Applications');
+  await until(
+    "return !!document.querySelector('.applications-page') && !document.querySelector('.applications-page .utility-empty .spin')",
+  );
+  if (!(await execute("return !!document.querySelector('.application-card')"))) {
+    await execute("document.querySelector('.applications-page input[type=checkbox]').click()");
+    await until("return !!document.querySelector('.application-card')");
+  }
+  await capture('applications-light');
+  await click('Ventilateurs');
+  await until("return !!document.querySelector('.utility-page')");
+  await capture('fans-light');
   await click('Préférences');
   await until("return !!document.querySelector('.settings-page')");
   await click('Sombre');
@@ -401,6 +469,35 @@ try {
     [startupSwitch],
   );
   await capture('startup-dark', false);
+  await click('Nettoyage');
+  await until("return !!document.querySelector('.clean-page')");
+  await writeFile(path.join(cache, 'old.log'), 'temporary fixture');
+  await utimes(path.join(cache, 'old.log'), new Date(0), new Date(0));
+  await execute(
+    "const el=document.querySelector('.clean-page textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el,arguments[0]);el.dispatchEvent(new Event('input',{bubbles:true}));",
+    [cache],
+  );
+  await click('Analyser sans supprimer');
+  await until("return !!document.querySelector('.clean-summary')");
+  await capture('clean-rules-dark');
+  await execute(
+    "document.querySelector('.clean-summary').closest('section').scrollIntoView({block:'start'})",
+  );
+  await capture('clean-dark', false);
+  await click('Applications');
+  await until(
+    "return !!document.querySelector('.application-card') || !!document.querySelector('.applications-page .utility-empty p')",
+  );
+  await execute(
+    "const el=document.querySelector('.applications-page input[type=checkbox]');if(el&&!el.checked)el.click()",
+  );
+  await capture('applications-dark');
+  await click('Ventilateurs');
+  await until("return !!document.querySelector('.utility-page')");
+  await capture('fans-dark');
+  await click('Préférences');
+  await until("return !!document.querySelector('.settings-page')");
+
   await execute('document.querySelector(arguments[0]).click()', [startupSwitch]);
   await until(
     `return document.querySelector(${JSON.stringify(startupSwitch)}).getAttribute('aria-checked')==='false'`,
@@ -545,6 +642,13 @@ try {
     maintenance_spacing_verified: true,
     dbus_only_desktop_entry_survives: true,
     custom_popover: true,
+    popover_keeps_ring: true,
+    login_enabled_by_default: true,
+    cleanup_dry_run_and_confirmation: true,
+    cleanup_schedule_created: true,
+    sidebar_stays_fixed: true,
+    applications_inventory: true,
+    fan_capabilities: true,
     quit_method: quitMethod,
     quit_exits: true,
     maintenance_consent_verified: true,
@@ -557,7 +661,7 @@ try {
   };
   await writeFile(`${destination}/native-results.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(
-    'Native Tauri, maintenance consent, tray toggles, quit actions and 12 real WebKit captures verified.',
+    'Native Tauri, maintenance consent, tray toggles, quit actions and maintenance WebKit captures verified.',
   );
   console.log(JSON.stringify(result));
 } catch (error) {
@@ -572,4 +676,5 @@ try {
   }
   watcher.kill('SIGTERM');
   await rm(root, { recursive: true, force: true });
+  await rm(cleanupFixture, { recursive: true, force: true });
 }

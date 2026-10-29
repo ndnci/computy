@@ -81,6 +81,20 @@ impl McpServer {
         let tool = |name: &str, description: &str, schema: Value, read: bool, destructive: bool| json!({"name":name,"description":description,"inputSchema":schema,"annotations":{"readOnlyHint":read,"destructiveHint":destructive,"idempotentHint":read,"openWorldHint":false}});
         let mut tools = vec![
             tool(
+                "computy_applications",
+                "Read installed applications and manager capabilities. This tool never launches or removes an application.",
+                object(),
+                true,
+                false,
+            ),
+            tool(
+                "computy_fans",
+                "Read fan RPM and hardware capabilities. No fan controls or firmware writes are exposed.",
+                object(),
+                true,
+                false,
+            ),
+            tool(
                 "computy_monitor",
                 "Read passive CPU/RAM/GPU/disk telemetry. Null means unavailable; the first CPU sample needs a second call after one second. Disk percentage means capacity used, not health. No diagnostic is run.",
                 object(),
@@ -170,6 +184,8 @@ impl McpServer {
             return Err("Tool not available under the server's current permissions".into());
         }
         let method = match name {
+            "computy_applications" => "applications",
+            "computy_fans" => "fans",
             "computy_monitor" => "monitor",
             "computy_inventory" => "inventory",
             "computy_report" => "report",
