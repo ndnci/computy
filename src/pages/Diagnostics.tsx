@@ -1,5 +1,5 @@
 import { t, tx, currentLocale } from '../i18n.mjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Activity,
   ArrowRight,
@@ -53,15 +53,32 @@ const components = [
   },
 ];
 export default function Diagnostics() {
-  const { preferences, job, launching, start, cancel, inventory, error, exportReport } = useApp();
+  const {
+    preferences,
+    job,
+    launching,
+    start,
+    relaunch,
+    cancel,
+    inventory,
+    error,
+    exportReport,
+    diagnosticMode: mode,
+    setDiagnosticMode: setMode,
+  } = useApp();
   const [selected, setSelected] = useState(['memory', 'storage', 'cpu']);
   const [profile, setProfile] = useState('standard');
   const [options, setOptions] = useState({
     ...preferences,
   });
   const [label, setLabel] = useState('');
-  const [showConfiguration, setShowConfiguration] = useState(true);
-  const [mode, setMode] = useState<'session' | 'boot'>('session');
+  const [showConfiguration, setShowConfiguration] = useState(!launching && !job?.running);
+  useEffect(() => {
+    if (launching || job?.running) setShowConfiguration(false);
+  }, [launching, job?.running]);
+  useEffect(() => {
+    if (mode === 'boot') setShowConfiguration(true);
+  }, [mode]);
   const presets = {
     quick: {
       memory_mib: 64,
@@ -230,7 +247,12 @@ export default function Diagnostics() {
               }
             />
             {tx(job.error && <Notice tone="warn">{tx(job.error)}</Notice>)}
-            <ReportDetails report={job.report} onExport={exportReport} />
+            <ReportDetails
+              report={job.report}
+              onExport={exportReport}
+              onRelaunch={relaunch}
+              relaunchDisabled={launching}
+            />
           </section>
         ) : (
           <>

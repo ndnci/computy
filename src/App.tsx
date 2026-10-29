@@ -1,7 +1,7 @@
 import { t, tx, currentLocale, setLanguage, languages } from './i18n.mjs';
 import { version } from '../package.json';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Activity,
   ArrowLeftRight,
@@ -32,6 +32,7 @@ import HistoryPage from './pages/History';
 import Compare from './pages/Compare';
 import SettingsPage from './pages/Settings';
 import About from './pages/About';
+import Processes from './pages/Processes';
 import type { Inventory, Job, Page, Preferences, Report, RunOptions } from './types';
 const navigation: {
   id: Page;
@@ -75,6 +76,7 @@ const navigation: {
     icon: History,
     group: 2,
   },
+  { id: 'processes', label: 'Processus', icon: Activity, group: 1 },
   {
     id: 'compare',
     label: 'Comparaison',
@@ -83,7 +85,7 @@ const navigation: {
   },
 ];
 function pageFromHash(): Page {
-  const hash = window.location.hash.slice(1);
+  const hash = window.location.hash.slice(1).split('?')[0];
   return [...navigation.map((n) => n.id), 'settings', 'about'].includes(hash as Page)
     ? (hash as Page)
     : 'overview';
@@ -99,6 +101,8 @@ export default function App() {
   const [unreadable, setUnreadable] = useState(0);
   const [job, setJob] = useState<Job | null>(null);
   const [launching, setLaunching] = useState(false);
+  const starting = useRef(false);
+  const [diagnosticMode, setDiagnosticMode] = useState<'session' | 'boot'>('session');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [report, setReport] = useState<Report | null>(null);
   const [toast, setToast] = useState<{
@@ -133,24 +137,29 @@ export default function App() {
       notify((e as Error).message, true);
     }
   }, [notify]);
-  const refresh = useCallback(async () => {
-    setRefreshing(true);
-    try {
-      setInventory(
-        await rpc<Inventory>('inventory', {
-          refresh: true,
-        }),
-      );
-      setError(null);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setRefreshing(false);
-      setLoading(false);
-    }
-  }, []);
+  const refresh = useCallback(
+    async (announce = true) => {
+      setRefreshing(true);
+      try {
+        setInventory(
+          await rpc<Inventory>('inventory', {
+            refresh: true,
+          }),
+        );
+        setError(null);
+        if (announce) notify('Informations matérielles actualisées.');
+      } catch (e) {
+        setError((e as Error).message);
+        if (announce) notify('Impossible d’actualiser les informations matérielles.', true);
+      } finally {
+        setRefreshing(false);
+        setLoading(false);
+      }
+    },
+    [notify],
+  );
   useEffect(() => {
-    void refresh();
+    void refresh(false);
     void reloadHistory();
     void rpc<Job | null>('active')
       .then(setJob)
@@ -270,6 +279,8 @@ export default function App() {
     };
   }, [job?.id, job?.running, reloadHistory, notify]);
   const start = async (options: RunOptions) => {
+    if (starting.current || job?.running) return;
+    starting.current = true;
     setLaunching(true);
     setJob(null);
     try {
@@ -284,8 +295,21 @@ export default function App() {
     } catch (e) {
       notify((e as Error).message, true);
     } finally {
+      starting.current = false;
       setLaunching(false);
     }
+  };
+  const relaunch = async (item: Report) => {
+    if (starting.current || job?.running) return;
+    setReport(null);
+    navigate('diagnostics');
+    if (item.source && item.source !== 'computy_live') {
+      setDiagnosticMode('boot');
+      notify('Choisissez et confirmez le prochain test avant démarrage dans l’assistant.');
+      return;
+    }
+    setDiagnosticMode('session');
+    await start({ ...item.options, components: [...item.options.components], label: item.label });
   };
   const cancel = async () => {
     if (!job) return;
@@ -354,6 +378,9 @@ export default function App() {
         job,
         launching,
         start,
+        relaunch,
+        diagnosticMode,
+        setDiagnosticMode,
         cancel,
         selectedIds,
         toggleSelection,
@@ -532,6 +559,8 @@ export default function App() {
                 <HistoryPage />
               ) : page === 'compare' ? (
                 <Compare />
+              ) : page === 'processes' ? (
+                <Processes />
               ) : page === 'settings' ? (
                 <SettingsPage />
               ) : (
@@ -595,7 +624,12 @@ export default function App() {
       {tx(
         report && (
           <Modal title={tx('Rapport de diagnostic')} onClose={closeReport} wide>
-            <ReportDetails report={report} onExport={exportReport} />
+            <ReportDetails
+              report={report}
+              onExport={exportReport}
+              onRelaunch={relaunch}
+              relaunchDisabled={launching || !!job?.running}
+            />
           </Modal>
         ),
       )}

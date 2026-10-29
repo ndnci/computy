@@ -31,6 +31,9 @@ export const defaultPreferences: Preferences = {
   cpu_seconds: 5,
   theme: 'system',
   language: 'system',
+  tray_enabled: true,
+  tray_components: ['memory', 'cpu', 'gpu'],
+  tray_disks: [],
 };
 export function loadPreferences(): Preferences {
   try {

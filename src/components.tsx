@@ -15,6 +15,7 @@ import {
   Minus,
   ShieldCheck,
   SearchCheck,
+  RotateCcw,
 } from 'lucide-react';
 import {
   duration,
@@ -419,9 +420,13 @@ export function CheckCard({
 export function ReportDetails({
   report,
   onExport,
+  onRelaunch,
+  relaunchDisabled = false,
 }: {
   report: Report;
   onExport: (report: Report) => void;
+  onRelaunch?: (report: Report) => void;
+  relaunchDisabled?: boolean;
 }) {
   const outcome = checkOutcome(report.checks, report.completed);
   const memory = report.checks.find((check) => check.id === 'memory-patterns');
@@ -493,6 +498,16 @@ export function ReportDetails({
           checks={report.checks}
           completed={report.completed}
         />
+        {onRelaunch && (
+          <button
+            className="button primary small"
+            disabled={relaunchDisabled}
+            onClick={() => void onRelaunch(report)}
+          >
+            <RotateCcw size={15} />
+            {tx('Relancer')}
+          </button>
+        )}
         <button className="button secondary small" onClick={() => onExport(report)}>
           <ArrowDownToLine size={15} />
           {tx('Exporter en JSON')}

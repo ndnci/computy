@@ -10,6 +10,8 @@ use tauri::Manager;
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
+mod monitor_tray;
+mod tray_icon;
 
 #[tauri::command]
 async fn engine_call(
@@ -187,6 +189,13 @@ fn open_external(app: tauri::AppHandle, url: String) -> Result<(), String> {
 }
 fn main() {
     let application = tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(
@@ -195,6 +204,14 @@ fn main() {
                 .args(["--return-from-diagnostic"])
                 .build(),
         )
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event
+                && window.state::<monitor_tray::TrayState>().has_icons()
+                && window.hide().is_ok()
+            {
+                api.prevent_close();
+            }
+        })
         .setup(|app| {
             let root = if let Some(path) = std::env::var_os("COMPUTY_DATA_DIR") {
                 std::path::PathBuf::from(path)
@@ -205,11 +222,11 @@ fn main() {
             };
             let repository =
                 Arc::new(FileRepository::new(root.join("reports")).map_err(std::io::Error::other)?);
-            app.manage(AppService::new(
-                repository,
-                Arc::new(SystemHardware),
-                root.join("scratch"),
-            ));
+            let service =
+                AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
+            app.manage(service.clone());
+            app.manage(monitor_tray::TrayState::default());
+            monitor_tray::start(app.handle().clone(), service);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -227,6 +244,9 @@ fn main() {
         .expect("Impossible de démarrer Computy");
     application.run(|app, event| {
         if matches!(event, tauri::RunEvent::Exit) {
+            app.state::<monitor_tray::TrayState>()
+                .stopped
+                .store(true, std::sync::atomic::Ordering::Relaxed);
             app.state::<Arc<AppService>>().shutdown();
         }
     });

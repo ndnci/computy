@@ -41,6 +41,11 @@ pub struct Cli {
 pub enum Commands {
     /// Read actual hardware, firmware information and visible sensors.
     Inventory,
+    /// Passive CPU/RAM/GPU/disk telemetry. --watch streams JSON until Ctrl+C.
+    Monitor {
+        #[arg(long)]
+        watch: bool,
+    },
     /// Run bounded RAM/storage/CPU checks. Ctrl+C cancels and saves partial results.
     Diagnose {
         #[arg(long, value_delimiter = ',', default_value = "memory,storage,cpu")]
@@ -149,6 +154,14 @@ pub enum SettingsAction {
         theme: Option<String>,
         #[arg(long)]
         language: Option<String>,
+        #[arg(long)]
+        tray_enabled: Option<bool>,
+        /// Comma-separated memory,cpu,gpu; an empty string hides all three.
+        #[arg(long)]
+        tray_components: Option<String>,
+        /// Comma-separated mount points; an empty string clears selected volumes.
+        #[arg(long)]
+        tray_disks: Option<String>,
     },
 }
 #[derive(Debug, Subcommand)]
@@ -183,6 +196,30 @@ pub fn run(cli: Cli) -> Result<i32, String> {
     let repository = Arc::new(FileRepository::new(root.join("reports"))?);
     let service = AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
     let result = match cli.command {
+        Commands::Monitor { watch } => {
+            let running = Arc::new(AtomicBool::new(true));
+            let signal = running.clone();
+            if watch {
+                ctrlc::set_handler(move || {
+                    signal.store(false, Ordering::Relaxed);
+                })
+                .map_err(|e| e.to_string())?;
+            }
+            // Seed the counters; the second sample has an actual CPU interval.
+            service.monitor(true);
+            thread::sleep(Duration::from_secs(1));
+            loop {
+                print_json(&service.monitor(true))?;
+                if !watch || !running.load(Ordering::Relaxed) {
+                    break;
+                }
+                thread::sleep(Duration::from_secs(2));
+                if !running.load(Ordering::Relaxed) {
+                    break;
+                }
+            }
+            0
+        }
         Commands::Inventory => {
             let value = service.inventory(true);
             if cli.json {
@@ -404,6 +441,9 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                     cpu_seconds,
                     theme,
                     language,
+                    tray_enabled,
+                    tray_components,
+                    tray_disks,
                 } => {
                     let mut value = serde_json::to_value(preferences::load(&root)?)
                         .map_err(|e| e.to_string())?;
@@ -414,6 +454,19 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                         ("cpu_seconds", cpu_seconds.map(|v| json!(v))),
                         ("theme", theme.map(|v| json!(v))),
                         ("language", language.map(|v| json!(v))),
+                        ("tray_enabled", tray_enabled.map(|v| json!(v))),
+                        (
+                            "tray_components",
+                            tray_components.map(|v| {
+                                json!(v.split(',').filter(|s| !s.is_empty()).collect::<Vec<_>>())
+                            }),
+                        ),
+                        (
+                            "tray_disks",
+                            tray_disks.map(|v| {
+                                json!(v.split(',').filter(|s| !s.is_empty()).collect::<Vec<_>>())
+                            }),
+                        ),
                     ] {
                         if let Some(item) = item {
                             value[key] = item;

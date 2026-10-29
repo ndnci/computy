@@ -14,6 +14,7 @@ import {
 import { useApp } from '../app-context';
 import { defaultPreferences, isDesktop, setStartup, startupStatus } from '../api';
 import { Notice, PanelHeader, SectionTitle, Spinner } from '../components';
+import MonitorSettings from './MonitorSettings';
 export default function SettingsPage() {
   const { preferences, savePreferences, notify } = useApp();
   const [draft, setDraft] = useState({
@@ -274,6 +275,7 @@ export default function SettingsPage() {
           </button>
         </div>
       </section>
+      <MonitorSettings draft={draft} onChange={setDraft} />
       <section className="privacy-settings">
         <LockKeyhole size={24} />
         <div>

@@ -81,6 +81,13 @@ impl McpServer {
         let tool = |name: &str, description: &str, schema: Value, read: bool, destructive: bool| json!({"name":name,"description":description,"inputSchema":schema,"annotations":{"readOnlyHint":read,"destructiveHint":destructive,"idempotentHint":read,"openWorldHint":false}});
         let mut tools = vec![
             tool(
+                "computy_monitor",
+                "Read passive CPU/RAM/GPU/disk telemetry. Null means unavailable; the first CPU sample needs a second call after one second. Disk percentage means capacity used, not health. No diagnostic is run.",
+                object(),
+                true,
+                false,
+            ),
+            tool(
                 "computy_inventory",
                 "Read current host inventory. Firmware limits and unknown fields remain explicit.",
                 json!({"type":"object","properties":{"refresh":{"type":"boolean"}},"additionalProperties":false}),
@@ -149,7 +156,7 @@ impl McpServer {
                 false,
                 true,
             ));
-            tools.push(tool("computy_save_preferences","Save validated settings shared with the UI and CLI.",json!({"type":"object","properties":{"memory_mib":{"type":"integer","minimum":16,"maximum":2048},"passes":{"type":"integer","minimum":1,"maximum":8},"disk_mib":{"type":"integer","minimum":16,"maximum":512},"cpu_seconds":{"type":"integer","minimum":1,"maximum":60},"theme":{"enum":["system","light","dark"]},"language":{"type":"string"}},"additionalProperties":false}),false,false));
+            tools.push(tool("computy_save_preferences","Save validated settings shared with the UI and CLI.",json!({"type":"object","properties":{"memory_mib":{"type":"integer","minimum":16,"maximum":2048},"passes":{"type":"integer","minimum":1,"maximum":8},"disk_mib":{"type":"integer","minimum":16,"maximum":512},"cpu_seconds":{"type":"integer","minimum":1,"maximum":60},"theme":{"enum":["system","light","dark"]},"language":{"type":"string"},"tray_enabled":{"type":"boolean"},"tray_components":{"type":"array","items":{"enum":["memory","cpu","gpu"]},"maxItems":3,"uniqueItems":true},"tray_disks":{"type":"array","items":{"type":"string"},"maxItems":16,"uniqueItems":true}},"additionalProperties":false}),false,false));
             tools.push(tool("computy_collect_boot_result","Import an actual fresh Windows memory diagnostic event into local history if one is pending.",object(),false,false));
         }
         tools
@@ -163,6 +170,7 @@ impl McpServer {
             return Err("Tool not available under the server's current permissions".into());
         }
         let method = match name {
+            "computy_monitor" => "monitor",
             "computy_inventory" => "inventory",
             "computy_report" => "report",
             "computy_compare" => "compare",

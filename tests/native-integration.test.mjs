@@ -14,6 +14,38 @@ const binary = path.resolve(
   process.env.COMPUTY_TEST_BINARY ||
     `native/target/release/computy-cli${process.platform === 'win32' ? '.exe' : ''}`,
 );
+test('CLI monitor returns real passive measurements and all accessible processes without creating history', async () => {
+  const root = await mkdtemp(path.join(tmpdir(), 'computy-monitor-'));
+  try {
+    const { stdout } = await exec(binary, ['--data-dir', root, '--json', 'monitor']);
+    const value = JSON.parse(stdout);
+    assert.ok(value.captured_at > 0);
+    assert.ok(value.cpu_percent >= 0 && value.cpu_percent <= 100);
+    assert.ok(value.memory_percent > 0 && value.memory_percent <= 100);
+    assert.ok(value.gpu_percent === null || (value.gpu_percent >= 0 && value.gpu_percent <= 100));
+    assert.ok(value.processes.length > 0);
+    const { stdout: changed } = await exec(binary, [
+      '--data-dir',
+      root,
+      '--json',
+      'settings',
+      'set',
+      '--tray-enabled',
+      'false',
+      '--tray-components',
+      'memory,cpu',
+      '--tray-disks',
+      '',
+    ]);
+    assert.equal(JSON.parse(changed).tray_enabled, false);
+    assert.deepEqual(JSON.parse(changed).tray_components, ['memory', 'cpu']);
+    assert.deepEqual(JSON.parse(changed).tray_disks, []);
+    const { stdout: history } = await exec(binary, ['--data-dir', root, '--json', 'history']);
+    assert.equal(JSON.parse(history).reports.length, 0);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 test(
   'boot mutations require explicit consent flags before any operation',
   { skip: process.platform !== 'linux' },
@@ -103,6 +135,10 @@ test('official MCP client negotiates stdio and respects default read-only permis
     );
     const tools = await client.listTools();
     assert.ok(tools.tools.some((t) => t.name === 'computy_inventory'));
+    assert.ok(tools.tools.some((t) => t.name === 'computy_monitor'));
+    const telemetry = await client.callTool({ name: 'computy_monitor', arguments: {} });
+    assert.equal(telemetry.isError, false);
+    assert.ok(JSON.parse(telemetry.content[0].text).memory_percent > 0);
     assert.ok(!tools.tools.some((t) => t.name === 'computy_start_diagnostic'));
     const result = await client.callTool({
       name: 'computy_delete_report',

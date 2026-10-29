@@ -11,6 +11,7 @@ import {
   History,
   Pencil,
   Plus,
+  RotateCcw,
   Search,
   SlidersHorizontal,
   Trash2,
@@ -42,6 +43,9 @@ export default function HistoryPage() {
     setSelectedIds,
     reloadHistory,
     notify,
+    relaunch,
+    launching,
+    job,
   } = useApp();
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('all');
@@ -228,7 +232,11 @@ export default function HistoryPage() {
                     filtered.map((report) => (
                       <tr
                         key={report.id}
-                        className={selectedIds.includes(report.id) ? 'row-selected' : ''}
+                        className={`report-row ${selectedIds.includes(report.id) ? 'row-selected' : ''}`}
+                        onClick={(event) => {
+                          if (!(event.target as HTMLElement).closest('button,input,label,a'))
+                            openReport(report);
+                        }}
                       >
                         <td>
                           <label className="table-checkbox">
@@ -289,6 +297,17 @@ export default function HistoryPage() {
                         </td>
                         <td>
                           <div className="row-actions">
+                            <button
+                              className="icon-button"
+                              aria-label={t('Relancer le diagnostic : {{label}}', {
+                                label: report.label,
+                              })}
+                              title={tx('Relancer')}
+                              disabled={launching || !!job?.running}
+                              onClick={() => void relaunch(report)}
+                            >
+                              <RotateCcw size={16} />
+                            </button>
                             <button
                               className="icon-button"
                               aria-label={tx(`Exporter ${report.label}`)}

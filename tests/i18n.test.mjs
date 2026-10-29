@@ -45,6 +45,16 @@ test('critical result labels remain distinct in all languages', () => {
     assert.equal(new Set(labels).size, labels.length, `${language} conflates results`);
   }
 });
+test('Computy remains a product name in every translated paragraph', () => {
+  for (const [language, catalog] of Object.entries(catalogs)) {
+    for (const key of Object.keys(source).filter((key) => key.includes('Computy'))) {
+      assert.ok(
+        catalog[key]?.includes('Computy'),
+        `${language} translated the Computy brand in: ${key}`,
+      );
+    }
+  }
+});
 test('catalogs load on demand, preserve data and format numbers per locale', async () => {
   await setLanguage('ja');
   assert.equal(currentLocale(), 'ja');

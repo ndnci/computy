@@ -1,0 +1,12 @@
+{
+  "real_reruns": 2,
+  "original_preserved": true,
+  "exact_options_preserved": true,
+  "whole_row_opens_report": true,
+  "checkboxes_do_not_open_report": true,
+  "monitor_preferences_persisted": true,
+  "all_accessible_processes": true,
+  "usb_spinner_and_result_toasts": true,
+  "secure_boot_guidance": true,
+  "errors": []
+}

@@ -9,6 +9,9 @@ pub struct Preferences {
     pub cpu_seconds: u64,
     pub theme: String,
     pub language: String,
+    pub tray_enabled: bool,
+    pub tray_components: Vec<String>,
+    pub tray_disks: Vec<String>,
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -19,6 +22,9 @@ impl Default for Preferences {
             cpu_seconds: 5,
             theme: "system".into(),
             language: "system".into(),
+            tray_enabled: true,
+            tray_components: vec!["memory".into(), "cpu".into(), "gpu".into()],
+            tray_disks: vec![],
         }
     }
 }
@@ -38,6 +44,32 @@ pub fn load(root: &Path) -> Result<Preferences, String> {
     Ok(preferences)
 }
 pub fn validate(preferences: &Preferences) -> Result<(), String> {
+    if serde_json::to_vec(preferences)
+        .map_err(|e| e.to_string())?
+        .len()
+        > 8192
+    {
+        return Err("Préférences invalides.".into());
+    }
+    if preferences.tray_components.len() > 3
+        || preferences
+            .tray_components
+            .iter()
+            .enumerate()
+            .any(|(i, item)| {
+                !["memory", "cpu", "gpu"].contains(&item.as_str())
+                    || preferences.tray_components[..i].contains(item)
+            })
+        || preferences.tray_disks.len() > 16
+        || preferences.tray_disks.iter().enumerate().any(|(i, item)| {
+            item.is_empty()
+                || item.len() > 512
+                || item.chars().any(char::is_control)
+                || preferences.tray_disks[..i].contains(item)
+        })
+    {
+        return Err("Indicateurs de la barre système invalides.".into());
+    }
     crate::domain::validate_options(&crate::domain::RunOptions {
         memory_mib: preferences.memory_mib,
         passes: preferences.passes,

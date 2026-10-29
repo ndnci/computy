@@ -7,6 +7,7 @@ pub mod inventory;
 pub mod linux_boot;
 #[cfg(feature = "cli")]
 pub mod mcp;
+pub mod monitor;
 pub mod offline;
 pub mod preferences;
 pub mod repository;

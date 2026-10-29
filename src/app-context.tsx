@@ -14,6 +14,9 @@ export interface AppModel {
   job: Job | null;
   launching: boolean;
   start: (options: RunOptions) => Promise<void>;
+  relaunch: (report: Report) => Promise<void>;
+  diagnosticMode: 'session' | 'boot';
+  setDiagnosticMode: (mode: 'session' | 'boot') => void;
   cancel: () => Promise<void>;
   selectedIds: string[];
   toggleSelection: (id: string) => void;

@@ -37,3 +37,11 @@ Les catalogues de langues font l’objet de vérifications de couverture, de pr�
 ## Mise à jour 0.1.1
 
 Un test de présentation rouge (fonctions absentes) a précédé la séparation entre résultat et informations indisponibles. Les contrats Linux ont d’abord échoué sur le module absent ; un test ultérieur a échoué sur l’absence de confirmation de préparation. Les validations couvrent ensuite le blocage firmware/GRUB, la confirmation avant redémarrage, et les écritures USB sans écrasement. Les algorithmes du composant GPL sont vérifiés par empreintes et réellement démarrés en VM BIOS/UEFI.
+
+## Mise à jour 0.1.2
+
+Les contrats du moniteur ont échoué sur le module et les nouveaux champs de préférences absents avant leur implémentation. Ils vérifient ensuite les anciennes préférences, les pourcentages inconnus/invalides, deux prélèvements réels et le classement des dix premiers sans limiter l’instantané complet. Le rendu natif distingue une absence de mesure de 0 %.
+
+Le scénario Playwright exécute deux relances réelles, compare leurs paramètres et identifiants, puis vérifie la conservation de l’original, les cases indépendantes et les lignes cliquables. Les fixtures USB/Secure Boot concernent uniquement les capacités et les erreurs de transport ; aucune écriture USB ni préparation de démarrage n’est exécutée. La suite existante des 25 langues a détecté un formulaire remplacé par un ancien résultat ; l’état a été corrigé pour distinguer un lancement courant d’un rapport ancien. Les captures ont conduit à corriger le contraste des nouvelles cartes sombres.
+
+Le contrôle des processus réels a ensuite détecté les TID Linux exposés par défaut par sysinfo comme des processus distincts. Un test rouge compare les PID au Tgid réel de `/proc`; la collecte désactive désormais les tâches pour éviter de répéter la mémoire et les E/S d’un même processus. Un autre cycle rouge/vert vérifie le cumul de VRAM d’un PID présent sur plusieurs GPU NVIDIA.

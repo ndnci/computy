@@ -112,6 +112,7 @@ export type Page =
   | 'diagnostics'
   | 'history'
   | 'compare'
+  | 'processes'
   | 'settings'
   | 'about';
 export interface Preferences {
@@ -121,6 +122,35 @@ export interface Preferences {
   cpu_seconds: number;
   theme: 'system' | 'light' | 'dark';
   language: string;
+  tray_enabled: boolean;
+  tray_components: string[];
+  tray_disks: string[];
+}
+export interface MonitorSnapshot {
+  captured_at: number;
+  cpu_percent: number | null;
+  memory_percent: number | null;
+  gpu_percent: number | null;
+  gpu_source: string;
+  processes: ProcessSample[];
+  disks: {
+    id: string;
+    name: string;
+    used_percent: number | null;
+    read_bytes_per_second: number | null;
+    written_bytes_per_second: number | null;
+  }[];
+}
+export interface ProcessSample {
+  pid: number;
+  name: string;
+  memory_bytes: number | null;
+  memory_percent: number | null;
+  cpu_percent: number | null;
+  read_bytes_per_second: number | null;
+  written_bytes_per_second: number | null;
+  io_percent: number | null;
+  gpu_memory_bytes: number | null;
 }
 declare global {
   interface Window {

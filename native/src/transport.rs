@@ -8,6 +8,7 @@ pub fn dispatch(service: &Arc<AppService>, method: &str, params: &Value) -> Resu
             .ok_or_else(|| "Identifiant requis.".to_owned())
     };
     match method {
+        "monitor" => Ok(json!(service.monitor(true))),
         "inventory" => Ok(json!(
             service.inventory(params["refresh"].as_bool().unwrap_or(false))
         )),

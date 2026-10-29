@@ -47,6 +47,8 @@ def model(package):
     return code, metadata.parent, hashlib.sha256(archive.read_bytes()).hexdigest()
 
 def translate_texts(folder, texts):
+    # Product names are invariant, even in technical paragraphs.
+    texts = [text.replace("Computy", "{{computyBrand}}").replace("NDNCI", "{{ndnciBrand}}") for text in texts]
     import ctranslate2
     import sentencepiece
     tokenizer_path = folder/"sentencepiece.model"
@@ -88,15 +90,22 @@ def translate_texts(folder, texts):
                     fixed.append((" " if part.startswith(" ") else "")+value+(" " if part.endswith(" ") else ""))
             translated[i] = "".join(fixed)
         if not translated[i]: translated[i] = original
-    return translated
+    return [text.replace("{{computyBrand}}", "Computy").replace("{{ndnciBrand}}", "NDNCI") for text in translated]
 
 def main():
     CACHE.mkdir(parents=True,exist_ok=True)
-    index_file = CACHE/"index.json"
-    download("https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json", index_file)
-    index = json.loads(index_file.read_text())
+    existing_lock = ROOT/"scripts/locales-models.lock.json"
+    pinned = json.loads(existing_lock.read_text()) if existing_lock.exists() else {}
+    index = []
+    if not pinned:
+        index_file = CACHE/"index.json"
+        download("https://raw.githubusercontent.com/argosopentech/argospm-index/main/index.json", index_file)
+        index = json.loads(index_file.read_text())
     packages = {}
     for language,target in LANGUAGES.items():
+        if language in pinned:
+            packages[language] = pinned[language]["package"]
+            continue
         matches = [p for p in index if p["from_code"] == ("fr" if target == "en" else "en") and p["to_code"] == target]
         if not matches: raise ValueError("No offline model for "+language)
         packages[language] = matches[-1]
@@ -105,6 +114,8 @@ def main():
         futures = {pool.submit(model, package): language for language,package in packages.items()}
         for future in concurrent.futures.as_completed(futures):
             language=futures[future];paths[language]=future.result()
+            if language in pinned and paths[language][2] != pinned[language]["sha256"]:
+                raise ValueError("Translation model checksum mismatch: " + language)
             print("Model ready:",language,flush=True)
     lock = {language:{"package":packages[language],"sha256":paths[language][2]} for language in LANGUAGES}
     (ROOT/"scripts/locales-models.lock.json").write_text(json.dumps(lock,ensure_ascii=False,indent=2)+"\n")
@@ -129,7 +140,7 @@ def main():
             output_file.write_text(json.dumps(catalogs,ensure_ascii=False,indent=2)+"\n")
             print("Traditional Chinese: converted from reviewed Simplified Chinese catalog.",flush=True)
             continue
-        missing = [key for key in source if key not in catalog or (key not in overrides.get(language,{}) and degenerate(key,catalog[key]))]
+        missing = [key for key in source if key not in catalog or (key not in overrides.get(language,{}) and (degenerate(key,catalog[key]) or ("Computy" in key and "Computy" not in catalog[key])))]
         texts = [key if language == "en" else catalogs["en"][key] for key in missing]
         if missing:
             started=time.monotonic()

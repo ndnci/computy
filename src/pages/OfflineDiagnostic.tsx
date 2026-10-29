@@ -35,7 +35,7 @@ interface UsbTarget {
 }
 const reasons: Record<string, string> = {
   secure_boot:
-    'Secure Boot est activé. Le moteur intégré n’est pas approuvé par votre firmware. Computy ne désactive pas cette protection : ni le démarrage interne ni la clé USB ne peuvent contourner ce blocage.',
+    'Secure Boot protège le démarrage en autorisant uniquement les programmes approuvés par votre PC. Le moteur de test fourni avec Computy n’a pas une signature reconnue par votre firmware : ce test avant démarrage est donc bloqué, avec ou sans clé USB. Cela ne signale pas une panne de RAM.',
   secure_boot_unknown:
     'Computy ne peut pas déterminer l’état de Secure Boot. La préparation automatique est bloquée pour éviter un démarrage incompatible.',
   helper_missing:
@@ -65,9 +65,10 @@ const reasons: Record<string, string> = {
 };
 const explain = (error: string) => tx(reasons[error.replace(/^boot:/, '')] || error);
 export default function OfflineDiagnostic() {
-  const { notify, reloadHistory, navigate } = useApp();
+  const { notify, reloadHistory, navigate, setDiagnosticMode } = useApp();
   const [status, setStatus] = useState<BootStatus | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [action, setAction] = useState<string | null>(null);
+  const busy = action !== null;
   const [reopen, setReopen] = useState(true);
   const [route, setRoute] = useState<'internal' | 'usb'>('internal');
   const [confirmed, setConfirmed] = useState(false);
@@ -75,28 +76,29 @@ export default function OfflineDiagnostic() {
   const [selected, setSelected] = useState('');
   const [usbReady, setUsbReady] = useState(false);
   const [problem, setProblem] = useState('');
-  const refresh = () =>
-    rpc<BootStatus>('offline_status')
-      .then(setStatus)
-      .catch((error) => setProblem(error.message));
+  const refresh = async () => {
+    const next = await rpc<BootStatus>('offline_status');
+    setStatus(next);
+    return next;
+  };
   useEffect(() => {
-    void refresh();
+    void refresh().catch((error) => setProblem(error.message));
   }, []);
   const windows = status?.platform === 'windows';
   const linux = status?.platform === 'linux';
   const code = status?.linux?.code || 'helper_missing';
   const blocked = linux && code !== 'ready';
   const selectedTarget = targets.find((target) => target.id === selected);
-  const act = async (operation: () => Promise<void>) => {
-    setBusy(true);
+  const act = async (operation: () => Promise<void>, name = 'operation') => {
+    setAction(name);
     setProblem('');
     try {
       await operation();
     } catch (error) {
       setProblem((error as Error).message);
+      notify(explain((error as Error).message), true);
     } finally {
-      await refresh();
-      setBusy(false);
+      setAction(null);
     }
   };
   const launch = () =>
@@ -172,12 +174,87 @@ export default function OfflineDiagnostic() {
         )}
         {blocked && (
           <Notice tone="warn">
-            <b>{tx('Vérification de compatibilité')}</b>
+            <b>
+              {tx(
+                code === 'secure_boot'
+                  ? 'Test avant démarrage bloqué par Secure Boot'
+                  : 'Vérification de compatibilité',
+              )}
+            </b>
             <p>{tx(reasons[code] || code)}</p>
+            {code === 'secure_boot' && (
+              <div className="secure-boot-help">
+                <button
+                  className="button secondary small"
+                  onClick={() => setDiagnosticMode('session')}
+                >
+                  <ArrowRight size={15} />
+                  {tx('Continuer avec un test dans ma session')}
+                </button>
+                <p>
+                  {tx(
+                    'Le test en session reste disponible sans changer le firmware. Il vérifie une partie de la RAM, pas toute la mémoire physique.',
+                  )}
+                </p>
+                <details>
+                  <summary>{tx('Comment débloquer le test avant démarrage ?')}</summary>
+                  <ol>
+                    <li>
+                      {tx(
+                        'Consultez le guide de votre modèle de PC pour ouvrir les réglages UEFI et vérifier si Secure Boot peut être désactivé temporairement. Computy ne change pas ce réglage.',
+                      )}
+                    </li>
+                    <li>
+                      {tx(
+                        'Avant toute modification, conservez votre clé de récupération si votre disque est chiffré, notamment avec BitLocker ou un déverrouillage TPM. Un changement de Secure Boot peut la demander. Sur un PC géré, contactez votre administrateur.',
+                      )}
+                    </li>
+                    <li>
+                      {tx(
+                        'Si vous choisissez cette option, revenez dans Computy après le redémarrage, puis cliquez sur « Revérifier la compatibilité ». Vous devrez encore confirmer la préparation du test.',
+                      )}
+                    </li>
+                    <li>
+                      {tx(
+                        'Après le test, réactivez Secure Boot dans les réglages UEFI. N’effacez pas les clés du firmware et ne remettez pas les réglages du PC à zéro.',
+                      )}
+                    </li>
+                  </ol>
+                  <p>
+                    {tx(
+                      'Une clé USB utilise le même moteur et ne supprime pas cette exigence. Les certificats du moteur original ne valident pas le binaire modifié de Computy.',
+                    )}
+                  </p>
+                </details>
+              </div>
+            )}
+            <button
+              className="button secondary small"
+              disabled={busy}
+              aria-busy={action === 'verify'}
+              onClick={() =>
+                void act(async () => {
+                  const next = await refresh();
+                  notify(
+                    next.linux?.code === 'ready'
+                      ? 'Compatibilité vérifiée : la préparation est disponible.'
+                      : 'Vérification terminée : consultez les conditions affichées ci-dessus.',
+                  );
+                }, 'verify')
+              }
+            >
+              {action === 'verify' ? <Spinner size={15} /> : <RefreshCw size={15} />}
+              {tx('Revérifier la compatibilité')}
+            </button>
           </Notice>
         )}
+        {!status && !problem && (
+          <p role="status">
+            <Spinner size={16} /> {tx('Vérification de compatibilité…')}
+          </p>
+        )}
         {problem && <Notice tone="warn">{explain(problem)}</Notice>}
-        {windows ? (
+        {!status ? null : windows ? (
           <>
             <ol className="offline-steps">
               <li>
@@ -261,6 +338,7 @@ export default function OfflineDiagnostic() {
                       void act(async () => {
                         await invoke('boot_action', { action: 'cancel' });
                         await refresh();
+                        notify('Préparation du prochain démarrage annulée.');
                       })
                     }
                   >
@@ -351,16 +429,31 @@ export default function OfflineDiagnostic() {
             <button
               className="button secondary"
               disabled={busy || !isDesktop()}
+              aria-busy={action === 'usb-search'}
               onClick={() =>
                 void act(async () => {
-                  setTargets(await invoke<UsbTarget[]>('usb_targets'));
+                  setUsbReady(false);
+                  setTargets([]);
                   setSelected('');
                   setConfirmed(false);
-                })
+                  const found = await invoke<UsbTarget[]>('usb_targets');
+                  setTargets(found);
+                  setSelected('');
+                  setConfirmed(false);
+                  notify(
+                    found.length
+                      ? t('Clés USB compatibles trouvées : {{count}}', { count: found.length })
+                      : 'Aucune clé USB compatible trouvée. Branchez et montez une clé FAT32, puis réessayez.',
+                  );
+                }, 'usb-search')
               }
             >
-              <RefreshCw size={16} />
-              {tx('Rechercher les clés compatibles')}
+              {action === 'usb-search' ? <Spinner size={16} /> : <RefreshCw size={16} />}
+              {tx(
+                action === 'usb-search'
+                  ? 'Recherche des clés USB…'
+                  : 'Rechercher les clés compatibles',
+              )}
             </button>
             <div className="usb-targets">
               {targets.map((target) => (
@@ -419,6 +512,7 @@ export default function OfflineDiagnostic() {
                     void act(async () => {
                       await invoke('prepare_usb', { id: selected });
                       setUsbReady(true);
+                      notify('Clé USB préparée. Vous pouvez maintenant l’éjecter proprement.');
                     })
                   }
                 >

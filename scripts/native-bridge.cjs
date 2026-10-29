@@ -4,6 +4,7 @@ const path = require('node:path');
 const { createInterface } = require('node:readline');
 const METHODS = new Set([
   'inventory',
+  'monitor',
   'history',
   'report',
   'start',

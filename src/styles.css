@@ -2490,6 +2490,164 @@ svg {
 .history-table tbody tr:hover {
   background: #fbfdf7;
 }
+.history-table .report-row {
+  cursor: pointer;
+}
+.secure-boot-help {
+  margin: 14px 0;
+}
+.secure-boot-help summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin: 12px 0;
+}
+.secure-boot-help li {
+  margin: 10px 0;
+  line-height: 1.65;
+}
+.monitor-content {
+  padding: 0 28px 25px;
+}
+.monitor-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.monitor-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 18px 12px;
+  background: var(--subtle);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+}
+.monitor-option.selected {
+  border-color: #87a963;
+  background: var(--mint);
+}
+.monitor-option input {
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  accent-color: #5f803c;
+}
+.monitor-option b {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+.monitor-option small,
+.monitor-note {
+  color: var(--text);
+  opacity: 0.82;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.monitor-ring {
+  width: 78px;
+  height: 78px;
+}
+.monitor-ring svg {
+  width: 100%;
+  height: 100%;
+}
+.monitor-ring circle {
+  fill: none;
+  stroke-width: 4;
+}
+.ring-track {
+  stroke: var(--border);
+}
+.ring-value {
+  stroke: #83aa58;
+  stroke-linecap: round;
+}
+.monitor-ring text {
+  fill: var(--text);
+  text-anchor: middle;
+  font-family: inherit;
+  font-weight: 700;
+}
+.ring-percent {
+  font-size: 14px;
+}
+.ring-label {
+  font-size: 7px;
+  letter-spacing: 1px;
+}
+.monitor-disks-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 24px 0 6px;
+  font-size: 15px;
+}
+.monitor-disk-options {
+  display: grid;
+  gap: 8px;
+  margin: 15px 0;
+}
+.monitor-disk-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.monitor-disk-option input {
+  accent-color: #5f803c;
+}
+.monitor-disk-option > span:first-of-type {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.monitor-disk-option b,
+.monitor-disk-option small {
+  display: block;
+}
+.monitor-disk-option small {
+  color: var(--text);
+  opacity: 0.82;
+}
+.processes-page .history-toolbar > select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--panel);
+}
+.process-table {
+  min-width: 950px;
+}
+.process-table .process-name {
+  max-width: 240px;
+  overflow-wrap: anywhere;
+}
+.process-table td {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 600px) {
+  .monitor-metrics {
+    grid-template-columns: 1fr;
+  }
+  .monitor-content {
+    padding: 0 18px 20px;
+  }
+}
+.history-table .report-row:focus-within {
+  outline: 2px solid var(--accent, #6c8c3e);
+  outline-offset: -2px;
+}
 .history-table tr.row-selected {
   background: #f8fbf2;
 }

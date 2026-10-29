@@ -48,6 +48,7 @@ pub struct AppService {
     cancel: AtomicBool,
     worker: Mutex<Option<thread::JoinHandle<()>>>,
     cached_inventory: Mutex<Option<Inventory>>,
+    monitor: Mutex<crate::monitor::Sampler>,
 }
 impl AppService {
     pub fn data_root(&self) -> PathBuf {
@@ -66,6 +67,7 @@ impl AppService {
             cancel: AtomicBool::new(false),
             worker: Mutex::new(None),
             cached_inventory: Mutex::new(None),
+            monitor: Mutex::new(crate::monitor::Sampler::default()),
         })
     }
     pub fn inventory(&self, refresh: bool) -> Inventory {
@@ -77,6 +79,12 @@ impl AppService {
             *cache = Some(self.hardware.collect());
         }
         cache.as_ref().unwrap().clone()
+    }
+    pub fn monitor(&self, gpu_enabled: bool) -> crate::monitor::Snapshot {
+        self.monitor
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .sample(gpu_enabled)
     }
     pub fn job(&self, id: &str) -> Result<Job, String> {
         self.job

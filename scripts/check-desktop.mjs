@@ -93,6 +93,30 @@ try {
   );
   await until("return document.fonts.status==='loaded'");
   await capture('overview-light');
+  // Actual Rust telemetry and actual Tauri tray registrations, not browser fixtures.
+  await execute(
+    "window.__monitorReady=false;window.__TAURI_INTERNALS__.invoke('engine_call',{method:'monitor',params:{}}).then(value=>{window.__monitorReady=value.processes.length>0&&value.memory_percent>0;});",
+  );
+  await until('return window.__monitorReady===true');
+  await execute(
+    "window.__traysReady=false;Promise.all(['computy-memory','computy-cpu','computy-gpu'].map(id=>window.__TAURI_INTERNALS__.invoke('plugin:tray|get_by_id',{id}))).then(ids=>{window.__traysReady=ids.every(id=>id!==null);return Promise.all(ids.filter(id=>id!==null).map(rid=>window.__TAURI_INTERNALS__.invoke('plugin:resources|close',{rid})));});",
+  );
+  await until('return window.__traysReady===true');
+  await click('Préférences');
+  await until("return document.querySelectorAll('.monitor-metrics input:checked').length===3");
+  await capture('monitor-light');
+  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+  await click('Enregistrer les préférences');
+  await until(
+    "return document.querySelector('.monitor-settings [role=switch]').getAttribute('aria-checked')==='false'",
+  );
+  await new Promise((resolve) => setTimeout(resolve, 2200));
+  await execute(
+    "window.__traysDisabled=false;window.__TAURI_INTERNALS__.invoke('plugin:tray|get_by_id',{id:'computy-memory'}).then(rid=>{window.__traysDisabled=rid===null;if(rid!==null)return window.__TAURI_INTERNALS__.invoke('plugin:resources|close',{rid});});",
+  );
+  await until('return window.__traysDisabled===true');
+  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+  await click('Enregistrer les préférences');
   await click('Diagnostics');
   await until("return document.querySelectorAll('.test-component-option input').length===3");
   assert.deepEqual(
@@ -142,12 +166,15 @@ try {
   const result = {
     native: 'Tauri / WebKitGTK',
     actual_diagnostic: true,
+    actual_tray_registrations: true,
+    tray_disable_verified: true,
+    actual_process_telemetry: true,
     themes: ['light', 'dark'],
     errors: [],
   };
   await writeFile(`${destination}/native-results.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(
-    'Native Tauri IPC, diagnostics, persisted theme and 6 real WebKit captures verified.',
+    'Native Tauri IPC, tray registrations and disabling, live processes, diagnostics and 7 real WebKit captures verified.',
   );
 } catch (error) {
   console.error(logs.slice(-6000));

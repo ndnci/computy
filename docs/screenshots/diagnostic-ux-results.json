@@ -3,6 +3,6 @@
   "explicit_consent": true,
   "startup_default_in_boot_flow": true,
   "inline_icon_titles": true,
-  "reference_report_checked": true,
+  "reference_report_checked": false,
   "errors": []
 }

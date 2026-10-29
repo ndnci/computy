@@ -147,6 +147,7 @@ for (const file of [
     .map((f) => `native/src/diagnostics/${f}`),
   'native/src/inventory.rs',
   'native/src/service.rs',
+  'src-tauri/src/monitor_tray.rs',
 ]) {
   const text = fs.readFileSync(file, 'utf8');
   for (const match of text.matchAll(/"([^"\n]{3,})"|'([^'\n]{3,})'/g)) {
