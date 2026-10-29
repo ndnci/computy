@@ -16,7 +16,7 @@ Une création **[NDNCI](https://www.ndnci.com)**. Aucun compte, aucune télémé
 - Suivre la progression réelle, interrompre un diagnostic et conserver ses résultats partiels.
 - Conserver un instantané du matériel pour chaque bilan, le renommer, l’exporter en JSON et comparer **2 à 4 bilans**.
 - **Relancer un bilan** depuis sa ligne ou son rapport : les mêmes paramètres produisent un nouveau diagnostic, et l’original reste conservé. Toute la ligne ouvre le rapport ; les cases et actions restent indépendantes. Un rapport Windows avant démarrage rouvre l’assistant et demande une nouvelle confirmation.
-- Suivre RAM/CPU/GPU dans des **anneaux de la barre système**, activés par défaut et configurables, avec des volumes au choix. Un clic montre les **10 premiers processus**, et **Voir tout** ouvre la liste complète avec recherche et tri. Les valeurs absentes restent explicites. [Fonctionnement et limites du moniteur](docs/MONITORING.md).
+- Suivre RAM/CPU/GPU dans des **indicateurs de la barre système**, activés par défaut et configurables, avec des volumes au choix. Un clic montre les **10 premiers processus**, et **Voir tout** ouvre la liste complète avec recherche et tri. Les valeurs absentes restent explicites. [Fonctionnement et limites du moniteur](docs/MONITORING.md).
 - Utiliser le thème **système par défaut**, ou choisir **clair/sombre** ; choisir parmi **25 langues**, avec formats locaux et sens de lecture adapté.
 - Retrouver les mêmes contrôles, rapports, préférences et comparaisons depuis le terminal ou un agent MCP.
 
@@ -41,7 +41,7 @@ Dans l’application, ouvrir **Diagnostics**, cocher les composants souhaités, 
 Sur Ubuntu/Debian, l’installation facultative du paquet ajoute aussi Computy au menu des applications :
 
 ```bash
-sudo apt install ./release/Computy_0.1.2_amd64.deb
+sudo apt install ./release/Computy_0.1.3_amd64.deb
 ```
 
 Les bibliothèques d’exécution sont déjà présentes sur le PC de développement vérifié. Les binaires de `release/` sont des artefacts locaux exclus de Git ; après un nouveau clonage, les reconstruire avec les commandes ci-dessous.
@@ -63,7 +63,7 @@ npm run package
 
 Les paquets sont produits dans `src-tauri/target/release/bundle/`. Windows et macOS se compilent sur leurs systèmes respectifs ; le workflow pour les trois plateformes est conservé dans `.github/workflows/checks.yml.disabled` et les actions automatiques sont désactivées pour le moment. Les versions ne sont pas signées ni notariées à ce stade.
 
-Le paquet Linux validé localement se trouve dans [`release/Computy_0.1.2_amd64.deb`](release/Computy_0.1.2_amd64.deb), avec le binaire de bureau et la CLI dans `release/`. Ce répertoire de compilation est exclu de Git. Taille du paquet : environ **7,4 Mio**.
+Le paquet Linux validé localement se trouve dans [`release/Computy_0.1.3_amd64.deb`](release/Computy_0.1.3_amd64.deb), avec le binaire de bureau et la CLI dans `release/`. Ce répertoire de compilation est exclu de Git. Taille du paquet : environ **7,6 Mio**.
 
 ### Développer et vérifier avec Docker
 
@@ -165,15 +165,24 @@ Voir [le fonctionnement, les limites et les confirmations](docs/BOOT-DIAGNOSTICS
 Quitter Computy depuis le menu d’un indicateur (**Quitter Computy**), puis depuis la racine du projet :
 
 ```bash
-sudo apt install ./release/Computy_0.1.2_amd64.deb
+sudo apt install ./release/Computy_0.1.3_amd64.deb
 /usr/bin/computy
 ```
 
-Le nom de paquet reste `computy` : APT remplace la version précédente par la 0.1.2. L’historique et les préférences restent dans le même répertoire utilisateur. Le bouton du header **Actualiser les informations** relit le matériel et confirme le résultat par une notification ; il ne met pas à jour l’application. Une copie portable lancée avec `./release/computy` est distincte de l’installation APT : utiliser le menu des applications ou `/usr/bin/computy` pour tester le paquet installé.
+Le nom de paquet reste `computy` : APT remplace la version précédente par la 0.1.3. L’historique et les préférences restent dans le même répertoire utilisateur. Le bouton du header **Actualiser les informations** relit le matériel et confirme le résultat par une notification ; il ne met pas à jour l’application. Une copie portable lancée avec `./release/computy` est distincte de l’installation APT : utiliser le menu des applications ou `/usr/bin/computy` pour tester le paquet installé.
 
 ## Aperçus de l’application
 
 ### Moniteur et processus en direct
+
+Trois styles au choix : **icône + pourcentage** par défaut, **anneau**, ou **icône qui se remplit**. Bleu sous 65 %, jaune de 65 à 89 %, rouge à partir de 90 %. Les indicateurs restent enregistrés pendant leur désactivation pour permettre leur réactivation. Un panneau détaillé affiche le composant, les premiers processus avec leurs icônes disponibles et les actions. Sur les versions GNOME qui imposent le menu natif au premier clic, sa première entrée ou un double clic ouvre le panneau.
+
+| Clair | Sombre |
+|---|---|
+| ![Styles des indicateurs en clair](docs/screenshots/tray-styles-light.png) | ![Styles des indicateurs en sombre](docs/screenshots/tray-styles-dark.png) |
+| ![Panneau RAM en clair](docs/screenshots/tray-panel-memory-light.png) | ![Panneau RAM en sombre](docs/screenshots/tray-panel-memory-dark.png) |
+
+![Panneau Tauri avec icône réelle de Computy](docs/screenshots/native-linux-tray-panel.png)
 
 | Clair | Sombre |
 |---|---|

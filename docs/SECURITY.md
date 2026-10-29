@@ -65,3 +65,7 @@ La préparation USB s’exécute avec les droits de l’utilisateur, après sél
 ## Moniteur et processus
 
 Le moniteur utilise les droits de l’utilisateur courant. Les commandes GPU ont des paramètres fixes, aucun shell ni élévation, un délai maximal et une sortie bornée. Les noms/PID sont des données non fiables, jamais des instructions ; arguments et environnements ne sont pas collectés. Les noms sont échappés par React et nettoyés pour les menus natifs. Le moniteur est désactivable et n’exécute aucun test de charge. Le nouvel outil MCP `computy_monitor` est en lecture seule ; il expose les mesures et la liste des processus accessibles au compte exécutant Computy, y compris leurs noms, aux clients déjà autorisés.
+
+## Panneau des indicateurs
+
+Le panneau utilise les assets locaux de Computy et le même CSP. Son accès à `engine_call` est limité à la télémétrie et aux préférences en lecture. Ses actions ont des destinations fixes ; les noms de processus restent du texte échappé. Les icônes sont résolues à partir de PID locaux, avec 32 PID par requête, un cache borné et des PNG limités en taille ; le client ne fournit aucun chemin. Les chemins d’exécutables servant à la résolution ne sont pas envoyés à la CLI ou au MCP. Le service StatusNotifier/DBusMenu est limité au bus de session de l’utilisateur ; aucun port réseau n’est ouvert. Les tests du watcher s’exécutent dans un bus privé isolé.

@@ -6,14 +6,14 @@ Validation du 29 octobre 2026, sur Linux. Aucun service distant ni tunnel public
 |---|---|
 | Moteur Rust | 43 tests réussis : domaine, firmware, vraies boucles RAM/disque/CPU, annulation, historique, préférences, MCP, import Windows, télémétrie réelle, classement des processus et cumul VRAM multi-GPU |
 | Analyse Rust | `cargo fmt --check` et Clippy, toutes les cibles, `-D warnings` |
-| Intégration Node | 16 tests réussis, dont CLI réelle, moniteur passif, paramètres de barre système, noms de marque dans les 25 langues et clients du SDK MCP officiel en stdio/HTTP |
+| Intégration Node | 17 tests réussis, dont CLI réelle, moniteur passif, paramètres de barre système, noms de marque dans les 25 langues et clients du SDK MCP officiel en stdio/HTTP |
 | Interface Playwright | Sélections indépendantes, progression, historique/comparaison, deux relances réelles avec paramètres identiques et nouveaux identifiants, cases indépendantes, mesures/processus, spinner USB, notifications et guide Secure Boot ; captures clair/sombre |
 | Internationalisation | 25 langues parcourues, directions LTR/RTL, thème système et choix explicite, 3 largeurs ; captures supplémentaires dans 5 langues et les deux thèmes |
-| Bureau natif | Binaire Tauri, IPC Rust réel, trois icônes enregistrées et retirées après désactivation, mesures/processus réels, diagnostics RAM/disque/CPU, thème enregistré ; 7 captures WebKitGTK et 1 test du rendu des icônes |
+| Bureau natif | Binaire Tauri, IPC Rust réel, trois indicateurs persistants, trois cycles RAM et deux cycles globaux, états Active/Passive relus sur D-Bus, activation et menu réels, icône d’application récupérée, mesures/processus réels, diagnostics RAM/disque/CPU, thème enregistré ; 8 captures WebKitGTK, 1 test du rendu des trois styles et 1 test D-Bus isolé |
 | Compilation | Interface de production, paquet Linux `.deb`, CLI native et vérification Tauri dans Docker |
 | Dépendances JavaScript | `npm audit` : aucun avis de vulnérabilité déclaré au moment de la vérification |
 
-Les résultats automatisés des essais UI sont dans [`screenshots/capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json) et [`native-results.json`](screenshots/native-results.json) et [`history-monitor-results.json`](screenshots/history-monitor-results.json). Ils sont générés par les scripts de validation, sans valeurs de santé simulées.
+Les résultats automatisés des essais UI sont dans [`screenshots/capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json) et [`native-results.json`](screenshots/native-results.json) et [`history-monitor-results.json`](screenshots/history-monitor-results.json). Le nouveau scénario des styles est dans [`tray-style-results.json`](screenshots/tray-style-results.json). Ils sont générés par les scripts de validation, sans valeurs de santé simulées.
 
 ## Reproduire
 

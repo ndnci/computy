@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "دوبارہ چیک کرنا...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "مکمل چیک: اوپر کے تقاضوں کا جائزہ لیں۔",
   "{{value}} %": "{{value}}%s",
-  "Écriture / s": "لکھنؤ / عیسوی۔"
+  "Écriture / s": "لکھنؤ / عیسوی۔",
+  "Style de la barre système": "سسٹم ٹرے کا انداز",
+  "Icône + pourcentage": "آئیکن + فیصد",
+  "Anneau": "حلقہ",
+  "Icône remplie": "بھرتا ہوا آئیکن",
+  "Par défaut": "ڈیفالٹ",
+  "Bleu": "نیلا",
+  "Jaune": "پیلا",
+  "Rouge": "سرخ",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "اس کمانڈ کی اجازت نہیں ہے۔",
+  "En direct dans votre barre système.": "سسٹم ٹرے میں براہ راست معلومات۔"
 }

@@ -123,6 +123,7 @@ export interface Preferences {
   theme: 'system' | 'light' | 'dark';
   language: string;
   tray_enabled: boolean;
+  tray_style: 'icon_text' | 'ring' | 'fill';
   tray_components: string[];
   tray_disks: string[];
 }

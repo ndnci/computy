@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "호환성 확인 ...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "완료 체크: 위의 요구 사항을 검토.",
   "{{value}} %": "{{value}}%의 %",
-  "Écriture / s": "쓰기 / s"
+  "Écriture / s": "쓰기 / s",
+  "Style de la barre système": "시스템 트레이 스타일",
+  "Icône + pourcentage": "아이콘 + 백분율",
+  "Anneau": "링",
+  "Icône remplie": "채워지는 아이콘",
+  "Par défaut": "기본값",
+  "Bleu": "파랑",
+  "Jaune": "노랑",
+  "Rouge": "빨강",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "허용되지 않는 명령입니다.",
+  "En direct dans votre barre système.": "시스템 트레이에서 실시간으로 확인하세요."
 }

@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "正在檢查相容性...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "檢查完成:審查上述要求。",
   "{{value}} %": "{{value}}百分比(%)",
-  "Écriture / s": "寫入/ s"
+  "Écriture / s": "寫入/ s",
+  "Style de la barre système": "系統匣樣式",
+  "Icône + pourcentage": "圖示＋百分比",
+  "Anneau": "圓環",
+  "Icône remplie": "填滿圖示",
+  "Par défaut": "預設",
+  "Bleu": "藍色",
+  "Jaune": "黃色",
+  "Rouge": "紅色",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "不允許此命令。",
+  "En direct dans votre barre système.": "在系統匣中即時查看。"
 }

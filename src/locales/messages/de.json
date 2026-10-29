@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Kompatibilität prüfen...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Vollständig prüfen: Überprüfen Sie die oben genannten Anforderungen.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Schreiben / s"
+  "Écriture / s": "Schreiben / s",
+  "Style de la barre système": "Stil der Statusleiste",
+  "Icône + pourcentage": "Symbol + Prozent",
+  "Anneau": "Ring",
+  "Icône remplie": "Gefülltes Symbol",
+  "Par défaut": "Standard",
+  "Bleu": "Blau",
+  "Jaune": "Gelb",
+  "Rouge": "Rot",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Befehl nicht erlaubt.",
+  "En direct dans votre barre système.": "Live in Ihrer Statusleiste."
 }

@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Проверка совместимости...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Проверьте полностью: проверьте требования выше.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Написать/s"
+  "Écriture / s": "Написать/s",
+  "Style de la barre système": "Стиль системного трея",
+  "Icône + pourcentage": "Значок + процент",
+  "Anneau": "Кольцо",
+  "Icône remplie": "Заполняемый значок",
+  "Par défaut": "По умолчанию",
+  "Bleu": "Синий",
+  "Jaune": "Жёлтый",
+  "Rouge": "Красный",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Команда не разрешена.",
+  "En direct dans votre barre système.": "В реальном времени в системном трее."
 }

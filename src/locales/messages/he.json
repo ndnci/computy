@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "לבדוק תאימות...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "בדוק את הדרישות לעיל.",
   "{{value}} %": "{{value}}%%",
-  "Écriture / s": "תגית: s"
+  "Écriture / s": "תגית: s",
+  "Style de la barre système": "סגנון מגש המערכת",
+  "Icône + pourcentage": "סמל + אחוזים",
+  "Anneau": "טבעת",
+  "Icône remplie": "סמל מתמלא",
+  "Par défaut": "ברירת מחדל",
+  "Bleu": "כחול",
+  "Jaune": "צהוב",
+  "Rouge": "אדום",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "הפקודה אינה מורשית.",
+  "En direct dans votre barre système.": "נתונים חיים במגש המערכת."
 }

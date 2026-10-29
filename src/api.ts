@@ -32,6 +32,7 @@ export const defaultPreferences: Preferences = {
   theme: 'system',
   language: 'system',
   tray_enabled: true,
+  tray_style: 'icon_text',
   tray_components: ['memory', 'cpu', 'gpu'],
   tray_disks: [],
 };

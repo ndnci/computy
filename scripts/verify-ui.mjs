@@ -46,6 +46,7 @@ try {
   await run('scripts/check-locales-ui.mjs');
   await run('scripts/check-diagnostic-ux.mjs');
   await run('scripts/check-history-monitor-ux.mjs');
+  await run('scripts/check-tray-styles-ui.mjs');
   await run('scripts/presentation-screens.mjs');
 } finally {
   if (server.exitCode === null) {

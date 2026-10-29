@@ -1,0 +1,14 @@
+{
+  "styles": [
+    "icon_text",
+    "ring",
+    "fill"
+  ],
+  "default_style": "icon_text",
+  "persisted": true,
+  "theme_pairs": true,
+  "popover_actions_with_icons": true,
+  "privacy_shared_panel": true,
+  "sidebar_gap": true,
+  "errors": []
+}

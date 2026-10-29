@@ -4,6 +4,7 @@ use computy_engine::{monitor, preferences::Preferences};
 fn old_preferences_enable_only_the_three_default_tray_indicators() {
     let value: Preferences = serde_json::from_str(r#"{"language":"fr"}"#).unwrap();
     assert!(value.tray_enabled);
+    assert_eq!(value.tray_style, "icon_text");
     assert_eq!(value.tray_components, ["memory", "cpu", "gpu"]);
     assert!(value.tray_disks.is_empty());
     assert!(computy_engine::preferences::validate(&value).is_ok());
@@ -12,6 +13,13 @@ fn old_preferences_enable_only_the_three_default_tray_indicators() {
         ..value
     };
     assert!(computy_engine::preferences::validate(&invalid).is_err());
+    assert!(
+        computy_engine::preferences::validate(&Preferences {
+            tray_style: "unknown".into(),
+            ..Default::default()
+        })
+        .is_err()
+    );
     let oversized = Preferences {
         tray_disks: (0..16)
             .map(|n| format!("/{}{n}", "\"".repeat(500)))

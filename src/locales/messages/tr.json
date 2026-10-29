@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "uyumluluk kontrol etmek...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Tamam: Yukarıdaki gereklilikleri gözden geçirin.",
   "{{value}} %": "{{value}}% %",
-  "Écriture / s": "Yaz / s"
+  "Écriture / s": "Yaz / s",
+  "Style de la barre système": "Sistem tepsisi stili",
+  "Icône + pourcentage": "Simge + yüzde",
+  "Anneau": "Halka",
+  "Icône remplie": "Dolgu simgesi",
+  "Par défaut": "Varsayılan",
+  "Bleu": "Mavi",
+  "Jaune": "Sarı",
+  "Rouge": "Kırmızı",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Komuta izin verilmiyor.",
+  "En direct dans votre barre système.": "Sistem tepsisinde canlı ölçümler."
 }

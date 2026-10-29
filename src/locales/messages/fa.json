@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "بررسی سازگاری ...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "بررسی کامل: بررسی الزامات بالا",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "نوشتن / s"
+  "Écriture / s": "نوشتن / s",
+  "Style de la barre système": "سبک سینی سیستم",
+  "Icône + pourcentage": "نماد + درصد",
+  "Anneau": "حلقه",
+  "Icône remplie": "نماد پُرشونده",
+  "Par défaut": "پیش‌فرض",
+  "Bleu": "آبی",
+  "Jaune": "زرد",
+  "Rouge": "قرمز",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "این فرمان مجاز نیست.",
+  "En direct dans votre barre système.": "نمایش زنده در سینی سیستم."
 }

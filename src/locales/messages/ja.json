@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "互換性チェック...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "確認完了:上記の要件を確認します。",
   "{{value}} %": "{{value}}ツイート",
-  "Écriture / s": "執筆/s"
+  "Écriture / s": "執筆/s",
+  "Style de la barre système": "システムトレイの表示",
+  "Icône + pourcentage": "アイコン＋使用率",
+  "Anneau": "リング",
+  "Icône remplie": "塗りつぶしアイコン",
+  "Par défaut": "既定",
+  "Bleu": "青",
+  "Jaune": "黄",
+  "Rouge": "赤",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "このコマンドは許可されていません。",
+  "En direct dans votre barre système.": "システムトレイでリアルタイムに確認。"
 }

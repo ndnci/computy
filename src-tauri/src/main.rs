@@ -10,15 +10,25 @@ use tauri::Manager;
 use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
+#[cfg(target_os = "linux")]
+mod linux_indicator;
+#[cfg(target_os = "linux")]
+mod linux_menu;
 mod monitor_tray;
+mod process_icons;
 mod tray_icon;
 
 #[tauri::command]
 async fn engine_call(
+    window: tauri::WebviewWindow,
     service: tauri::State<'_, Arc<AppService>>,
     method: String,
     params: Value,
 ) -> Result<Value, String> {
+    if window.label() == "monitor-popover" && !["monitor", "preferences"].contains(&method.as_str())
+    {
+        return Err("Commande non autorisée.".into());
+    }
     if serde_json::to_vec(&params)
         .map_err(|e| e.to_string())?
         .len()
@@ -30,6 +40,18 @@ async fn engine_call(
     tauri::async_runtime::spawn_blocking(move || transport::dispatch(&service, &method, &params))
         .await
         .map_err(|e| e.to_string())?
+}
+#[tauri::command]
+fn monitor_panel_target(app: tauri::AppHandle) -> monitor_tray::PanelTarget {
+    monitor_tray::panel_target(&app)
+}
+#[tauri::command]
+fn monitor_panel_action(app: tauri::AppHandle, destination: String) -> Result<(), String> {
+    monitor_tray::panel_action(&app, &destination)
+}
+#[tauri::command]
+fn monitor_tray_status(app: tauri::AppHandle) -> Value {
+    app.state::<monitor_tray::TrayState>().status()
 }
 #[tauri::command]
 async fn export_report(
@@ -205,11 +227,22 @@ fn main() {
                 .build(),
         )
         .on_window_event(|window, event| {
-            if let tauri::WindowEvent::CloseRequested { api, .. } = event
-                && window.state::<monitor_tray::TrayState>().has_icons()
-                && window.hide().is_ok()
-            {
-                api.prevent_close();
+            if window.label() == "monitor-popover" {
+                if matches!(event, tauri::WindowEvent::Focused(false)) {
+                    let _ = window.hide();
+                }
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = window.hide();
+                }
+                return;
+            }
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                if window.state::<monitor_tray::TrayState>().has_icons() && window.hide().is_ok() {
+                    api.prevent_close();
+                } else {
+                    window.app_handle().exit(0);
+                }
             }
         })
         .setup(|app| {
@@ -226,6 +259,7 @@ fn main() {
                 AppService::new(repository, Arc::new(SystemHardware), root.join("scratch"));
             app.manage(service.clone());
             app.manage(monitor_tray::TrayState::default());
+            monitor_tray::setup_panel(app.handle())?;
             monitor_tray::start(app.handle().clone(), service);
             Ok(())
         })
@@ -238,7 +272,11 @@ fn main() {
             boot_action,
             usb_targets,
             prepare_usb,
-            open_external
+            open_external,
+            monitor_panel_target,
+            monitor_panel_action,
+            monitor_tray_status,
+            process_icons::process_icons
         ])
         .build(tauri::generate_context!())
         .expect("Impossible de démarrer Computy");

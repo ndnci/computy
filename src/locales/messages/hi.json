@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "संगतता की जाँच...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "पूरा जाँच करें: ऊपर की आवश्यकताओं की समीक्षा करें।",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "लेखक"
+  "Écriture / s": "लेखक",
+  "Style de la barre système": "सिस्टम ट्रे की शैली",
+  "Icône + pourcentage": "आइकन + प्रतिशत",
+  "Anneau": "रिंग",
+  "Icône remplie": "भरने वाला आइकन",
+  "Par défaut": "डिफ़ॉल्ट",
+  "Bleu": "नीला",
+  "Jaune": "पीला",
+  "Rouge": "लाल",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "कमांड की अनुमति नहीं है।",
+  "En direct dans votre barre système.": "सिस्टम ट्रे में लाइव जानकारी।"
 }

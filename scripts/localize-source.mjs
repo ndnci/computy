@@ -28,6 +28,8 @@ function register(value) {
 }
 for (const file of [
   'src/App.tsx',
+  'src/MonitorPopover.tsx',
+  'src/monitor-components.tsx',
   'src/components.tsx',
   ...fs
     .readdirSync('src/pages')

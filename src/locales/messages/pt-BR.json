@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Verificando compatibilidade...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Verificação completa: reveja os requisitos acima.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Escrever / s"
+  "Écriture / s": "Escrever / s",
+  "Style de la barre système": "Estilo da bandeja do sistema",
+  "Icône + pourcentage": "Ícone + porcentagem",
+  "Anneau": "Anel",
+  "Icône remplie": "Ícone preenchido",
+  "Par défaut": "Padrão",
+  "Bleu": "Azul",
+  "Jaune": "Amarelo",
+  "Rouge": "Vermelho",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Comando não autorizado.",
+  "En direct dans votre barre système.": "Ao vivo na bandeja do sistema."
 }

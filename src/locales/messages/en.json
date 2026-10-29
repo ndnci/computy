@@ -768,5 +768,19 @@
   "CPU %": "CPU %",
   "DSK": "DSK",
   "PID": "PID",
-  "RAM %": "RAM %"
+  "RAM %": "RAM %",
+  "Style de la barre système": "System tray style",
+  "Icône + pourcentage": "Icon + percentage",
+  "Anneau": "Ring",
+  "Icône remplie": "Filled icon",
+  "Par défaut": "Default",
+  "Bleu": "Blue",
+  "Jaune": "Yellow",
+  "Rouge": "Red",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Command not allowed.",
+  "En direct dans votre barre système.": "Live in your system tray."
 }

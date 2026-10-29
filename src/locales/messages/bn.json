@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "সুসংগতি পরীক্ষা চলছে...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "পরীক্ষা সম্পূর্ণ হয়েছে: উপরোক্ত চাহিদা পর্যালোচনা করুন ।",
   "{{value}} %": "{{value}}%s",
-  "Écriture / s": "লিখে রাখুন"
+  "Écriture / s": "লিখে রাখুন",
+  "Style de la barre système": "সিস্টেম ট্রের ধরন",
+  "Icône + pourcentage": "আইকন + শতাংশ",
+  "Anneau": "রিং",
+  "Icône remplie": "ভরা আইকন",
+  "Par défaut": "ডিফল্ট",
+  "Bleu": "নীল",
+  "Jaune": "হলুদ",
+  "Rouge": "লাল",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "এই কমান্ডের অনুমতি নেই।",
+  "En direct dans votre barre système.": "সিস্টেম ট্রেতে সরাসরি তথ্য।"
 }

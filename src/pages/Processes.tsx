@@ -5,6 +5,7 @@ import { rpc } from '../api';
 import { formatBytes } from '../domain.mjs';
 import { Notice, SectionTitle, Spinner } from '../components';
 import type { MonitorSnapshot, ProcessSample } from '../types';
+import { ProcessAvatar, useProcessIcons } from '../monitor-components';
 type Metric = 'memory' | 'cpu' | 'gpu' | 'storage';
 const metrics: Metric[] = ['memory', 'cpu', 'gpu', 'storage'];
 function initialMetric(): Metric {
@@ -59,6 +60,7 @@ export default function Processes() {
   const processes = (snapshot?.processes || [])
     .filter((p) => `${p.name} ${p.pid}`.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => (value(b) ?? -1) - (value(a) ?? -1) || a.pid - b.pid);
+  const icons = useProcessIcons(processes.slice(0, 32).map((p) => p.pid));
   const percent = (n: number | null) =>
     n === null ? '—' : t('{{value}} %', { value: Number(n.toFixed(1)) });
   const bytes = (n: number | null) => (n === null ? '—' : formatBytes(n));
@@ -129,7 +131,12 @@ export default function Processes() {
               {processes.map((p) => (
                 <tr key={p.pid}>
                   <td>{p.pid}</td>
-                  <td className="process-name">{p.name || tx('Nom indisponible')}</td>
+                  <td className="process-name">
+                    <span className="process-identity">
+                      <ProcessAvatar pid={p.pid} icon={icons[p.pid]} />
+                      {p.name || tx('Nom indisponible')}
+                    </span>
+                  </td>
                   <td>{bytes(p.memory_bytes)}</td>
                   <td>{percent(p.memory_percent)}</td>
                   <td>{percent(p.cpu_percent)}</td>

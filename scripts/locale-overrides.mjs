@@ -242,3 +242,5 @@ writeFileSync('src/locales/overrides.json', JSON.stringify(output, null, 2) + '\
 console.log(
   `${keys.length} reviewed navigation, action and result labels across ${Object.keys(rows).length} translated locales.`,
 );
+
+await import('./tray-style-locales.mjs');

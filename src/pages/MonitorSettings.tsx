@@ -3,39 +3,10 @@ import { Activity, Cpu, HardDrive, MemoryStick, Monitor } from 'lucide-react';
 import { t, tx } from '../i18n.mjs';
 import { isDesktop, rpc } from '../api';
 import { useApp } from '../app-context';
-import { Notice, PanelHeader, Spinner } from '../components';
+import { Notice, Panel, PanelHeader, Spinner } from '../components';
+import { MetricVisual } from '../monitor-components';
 import type { MonitorSnapshot, Preferences } from '../types';
 
-function Ring({ value, label }: { value: number | null; label: string }) {
-  const formatted = value === null ? '—' : t('{{value}} %', { value: Math.round(value) });
-  return (
-    <span
-      className="monitor-ring"
-      aria-label={`${label} ${value === null ? tx('Indisponible') : formatted}`}
-    >
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle className="ring-track" cx="32" cy="28" r="23" />
-        {value !== null && (
-          <circle
-            className="ring-value"
-            cx="32"
-            cy="28"
-            r="23"
-            pathLength="100"
-            strokeDasharray={`${value} 100`}
-            transform="rotate(-90 32 28)"
-          />
-        )}
-        <text x="32" y="32" className="ring-percent">
-          {formatted}
-        </text>
-        <text x="32" y="61" className="ring-label">
-          {label}
-        </text>
-      </svg>
-    </span>
-  );
-}
 export default function MonitorSettings({
   draft,
   onChange,
@@ -115,10 +86,10 @@ export default function MonitorSettings({
       })),
   ];
   return (
-    <section className="panel monitor-settings">
+    <Panel className="monitor-settings">
       <PanelHeader
         title={tx('Moniteur dans la barre système')}
-        subtitle={tx('Un anneau par indicateur, visible même lorsque la fenêtre est masquée.')}
+        subtitle={tx('En direct dans votre barre système.')}
       />
       <div className="setting-row">
         <span className="setting-icon">
@@ -144,6 +115,37 @@ export default function MonitorSettings({
       </div>
       {draft.tray_enabled && (
         <div className="monitor-content">
+          <fieldset className="tray-style-options">
+            <legend>{tx('Style de la barre système')}</legend>
+            {(
+              [
+                ['icon_text', 'Icône + pourcentage'],
+                ['ring', 'Anneau'],
+                ['fill', 'Icône remplie'],
+              ] as const
+            ).map(([id, label]) => (
+              <label
+                className={`tray-style-option ${draft.tray_style === id ? 'selected' : ''}`}
+                key={id}
+              >
+                <input
+                  type="radio"
+                  name="tray-style"
+                  value={id}
+                  checked={draft.tray_style === id}
+                  onChange={() => onChange({ ...draft, tray_style: id })}
+                />
+                <MetricVisual value={42} metric="memory" style={id} />
+                <b>{tx(label)}</b>
+                {id === 'icon_text' && <small>{tx('Par défaut')}</small>}
+              </label>
+            ))}
+          </fieldset>
+          <p className="monitor-note tray-colors">
+            <i style={{ background: '#429feb' }} /> {tx('Bleu')} &lt; 65 %{' '}
+            <i style={{ background: '#dca842' }} /> {tx('Jaune')} 65–89 %{' '}
+            <i style={{ background: '#e96565' }} /> {tx('Rouge')} ≥ 90 %
+          </p>
           {!snapshot && !problem && (
             <p role="status">
               <Spinner size={16} /> {tx('Lecture des mesures en direct…')}
@@ -166,7 +168,7 @@ export default function MonitorSettings({
                   onChange={() => toggle('tray_components', id)}
                   aria-label={t('Indicateur : {{name}}', { name: tx(name) })}
                 />
-                <Ring value={value} label={label} />
+                <MetricVisual value={value} metric={id} style={draft.tray_style} />
                 <b>
                   <Icon size={15} /> {tx(name)}
                 </b>
@@ -238,6 +240,6 @@ export default function MonitorSettings({
           </p>
         </div>
       )}
-    </section>
+    </Panel>
   );
 }

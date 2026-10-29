@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Memeriksa kompatibilitas...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Periksa lengkap: tinjau persyaratan di atas.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Tulis / s"
+  "Écriture / s": "Tulis / s",
+  "Style de la barre système": "Gaya baki sistem",
+  "Icône + pourcentage": "Ikon + persentase",
+  "Anneau": "Cincin",
+  "Icône remplie": "Ikon terisi",
+  "Par défaut": "Bawaan",
+  "Bleu": "Biru",
+  "Jaune": "Kuning",
+  "Rouge": "Merah",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Perintah tidak diizinkan.",
+  "En direct dans votre barre système.": "Langsung di baki sistem Anda."
 }

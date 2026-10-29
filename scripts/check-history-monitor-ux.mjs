@@ -118,7 +118,7 @@ try {
   await monitor.getByRole('switch').waitFor();
   assert.equal(await monitor.getByRole('switch').getAttribute('aria-checked'), 'true');
   assert.equal(await monitor.locator('.monitor-metrics input:checked').count(), 3);
-  await monitor.locator('.monitor-ring').first().waitFor();
+  await monitor.locator('.metric-visual').first().waitFor();
   await page.waitForTimeout(2200);
   await capture('monitor-settings', monitor);
   await monitor.getByLabel('Indicateur : Processeur graphique', { exact: true }).uncheck();

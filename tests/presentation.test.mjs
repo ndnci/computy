@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { usageColor, rankedProcesses } from '../src/monitor-presentation.mjs';
 import {
   formatBytes,
   statusInfo,
@@ -10,6 +11,22 @@ import {
 } from '../src/domain.mjs';
 import { setLanguage } from '../src/i18n.mjs';
 await setLanguage('fr');
+test('tray palettes respect usage boundaries and process ranking preserves unknown values', () => {
+  assert.equal(usageColor(64.9), '#429feb');
+  assert.equal(usageColor(65), '#dca842');
+  assert.equal(usageColor(90), '#e96565');
+  assert.equal(usageColor(null), '#8b9b9d');
+  const values = [
+    { pid: 1, memory_bytes: null },
+    { pid: 2, memory_bytes: 42 },
+    { pid: 3, memory_bytes: 100 },
+  ];
+  assert.deepEqual(
+    rankedProcesses(values, 'memory').map((p) => p.pid),
+    [3, 2, 1],
+  );
+  assert.equal(values[0].pid, 1);
+});
 
 test('unavailable and cancelled checks never look healthy', () => {
   assert.equal(statusInfo('unavailable').tone, 'muted');

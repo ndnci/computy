@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Sprawdzanie zgodności...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Sprawdzić całość: dokonać przeglądu powyższych wymogów.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Napisz / s"
+  "Écriture / s": "Napisz / s",
+  "Style de la barre système": "Styl zasobnika systemowego",
+  "Icône + pourcentage": "Ikona + procent",
+  "Anneau": "Pierścień",
+  "Icône remplie": "Wypełniona ikona",
+  "Par défaut": "Domyślny",
+  "Bleu": "Niebieski",
+  "Jaune": "Żółty",
+  "Rouge": "Czerwony",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Niedozwolone polecenie.",
+  "En direct dans votre barre système.": "Na żywo w zasobniku systemowym."
 }

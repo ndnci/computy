@@ -3,6 +3,13 @@
   "actual_diagnostic": true,
   "actual_tray_registrations": true,
   "tray_disable_verified": true,
+  "repeated_ram_toggles": 3,
+  "repeated_global_toggles": 2,
+  "real_dbus_status_and_activation": true,
+  "real_dbus_menu_activation": true,
+  "real_application_icon": true,
+  "custom_popover": true,
+  "quit_without_indicators_exits": true,
   "actual_process_telemetry": true,
   "themes": [
     "light",

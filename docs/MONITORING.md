@@ -1,8 +1,14 @@
 # Moniteur de la barre système
 
-Computy 0.1.2 ajoute des indicateurs natifs Tauri, activés par défaut pour la RAM, le CPU et le GPU. Dans **Préférences → Moniteur dans la barre système**, chaque indicateur et chaque volume peut être sélectionné, ou le moniteur entièrement désactivé. Les anciennes préférences reçoivent ces valeurs par défaut. Enregistrer applique le choix aux icônes dans les deux secondes suivantes.
+Computy 0.1.3 fournit des indicateurs activés par défaut pour la RAM, le CPU et le GPU. Dans **Préférences → Moniteur dans la barre système**, chaque indicateur et chaque volume peut être sélectionné, ou le moniteur entièrement désactivé. Les choix s’appliquent dans les deux secondes après enregistrement.
 
-Chaque icône contient un anneau, un nombre et une abréviation RAM/CPU/GPU/DSK. Le menu fournit les valeurs lisibles, les dix processus les plus consommateurs accessibles et **Voir tout**. Ce dernier ouvre la vue **Processus** dans la fenêtre principale : tous les processus accessibles y figurent, avec recherche par nom/PID et tri par ressource. Les menus conservent leurs éléments lors des actualisations pour permettre leur consultation. Sur Linux, le clic utilise le menu natif AppIndicator ; les autres plateformes utilisent également leur menu natif.
+Trois styles sont disponibles : **icône + pourcentage** par défaut, **anneau** conservant le dessin précédent, et **icône remplie** selon l’utilisation. Les couleurs sont bleues sous 65 %, jaunes de 65 à 89 %, rouges à partir de 90 %. Les valeurs inconnues restent grises et ne deviennent pas 0 %.
+
+Le panneau détaillé réutilise les composants de l’application : grand anneau, pourcentage, icône et nom du composant, dix processus avec leurs mesures, icônes des applications lorsqu’elles sont accessibles, et actions avec icônes. **Voir tout** ouvre les processus complets dans la fenêtre principale. Le panneau se ferme avec Échap, son bouton ou la perte de focus. Un panneau masqué ne prélève pas de télémétrie.
+
+Sous Linux, le backend StatusNotifier garde le même objet et passe entre Active et Passive ; il se réenregistre lors du retour du serveur de la barre système. Ce mécanisme évite de recréer des AppIndicator avec le même identifiant. Le menu DBusMenu fournit également les mesures, les icônes et les actions aux hôtes qui le demandent. Certaines versions GNOME imposent ce menu au premier clic : sa première entrée, le double clic ou le clic central ouvrent le panneau. Les hôtes qui transmettent directement Activate et Windows/macOS ouvrent le panneau au clic.
+
+Les icônes des processus sont résolues localement à partir de leur PID : applications et thème GTK sous Linux, icônes natives des exécutables et applications sous Windows/macOS. Les images sont converties en PNG et mises en cache ; un pictogramme neutre remplace une icône introuvable. Aucun chemin d’exécutable n’entre dans les instantanés CLI/MCP.
 
 Fermer la fenêtre garde le moniteur actif si au moins une icône existe. **Quitter Computy** dans le menu termine l’application. Relancer le programme restaure la fenêtre existante, sans créer un second moniteur. Désactiver les derniers indicateurs alors que la fenêtre est masquée la réaffiche. Les mesures s’arrêtent lorsque le moniteur est désactivé, sauf lorsqu’une vue de mesures est ouverte ou qu’un client CLI/MCP les demande explicitement. Le moniteur ne lance aucun diagnostic et n’ajoute aucun bilan à l’historique.
 
@@ -28,13 +34,16 @@ Les noms et PID restent des données : ils ne sont jamais exécutés, les caract
 
 ## Intégration au bureau
 
-macOS affiche les indicateurs dans la barre de menus ; Windows dans la zone de notification, éventuellement son menu des icônes masquées. Linux nécessite un hôte AppIndicator/StatusNotifier ; GNOME peut nécessiter son extension correspondante. Le placement et la taille finale des icônes dépendent du bureau. Les menus fournissent un texte complet lorsque la petite taille de la zone de notification limite la lecture de l’icône.
+macOS affiche les indicateurs dans la barre de menus ; Windows dans la zone de notification, éventuellement son menu des icônes masquées. Linux nécessite un hôte AppIndicator/StatusNotifier ; GNOME peut nécessiter son extension correspondante. Le placement et la taille finale des icônes dépendent du bureau. Sur Linux/macOS, le style icône + pourcentage utilise le libellé natif lorsque disponible : sa couleur de texte est imposée par le bureau, tandis que l’icône reste colorée selon le seuil. Windows utilise une version compacte dans son emplacement d’icône ; son système ne fournit pas de libellé adjacent. Les pourcentages du panneau détaillé, les anneaux et les remplissages gardent leurs couleurs. Les menus fournissent un texte complet lorsque la petite taille de la zone de notification limite la lecture de l’icône.
 
 ## CLI et MCP
 
 ```bash
 computy-cli --json monitor
 computy-cli --json monitor --watch
+computy-cli settings set --tray-style icon_text
+computy-cli settings set --tray-style ring
+computy-cli settings set --tray-style fill
 computy-cli settings set --tray-enabled false
 computy-cli settings set --tray-enabled true --tray-components memory,cpu,gpu
 computy-cli settings set --tray-disks '/,/home'

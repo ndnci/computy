@@ -321,7 +321,7 @@ svg {
   font-size: 11px;
   min-height: 36px;
   gap: 10px;
-  margin: 0;
+  margin: 5px 0 0;
 }
 .made-by {
   font-size: 9px;
@@ -3076,8 +3076,8 @@ svg {
   display: flex;
   align-items: flex-start;
   gap: 18px;
-  padding: 12px 6px;
-  color: #a3b58d;
+  padding: 24px 28px;
+  color: var(--text);
 }
 .privacy-settings h3 {
   font-size: 12px;

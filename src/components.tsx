@@ -1,5 +1,5 @@
 import { t, tx, currentLocale } from './i18n.mjs';
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode, type ComponentPropsWithoutRef } from 'react';
 import {
   ArrowDownToLine,
   Check,
@@ -26,6 +26,9 @@ import {
   formatBytes,
 } from './domain.mjs';
 import type { Check as DiagnosticCheck, Report, Status } from './types';
+export function Panel({ className = '', ...props }: ComponentPropsWithoutRef<'section'>) {
+  return <section className={`panel ${className}`} {...props} />;
+}
 export function Logo({ size = 44 }: { size?: number }) {
   return (
     <span

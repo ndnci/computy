@@ -32,12 +32,15 @@ test('CLI monitor returns real passive measurements and all accessible processes
       'set',
       '--tray-enabled',
       'false',
+      '--tray-style',
+      'fill',
       '--tray-components',
       'memory,cpu',
       '--tray-disks',
       '',
     ]);
     assert.equal(JSON.parse(changed).tray_enabled, false);
+    assert.equal(JSON.parse(changed).tray_style, 'fill');
     assert.deepEqual(JSON.parse(changed).tray_components, ['memory', 'cpu']);
     assert.deepEqual(JSON.parse(changed).tray_disks, []);
     const { stdout: history } = await exec(binary, ['--data-dir', root, '--json', 'history']);

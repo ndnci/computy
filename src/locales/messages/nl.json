@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Compatibiliteit controleren...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Check complete: bekijk de bovenstaande eisen.",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "Schrijven / s"
+  "Écriture / s": "Schrijven / s",
+  "Style de la barre système": "Stijl van het systeemvak",
+  "Icône + pourcentage": "Pictogram + percentage",
+  "Anneau": "Ring",
+  "Icône remplie": "Gevuld pictogram",
+  "Par défaut": "Standaard",
+  "Bleu": "Blauw",
+  "Jaune": "Geel",
+  "Rouge": "Rood",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Opdracht niet toegestaan.",
+  "En direct dans votre barre système.": "Live in het systeemvak."
 }

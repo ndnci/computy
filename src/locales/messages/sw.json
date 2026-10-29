@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "Kuangalia kwa utangamano ...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "Angalia kamili: angalia mahitaji hapo juu.",
   "{{value}} %": "{{value}}Asilimia %%%%",
-  "Écriture / s": "Kuandika / S"
+  "Écriture / s": "Kuandika / S",
+  "Style de la barre système": "Mtindo wa eneo la arifa",
+  "Icône + pourcentage": "Aikoni + asilimia",
+  "Anneau": "Pete",
+  "Icône remplie": "Aikoni inayojazwa",
+  "Par défaut": "Chaguo-msingi",
+  "Bleu": "Bluu",
+  "Jaune": "Njano",
+  "Rouge": "Nyekundu",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "Amri hairuhusiwi.",
+  "En direct dans votre barre système.": "Taarifa za moja kwa moja katika eneo la arifa."
 }

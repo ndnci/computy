@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../app-context';
 import { defaultPreferences, isDesktop, setStartup, startupStatus } from '../api';
-import { Notice, PanelHeader, SectionTitle, Spinner } from '../components';
+import { Notice, Panel, PanelHeader, SectionTitle, Spinner } from '../components';
 import MonitorSettings from './MonitorSettings';
 export default function SettingsPage() {
   const { preferences, savePreferences, notify } = useApp();
@@ -276,7 +276,7 @@ export default function SettingsPage() {
         </div>
       </section>
       <MonitorSettings draft={draft} onChange={setDraft} />
-      <section className="privacy-settings">
+      <Panel className="privacy-settings">
         <LockKeyhole size={24} />
         <div>
           <h3>{tx('Vos donn\xE9es vous appartiennent.')}</h3>
@@ -286,7 +286,7 @@ export default function SettingsPage() {
             )}
           </p>
         </div>
-      </section>
+      </Panel>
       <div className="settings-actions">
         <button
           className="button secondary"

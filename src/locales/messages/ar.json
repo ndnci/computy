@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "التحقق من التوافق...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "تم التحقق: استعراض المتطلبات الواردة أعلاه.",
   "{{value}} %": "{{value}}النسبة المئوية",
-  "Écriture / s": "الكتابة/الكتاب"
+  "Écriture / s": "الكتابة/الكتاب",
+  "Style de la barre système": "نمط شريط النظام",
+  "Icône + pourcentage": "أيقونة + نسبة مئوية",
+  "Anneau": "حلقة",
+  "Icône remplie": "أيقونة ممتلئة",
+  "Par défaut": "افتراضي",
+  "Bleu": "أزرق",
+  "Jaune": "أصفر",
+  "Rouge": "أحمر",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "الأمر غير مسموح.",
+  "En direct dans votre barre système.": "قياسات مباشرة في شريط النظام."
 }

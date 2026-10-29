@@ -10,6 +10,7 @@ pub struct Preferences {
     pub theme: String,
     pub language: String,
     pub tray_enabled: bool,
+    pub tray_style: String,
     pub tray_components: Vec<String>,
     pub tray_disks: Vec<String>,
 }
@@ -23,6 +24,7 @@ impl Default for Preferences {
             theme: "system".into(),
             language: "system".into(),
             tray_enabled: true,
+            tray_style: "icon_text".into(),
             tray_components: vec!["memory".into(), "cpu".into(), "gpu".into()],
             tray_disks: vec![],
         }
@@ -44,6 +46,9 @@ pub fn load(root: &Path) -> Result<Preferences, String> {
     Ok(preferences)
 }
 pub fn validate(preferences: &Preferences) -> Result<(), String> {
+    if !["icon_text", "ring", "fill"].contains(&preferences.tray_style.as_str()) {
+        return Err("Style d’indicateur invalide.".into());
+    }
     if serde_json::to_vec(preferences)
         .map_err(|e| e.to_string())?
         .len()

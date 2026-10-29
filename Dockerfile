@@ -12,7 +12,7 @@ ENV CARGO_BUILD_JOBS=2
 
 FROM toolchain AS desktop-qa
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    xvfb xauth dbus-x11 webkit2gtk-driver fonts-noto-core fonts-noto-cjk \
+    xvfb xauth dbus-x11 webkit2gtk-driver fonts-noto-core fonts-noto-cjk python3-dbus python3-gi \
     && rm -rf /var/lib/apt/lists/*
 RUN cargo install tauri-driver --version 2.0.6 --locked
 RUN useradd --uid 1000 --create-home computy

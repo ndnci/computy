@@ -4,7 +4,9 @@ import '@fontsource-variable/dm-sans';
 import '@fontsource-variable/sora';
 import './styles.css';
 import './refinements.css';
+import './monitor.css';
 import App from './App';
+import MonitorPopover from './MonitorPopover';
 import { invoke } from '@tauri-apps/api/core';
 document.addEventListener('click', (event) => {
   const link = (event.target as Element)?.closest<HTMLAnchorElement>('a[href^="https://"]');
@@ -15,6 +17,6 @@ document.addEventListener('click', (event) => {
 });
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    {new URLSearchParams(location.search).has('popover') ? <MonitorPopover /> : <App />}
   </React.StrictMode>,
 );

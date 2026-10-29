@@ -156,6 +156,8 @@ pub enum SettingsAction {
         language: Option<String>,
         #[arg(long)]
         tray_enabled: Option<bool>,
+        #[arg(long)]
+        tray_style: Option<String>,
         /// Comma-separated memory,cpu,gpu; an empty string hides all three.
         #[arg(long)]
         tray_components: Option<String>,
@@ -442,6 +444,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                     theme,
                     language,
                     tray_enabled,
+                    tray_style,
                     tray_components,
                     tray_disks,
                 } => {
@@ -455,6 +458,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                         ("theme", theme.map(|v| json!(v))),
                         ("language", language.map(|v| json!(v))),
                         ("tray_enabled", tray_enabled.map(|v| json!(v))),
+                        ("tray_style", tray_style.map(|v| json!(v))),
                         (
                             "tray_components",
                             tray_components.map(|v| {

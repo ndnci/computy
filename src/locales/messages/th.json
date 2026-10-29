@@ -767,5 +767,19 @@
   "Vérification de compatibilité…": "กําลังตรวจสอบความเข้ากันได้...",
   "Vérification terminée : consultez les conditions affichées ci-dessus.": "ตรวจสอบอย่างละเอียดแล้ว: ทบทวนความต้องการทางด้านบน",
   "{{value}} %": "{{value}}%",
-  "Écriture / s": "เขียน / วินาที"
+  "Écriture / s": "เขียน / วินาที",
+  "Style de la barre système": "รูปแบบถาดระบบ",
+  "Icône + pourcentage": "ไอคอน + เปอร์เซ็นต์",
+  "Anneau": "วงแหวน",
+  "Icône remplie": "ไอคอนเติมสี",
+  "Par défaut": "ค่าเริ่มต้น",
+  "Bleu": "น้ำเงิน",
+  "Jaune": "เหลือง",
+  "Rouge": "แดง",
+  "65–89 %": "65–89 %",
+  "< 65 %": "< 65 %",
+  "≥ 90 %": "≥ 90 %",
+  "SSD / HDD": "SSD / HDD",
+  "Commande non autorisée.": "ไม่อนุญาตให้ใช้คำสั่งนี้",
+  "En direct dans votre barre système.": "ข้อมูลสดในถาดระบบ"
 }

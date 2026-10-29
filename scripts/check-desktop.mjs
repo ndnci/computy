@@ -1,6 +1,8 @@
 // Real Linux Tauri/WebKit smoke test. Run under Xvfb, with tauri-driver installed.
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const exec = promisify(execFile);
 import { mkdtemp, mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -18,8 +20,15 @@ await writeFile(
     cpu_seconds: 1,
   }),
 );
+const watcher = spawn('python3', ['scripts/mock-status-watcher.py'], {
+  stdio: ['ignore', 'pipe', 'pipe'],
+});
+let watcherReady = false;
+watcher.stdout.on('data', (data) => {
+  if (data.toString().includes('WATCHER_READY')) watcherReady = true;
+});
 const driver = spawn('tauri-driver', ['--port', '4444', '--native-port', '4445'], {
-  env: { ...process.env, COMPUTY_DATA_DIR: root },
+  env: { ...process.env, COMPUTY_DATA_DIR: root, XDG_DATA_HOME: root },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 let logs = '';
@@ -63,6 +72,14 @@ async function capture(name) {
   await writeFile(`${destination}/native-linux-${name}.png`, Buffer.from(png, 'base64'));
 }
 try {
+  for (let n = 0; n < 100 && !watcherReady; n++)
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(watcherReady, 'private StatusNotifier watcher must be running');
+  await mkdir(path.join(root, 'applications'), { recursive: true });
+  await writeFile(
+    path.join(root, 'applications/computy.desktop'),
+    `[Desktop Entry]\nType=Application\nName=Computy\nExec=${path.resolve(process.env.COMPUTY_DESKTOP_BINARY || 'release/computy')}\nIcon=${path.resolve('public/computy-logo.png')}\n`,
+  );
   for (let n = 0; n < 100; n++) {
     try {
       await request('GET', '/status');
@@ -98,25 +115,135 @@ try {
     "window.__monitorReady=false;window.__TAURI_INTERNALS__.invoke('engine_call',{method:'monitor',params:{}}).then(value=>{window.__monitorReady=value.processes.length>0&&value.memory_percent>0;});",
   );
   await until('return window.__monitorReady===true');
-  await execute(
-    "window.__traysReady=false;Promise.all(['computy-memory','computy-cpu','computy-gpu'].map(id=>window.__TAURI_INTERNALS__.invoke('plugin:tray|get_by_id',{id}))).then(ids=>{window.__traysReady=ids.every(id=>id!==null);return Promise.all(ids.filter(id=>id!==null).map(rid=>window.__TAURI_INTERNALS__.invoke('plugin:resources|close',{rid})));});",
-  );
-  await until('return window.__traysReady===true');
+  const native = async (command, args = {}) => {
+    const envelope = await request('POST', `/session/${session}/execute/async`, {
+      script:
+        'const done=arguments[arguments.length-1];window.__TAURI_INTERNALS__.invoke(arguments[0],arguments[1]).then(value=>done({value})).catch(error=>done({error:String(error)}));',
+      args: [command, args],
+    });
+    if (envelope.error) throw Error(envelope.error);
+    return envelope.value;
+  };
+  async function trayCount(expected) {
+    for (let n = 0; n < 40; n++) {
+      const state = await native('monitor_tray_status');
+      if (state.active === expected) return state;
+      await new Promise((resolve) => setTimeout(resolve, 150));
+    }
+    throw Error('Wrong native tray count');
+  }
+  async function dbus(item, method, args = []) {
+    return (
+      await exec('gdbus', [
+        'call',
+        '--session',
+        '--dest',
+        item.bus,
+        '--object-path',
+        item.path,
+        '--method',
+        method,
+        ...args,
+      ])
+    ).stdout;
+  }
+  await trayCount(3);
   await click('Préférences');
   await until("return document.querySelectorAll('.monitor-metrics input:checked').length===3");
   await capture('monitor-light');
-  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
-  await click('Enregistrer les préférences');
-  await until(
-    "return document.querySelector('.monitor-settings [role=switch]').getAttribute('aria-checked')==='false'",
-  );
-  await new Promise((resolve) => setTimeout(resolve, 2200));
-  await execute(
-    "window.__traysDisabled=false;window.__TAURI_INTERNALS__.invoke('plugin:tray|get_by_id',{id:'computy-memory'}).then(rid=>{window.__traysDisabled=rid===null;if(rid!==null)return window.__TAURI_INTERNALS__.invoke('plugin:resources|close',{rid});});",
-  );
-  await until('return window.__traysDisabled===true');
-  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
-  await click('Enregistrer les préférences');
+  for (let n = 0; n < 3; n++) {
+    await execute("document.querySelector('.monitor-metrics input').click()");
+    await click('Enregistrer les préférences');
+    let state = await trayCount(2);
+    const memory = state.items.find((item) => item.id === 'computy-memory');
+    assert.ok(
+      (
+        await dbus(memory, 'org.freedesktop.DBus.Properties.Get', [
+          'org.kde.StatusNotifierItem',
+          'Status',
+        ])
+      ).includes('Passive'),
+    );
+    await execute("document.querySelector('.monitor-metrics input').click()");
+    await click('Enregistrer les préférences');
+    state = await trayCount(3);
+    const enabled = state.items.find((item) => item.id === 'computy-memory');
+    assert.equal(memory.path, enabled.path);
+    assert.ok(
+      (
+        await dbus(enabled, 'org.freedesktop.DBus.Properties.Get', [
+          'org.kde.StatusNotifierItem',
+          'Status',
+        ])
+      ).includes('Active'),
+    );
+  }
+  for (let n = 0; n < 2; n++) {
+    await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+    await click('Enregistrer les préférences');
+    await trayCount(0);
+    await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+    await click('Enregistrer les préférences');
+    await trayCount(3);
+  }
+  const snapshot = await native('engine_call', { method: 'monitor', params: {} });
+  const appProcess = snapshot.processes.find((p) => p.name === 'computy');
+  assert.ok(appProcess);
+  const appIcons = await native('process_icons', { pids: [appProcess.pid] });
+  assert.ok(appIcons[appProcess.pid]?.startsWith('data:image/png;base64,'));
+  const state = await trayCount(3);
+  const memory = state.items.find((item) => item.id === 'computy-memory');
+  const menuPath = memory.path + '/Menu';
+  const layout = (
+    await exec('gdbus', [
+      'call',
+      '--session',
+      '--dest',
+      memory.bus,
+      '--object-path',
+      menuPath,
+      '--method',
+      'com.canonical.dbusmenu.GetLayout',
+      '0',
+      '1',
+      '[]',
+    ])
+  ).stdout;
+  assert.ok(layout.includes('icon-data') && layout.includes('icon-name'));
+  const mainHandle = await request('GET', `/session/${session}/window`);
+  // The protocol unit test covers Activate. Exercise the GNOME menu path here.
+  await exec('gdbus', [
+    'call',
+    '--session',
+    '--dest',
+    memory.bus,
+    '--object-path',
+    menuPath,
+    '--method',
+    'com.canonical.dbusmenu.Event',
+    '1',
+    'clicked',
+    '<0>',
+    '0',
+  ]);
+  let popupHandle;
+  for (let n = 0; n < 40 && !popupHandle; n++) {
+    const handles = await request('GET', `/session/${session}/window/handles`);
+    for (const handle of handles.filter((handle) => handle !== mainHandle)) {
+      await request('POST', `/session/${session}/window`, { handle });
+      if (await execute("return location.search.includes('popover')")) {
+        popupHandle = handle;
+        break;
+      }
+    }
+    if (!popupHandle) await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.ok(popupHandle);
+  await until("return document.querySelectorAll('.popover-process').length>0");
+  await capture('tray-panel');
+  await click('Voir tout');
+  await request('POST', `/session/${session}/window`, { handle: mainHandle });
+  await until("return !!document.querySelector('.process-table')");
   await click('Diagnostics');
   await until("return document.querySelectorAll('.test-component-option input').length===3");
   assert.deepEqual(
@@ -163,18 +290,49 @@ try {
   );
   await capture('overview-dark');
   assert.deepEqual(await execute('return window.__computyErrors||[]'), []);
+  await click('Préférences');
+  await until("return !!document.querySelector('.monitor-settings [role=switch]')");
+  await execute("document.querySelector('.monitor-settings [role=switch]').click()");
+  await click('Enregistrer les préférences');
+  await trayCount(0);
+  await native('monitor_panel_action', { destination: 'quit' }).catch(() => {});
+  let exited = false;
+  for (let n = 0; n < 60; n++) {
+    try {
+      process.kill(appProcess.pid, 0);
+      const stat = await readFile(`/proc/${appProcess.pid}/stat`, 'utf8').catch(() => '');
+      if (!stat || ['Z', 'X'].includes(stat.slice(stat.lastIndexOf(')') + 2).split(' ')[0])) {
+        exited = true;
+        break;
+      }
+    } catch (error) {
+      if (error.code === 'ESRCH') {
+        exited = true;
+        break;
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  assert.ok(exited, 'quitting with indicators disabled must exit the app');
   const result = {
     native: 'Tauri / WebKitGTK',
     actual_diagnostic: true,
     actual_tray_registrations: true,
     tray_disable_verified: true,
+    repeated_ram_toggles: 3,
+    repeated_global_toggles: 2,
+    real_dbus_status_and_activation: true,
+    real_dbus_menu_activation: true,
+    real_application_icon: true,
+    custom_popover: true,
+    quit_without_indicators_exits: true,
     actual_process_telemetry: true,
     themes: ['light', 'dark'],
     errors: [],
   };
   await writeFile(`${destination}/native-results.json`, JSON.stringify(result, null, 2) + '\n');
   console.log(
-    'Native Tauri IPC, tray registrations and disabling, live processes, diagnostics and 7 real WebKit captures verified.',
+    'Native Tauri, repeated tray toggles, D-Bus activation, application icons and 8 real WebKit captures verified.',
   );
 } catch (error) {
   console.error(logs.slice(-6000));
@@ -186,5 +344,6 @@ try {
     driver.kill('SIGINT');
     await stopped;
   }
+  watcher.kill('SIGTERM');
   await rm(root, { recursive: true, force: true });
 }

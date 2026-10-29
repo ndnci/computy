@@ -244,6 +244,26 @@ fn ratio(used: u64, total: u64) -> Option<f64> {
 pub fn parse_percent(value: &str) -> Option<f64> {
     valid_percent(value.trim().parse().ok()?)
 }
+/// Local desktop icon lookup only. Executable paths never enter telemetry or MCP payloads.
+pub fn process_executable(pid: u32) -> Option<std::path::PathBuf> {
+    #[cfg(target_os = "linux")]
+    {
+        std::fs::read_link(format!("/proc/{pid}/exe")).ok()
+    }
+    #[cfg(not(target_os = "linux"))]
+    {
+        let mut system = System::new();
+        let pid = sysinfo::Pid::from_u32(pid);
+        system.refresh_processes_specifics(
+            ProcessesToUpdate::Some(&[pid]),
+            true,
+            ProcessRefreshKind::nothing()
+                .without_tasks()
+                .with_exe(sysinfo::UpdateKind::OnlyIfNotSet),
+        );
+        system.process(pid)?.exe().map(std::path::Path::to_path_buf)
+    }
+}
 pub fn nvidia_percent(value: &str) -> Option<f64> {
     value
         .lines()
