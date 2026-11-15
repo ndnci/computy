@@ -12,19 +12,39 @@ const destination = 'release-assets';
 await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
 const files = [];
-async function visit(directory) {
-  for (const item of await readdir(directory, { withFileTypes: true })) {
-    const file = path.join(directory, item.name);
-    if (item.isDirectory()) await visit(file);
-    else if (/\.(deb|AppImage|exe|dmg)$/.test(item.name) && item.name.includes(version)) {
-      await copyFile(file, path.join(destination, item.name));
-      files.push(item.name);
-    }
-  }
-}
-await visit('src-tauri/target/release/bundle');
-if (!files.length) throw Error('No installers were built');
+const run = (command, args) => promisify(execFile)(command, args, { maxBuffer: 1 << 24 });
 const suffix = platform.startsWith('windows') ? '.exe' : '';
+if (platform === 'linux-x86_64') {
+  // Built by scripts/package-deb.sh.
+  for (const name of await readdir('release'))
+    if (name === `Computy_${version}_amd64.deb`) {
+      await copyFile(path.join('release', name), path.join(destination, name));
+      files.push(name);
+    }
+} else if (platform === 'windows-x86_64') {
+  const name = `Computy_${version}_${platform}.zip`;
+  const staging = await mkdtemp(path.join(tmpdir(), 'computy-app-'));
+  await copyFile('desktop/target/release/computy.exe', path.join(staging, 'Computy.exe'));
+  for (const file of ['LICENSE', 'NOTICE']) await copyFile(file, path.join(staging, file));
+  await run('tar', [
+    '-a',
+    '-c',
+    '-f',
+    path.resolve(destination, name),
+    '-C',
+    staging,
+    'Computy.exe',
+    'LICENSE',
+    'NOTICE',
+  ]);
+  await rm(staging, { recursive: true, force: true });
+  files.push(name);
+} else {
+  const name = `Computy_${version}_${platform}.dmg`;
+  await run('scripts/package-macos.sh', [path.resolve(destination, name)]);
+  files.push(name);
+}
+if (!files.length) throw Error('No installers were built');
 const cli = `computy-cli_${version}_${platform}.tar.gz`;
 const staging = await mkdtemp(path.join(tmpdir(), 'computy-release-'));
 try {

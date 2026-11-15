@@ -19,41 +19,41 @@ jobs:
         include:
           - os: ubuntu-24.04
             platform: linux-x86_64
-            bundles: deb,appimage
           - os: windows-latest
             platform: windows-x86_64
-            bundles: nsis
           - os: macos-15-intel
             platform: macos-x86_64
-            bundles: dmg
           - os: macos-15
             platform: macos-aarch64
-            bundles: dmg
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
-    env:
-      APPIMAGE_EXTRACT_AND_RUN: '1'
-      # Ad-hoc signing allows Apple Silicon testing; it is not Developer ID signing.
-      APPLE_SIGNING_IDENTITY: '-'
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-      - run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt,clippy
-      - run: rustup default 1.99.1
-      - if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+      - run: rustup toolchain install 1.100.0 --profile minimal --component rustfmt,clippy
+      - run: rustup default 1.100.0
       - run: npm ci
       - run: cargo fmt --manifest-path native/Cargo.toml --check
-      - run: cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - run: cargo fmt --manifest-path desktop/Cargo.toml --check
       - run: cargo test --locked --manifest-path native/Cargo.toml
       - run: cargo clippy --locked --manifest-path native/Cargo.toml --all-targets -- -D warnings
       - run: npm run build:engine
       - run: npm test
       - run: npm run format:check
-      - run: npm run package -- --bundles ${{ matrix.bundles }}
+      # Linux packages are built in the same Debian toolchain as local releases
+      # (scripts/gpui-docker.sh), which keeps the binary's glibc requirement low.
+      - if: runner.os == 'Linux'
+        run: |
+          docker build --target gpui -t computy-gpui:local .
+          docker run --rm -v "$PWD:/workspace" -w /workspace -e CARGO_TARGET_DIR=/workspace/desktop/target \
+            computy-gpui:local bash -c "cargo test --locked --manifest-path desktop/Cargo.toml && cargo clippy --locked --manifest-path desktop/Cargo.toml --all-targets -- -D warnings && scripts/package-deb.sh && chown -R $(id -u):$(id -g) desktop/target native/target release"
+      - if: runner.os != 'Linux'
+        run: |
+          cargo test --locked --manifest-path desktop/Cargo.toml
+          cargo build --locked --release --manifest-path desktop/Cargo.toml
       - run: node scripts/collect-release.mjs
         env:
           COMPUTY_RELEASE_PLATFORM: ${{ matrix.platform }}

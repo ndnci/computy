@@ -1,6 +1,6 @@
 //! Pre-boot memory test assistant (former OfflineDiagnostic.tsx).
 use crate::{
-    app::{Computy, DiagnosticMode, Page},
+    app::{Computy, DiagnosticMode},
     components::{
         ButtonKind, NoticeTone, button_foreground, button_with, notice, notice_bold, spinner,
     },
@@ -168,28 +168,6 @@ fn act(
     cx.notify();
 }
 
-/// Default browser checkbox, as the former page used unstyled inputs.
-fn native_checkbox(checked: bool, disabled: bool) -> impl IntoElement {
-    div()
-        .size(px(13.))
-        .flex_none()
-        .rounded(px(2.))
-        .border_1()
-        .when(disabled, |d| d.opacity(0.5))
-        .map(|d| {
-            if checked {
-                d.bg(hex(0x0075ff))
-                    .border_color(hex(0x0075ff))
-                    .flex()
-                    .items_center()
-                    .justify_center()
-                    .child(icon("check", 11., "2.4", hex(0xffffff)))
-            } else {
-                d.bg(hex(0xffffff)).border_color(hex(0x767676))
-            }
-        })
-}
-
 fn checkbox_row(
     id: &'static str,
     checked: bool,
@@ -202,10 +180,14 @@ fn checkbox_row(
         .id(id)
         .flex()
         .items_center()
-        .gap(px(8.))
+        .gap(px(5.))
         .mt(px(14.))
         .when(!disabled, |d| d.cursor_pointer())
-        .child(div().pl(px(4.)).child(native_checkbox(checked, disabled)))
+        .child(crate::forms::native_checkbox(
+            checked,
+            disabled,
+            hex(0x7c9c5e),
+        ))
         .child(text(tx(label), 12., 400., hex(0x90a478)))
         .on_click(cx.listener(move |this, _, _, cx| {
             if !disabled {
@@ -940,5 +922,3 @@ fn launch_button(
         })),
     )
 }
-
-pub fn unused(_: Page) {}

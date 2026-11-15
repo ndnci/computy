@@ -113,10 +113,6 @@ pub fn plain(locale: &str, value: f64) -> String {
     number(locale, value, 3)
 }
 
-pub fn integer(locale: &str, value: i64) -> String {
-    number(locale, value as f64, 0)
-}
-
 fn persian(year: i32, month: u32, day: u32) -> (i32, u32, u32) {
     // Gregorian to Solar Hijri, after the algorithm by K. Borkowski.
     let g_days = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
@@ -242,6 +238,7 @@ pub fn bytes(locale: &str, value: Option<f64>, digits: usize) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::prelude::v1::test;
 
     #[test]
     fn numbers_follow_icu_conventions() {
@@ -264,8 +261,8 @@ mod tests {
 
     #[test]
     fn durations_use_short_units() {
-        assert_eq!(duration("fr", 493.0), "493 ms");
-        assert_eq!(duration("fr", 2500.0), "2,5 s");
+        assert_eq!(duration("fr", 493.0), "493\u{202f}ms");
+        assert_eq!(duration("fr", 2500.0), "2,5\u{202f}s");
         assert_eq!(duration("en", 61000.0), "1 min 1 sec");
     }
 

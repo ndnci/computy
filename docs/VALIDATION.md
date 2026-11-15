@@ -1,6 +1,6 @@
 # Local validation
 
-Validated on Linux on October 29, 2026. No remote service or public tunnel was opened for testing.
+Validated on Linux on October 29, 2026 (0.2.x, WebKit interface). The 0.3.0 native interface is covered by the visual regression and benchmark sections below; the table describes the earlier validation. No remote service or public tunnel was opened for testing.
 
 | Check | Result |
 |---|---|
@@ -11,7 +11,7 @@ Validated on Linux on October 29, 2026. No remote service or public tunnel was o
 | Internationalization | 25 languages visited, LTR/RTL layouts, system theme and explicit choices, three widths; additional screenshots in five languages and both themes |
 | Native desktop | Tauri binary, real Rust IPC, three persistent indicators, three RAM toggle cycles and two global cycles, native window close preserving the process and indicators, reopening the same window, Active/Passive states read over D-Bus, real activation and menus, resolved application icon, D-Bus-only launcher without Exec, explicit dock/tray/in-app quit actions, confirmed erasure on disposable data, real measurements/processes, RAM/disk/CPU diagnostics, saved theme; twelve WebKitGTK screenshots, a three-style rendering test and an isolated D-Bus test |
 | GRUB package 0.1.4 | Real Debian and Ubuntu libraries in a container, syntax validated by `grub-script-check`, separate/shared `/boot`, custom default preserved, failed probe producing no partial entry, existing configuration unchanged |
-| Build | Production frontend, Linux `.deb`, native CLI and Tauri checks in Docker |
+| Build | Linux `.deb`, native CLI and desktop checks in Docker |
 | JavaScript dependencies | `npm audit`: no reported vulnerability advisory at validation time |
 
 Automated UI results are recorded in [`capture-results.json`](screenshots/capture-results.json), [`locales-results.json`](screenshots/locales-results.json), [`native-results.json`](screenshots/native-results.json) and [`history-monitor-results.json`](screenshots/history-monitor-results.json). Style scenarios are recorded in [`tray-style-results.json`](screenshots/tray-style-results.json). Validation scripts generate these records without simulated health measurements.
@@ -29,28 +29,26 @@ npm ci
 npm run build:engine
 npm run test:native
 npm test
-npm run build
-npm run test:ui
+npm run test:desktop
+npm run package        # release/Computy_<version>_amd64.deb
 ```
 
-`test:ui` starts its own server on an available local port, creates a temporary data directory, and removes it after taking screenshots. It uses Chrome at `/usr/bin/google-chrome`; `PLAYWRIGHT_CHROMIUM_EXECUTABLE` selects another test Chromium. This browser belongs to development tooling, not the Tauri distribution.
+The desktop crate is built in the `gpui` Docker stage (`scripts/gpui-docker.sh`), which provides Rust, the GPUI system libraries, Mesa's software Vulkan driver, a headless sway compositor and `grim`. No compiler is needed on the host.
 
-Native Linux validation uses [tauri-driver and WebKitWebDriver](https://v2.tauri.app/develop/tests/webdriver/manual-setup/) with an Xvfb display. A dedicated image is provided:
+## Visual regression (0.3.0)
 
-```bash
-docker build --target desktop-qa -t computy-desktop-qa .
-# Prepare release/computy with the compiled Linux binary.
-docker run --rm --network none --cap-drop ALL \
-  --security-opt no-new-privileges:true --shm-size=256m \
-  -e LIBGL_ALWAYS_SOFTWARE=1 \
-  -e WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1 \
-  -v "$PWD:/workspace:ro" \
-  -v "$PWD/docs/screenshots:/workspace/docs/screenshots:rw" \
-  computy-desktop-qa dbus-run-session -- \
-  xvfb-run -a -s '-screen 0 1600x1200x24' node scripts/check-desktop.mjs
-```
+The move from the WebKit interface to the native GPUI interface was checked pixel by pixel against screenshots of the previous interface:
 
-The WebKit sandbox exception applies only to this test container, which has no network, no Linux capabilities and read-only sources. It is not added to the application binary or launch commands. The image's `computy` user has UID 1000 and needs write access to the mounted screenshot directory. The test sends a real `WM_DELETE_WINDOW` event inside its private Xvfb display, verifies that monitoring remains active, and checks the displayed version against `package.json`.
+1. `scripts/visual/record-fixture.mjs` records every engine response once into a frozen fixture (`tests/visual/fixture.json`), so live measurements, processes and clocks cannot change between captures.
+2. Before the migration, `scripts/visual/capture-react.mjs` captured the React interface with Playwright from that fixture: every page in light and dark, diagnostic states, report and comparison dialogs, cleanup preview, popovers, five extra locales (en, ar, ja, zh-CN, hi) and four window widths (1000, 1200, 1440, 1920). Each long page is captured in scroll steps. This script only runs on commits that still contain the React sources; its output is the reference set in `tests/visual/baseline/`.
+3. `npm run visual:capture` replays the same scenarios (`scripts/visual/scenarios.mjs`) with the native binary's `--capture` mode inside a headless sway session and captures them with `grim`.
+4. `npm run visual:compare` writes per-pixel heatmaps to `tests/visual/diff/` and a side-by-side report to `tests/visual/report.html`, sorted by the share of pixels differing by more than 32 levels on a channel.
+
+On November 16, 2026, 176 captures were compared: the median share of differing pixels is 4.1 %, the largest 8.6 % (boot-mode diagnostics, Arabic overview and the 1000 px layout), and 121 captures differ by less than 5 %. Text rasterization differs between WebKit and GPUI (antialiasing, hinting), so identical pixels are not expected; heatmaps were reviewed for layout, size, spacing and color differences. Known accepted differences: dialog backdrops are not blurred, right-to-left languages keep a left-to-right layout, and narrow layouts differ slightly in line wrapping.
+
+## Resource benchmark
+
+`npm run benchmark -- --binary <path> --label <name>` starts the binary in a private D-Bus session with a temporary data directory, then measures the whole process tree (PSS, RSS, USS, CPU, threads). Method and results are in [BENCHMARK.md](BENCHMARK.md).
 
 The GRUB generator test uses another isolated image. It replaces probes only in the container's ephemeral filesystem and runs no program against real devices:
 
@@ -82,11 +80,3 @@ Boolean rules and automation byte limits. CLI integration covers real temporary
 file deletion, preserved exclusions, schedule creation/removal, and read-only
 application/fan inventory. Real Docker objects, installed applications and fan
 controls are never removed or modified by these tests.
-
-The native WebKit suite captures cleanup configuration/preview, applications and
-fan capabilities in both themes. It verifies the new default login entry,
-independent ring popover and constant sidebar geometry across scrolling.
-The screenshot server is an isolated Xvfb session; its lack of a compositor can
-render transparent window corners black. GNOME uses its compositor for those
-transparent pixels. The installed application uses a transparent native popover
-surface instead of an opaque white background.

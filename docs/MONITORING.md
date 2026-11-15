@@ -56,4 +56,4 @@ computy-cli settings set --tray-disks ''
 
 ## References and validation
 
-The native implementation uses [Tauri System Tray](https://v2.tauri.app/learn/system-tray/), [sysinfo](https://docs.rs/sysinfo/0.37.2/sysinfo/), [kernel-documented AMD counters](https://kernel.org/doc/html/latest/gpu/amdgpu/thermal.html), and optional driver counters. Linux is validated locally; Windows/macOS integration and GPU drivers absent from this machine still require physical testing.
+The native implementation uses a StatusNotifierItem over D-Bus on Linux and the [tray-icon](https://docs.rs/tray-icon/) crate on Windows/macOS, [sysinfo](https://docs.rs/sysinfo/0.37.2/sysinfo/), [kernel-documented AMD counters](https://kernel.org/doc/html/latest/gpu/amdgpu/thermal.html), and optional driver counters. Linux is validated locally; Windows/macOS integration and GPU drivers absent from this machine still require physical testing.

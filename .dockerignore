@@ -1,7 +1,6 @@
 node_modules
 native/target
-src-tauri/target
-src-tauri/gen
+desktop/target
 .git
 .agents
 .codex
@@ -11,7 +10,7 @@ src-tauri/gen
 .computy
 dist
 release
-test-results
-playwright-report
+release-assets
+tests/visual
 docs/screenshots
 *.log

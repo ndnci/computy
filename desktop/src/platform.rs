@@ -13,17 +13,36 @@ use std::{
 
 pub const APP_ID: &str = "computy";
 
+/// Height of the title bar drawn by the application on Linux. GNOME's Wayland
+/// compositor provides no server-side decorations, so the window draws its own
+/// (as the former GTK header bar did). The requested size grows by this height
+/// so the page area keeps the previous 1440×960 viewport.
+pub const TITLE_BAR_HEIGHT: f32 = 34.;
+
+pub fn client_decorated() -> bool {
+    cfg!(target_os = "linux") && !crate::capture_mode()
+}
+
 pub fn main_window_options(size: Size<Pixels>, cx: &App) -> WindowOptions {
     let capture = crate::capture_mode();
+    let client = client_decorated();
+    let size = if client {
+        gpui::size(size.width, size.height + px(TITLE_BAR_HEIGHT))
+    } else {
+        size
+    };
     WindowOptions {
         window_bounds: Some(WindowBounds::Windowed(Bounds::centered(None, size, cx))),
-        window_min_size: Some(gpui::size(px(1000.), px(680.))),
+        window_min_size: Some(gpui::size(
+            px(1000.),
+            px(680. + if client { TITLE_BAR_HEIGHT } else { 0. }),
+        )),
         titlebar: Some(TitlebarOptions {
             title: Some(format!("Computy — {}", t("Votre matériel, en clair.")).into()),
             ..Default::default()
         }),
-        window_decorations: Some(if capture {
-            WindowDecorations::Server
+        window_decorations: Some(if client {
+            WindowDecorations::Client
         } else {
             WindowDecorations::Server
         }),
@@ -285,10 +304,10 @@ pub fn uninstall(service: &AppService) -> Result<(), String> {
             return Err("Désinstallation annulée ou refusée.".into());
         }
     }
-    if let Ok(launcher) = autolaunch() {
-        if launcher.is_enabled().unwrap_or(false) {
-            let _ = launcher.disable();
-        }
+    if let Ok(launcher) = autolaunch()
+        && launcher.is_enabled().unwrap_or(false)
+    {
+        let _ = launcher.disable();
     }
     Ok(())
 }
@@ -313,6 +332,85 @@ pub fn process_icon(pid: u32) -> Option<PathBuf> {
     }
     cache.insert(executable, value.clone());
     value
+}
+
+/// Edge of the decoded process icon: the avatar draws it at 20 px, so 40 px
+/// stays sharp at 2× scaling.
+const ICON_PIXELS: u32 = 40;
+
+/// Small decoded image for a process icon. Icon themes often ship 256 px or
+/// larger PNGs and SVGs with large canvases; decoding those at native size
+/// costs megabytes per icon in RAM and in the GPU atlas for a 20 px avatar.
+pub fn process_image(pid: u32) -> Option<Arc<RenderImage>> {
+    let path = process_icon(pid)?;
+    icon_image(&path)
+}
+
+pub fn icon_image(path: &Path) -> Option<Arc<RenderImage>> {
+    use std::{collections::HashMap, sync::Mutex, sync::OnceLock};
+    static CACHE: OnceLock<Mutex<HashMap<PathBuf, Option<Arc<RenderImage>>>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(Default::default);
+    if let Some(value) = cache.lock().unwrap_or_else(|e| e.into_inner()).get(path) {
+        return value.clone();
+    }
+    let value = decode_icon(path, ICON_PIXELS).map(|frame| {
+        Arc::new(RenderImage::new(smallvec::SmallVec::from_elem(
+            image::Frame::new(frame),
+            1,
+        )))
+    });
+    let mut cache = cache.lock().unwrap_or_else(|e| e.into_inner());
+    if cache.len() >= 256 {
+        cache.clear();
+    }
+    cache.insert(path.to_owned(), value.clone());
+    value
+}
+
+/// Decode and scale an icon file to a BGRA square of `edge` pixels.
+fn decode_icon(path: &Path, edge: u32) -> Option<image::RgbaImage> {
+    let metadata = std::fs::metadata(path).ok()?;
+    if !metadata.is_file() || metadata.len() > 8 * 1024 * 1024 {
+        return None;
+    }
+    let bytes = std::fs::read(path).ok()?;
+    let is_svg = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| e.eq_ignore_ascii_case("svg") || e.eq_ignore_ascii_case("svgz"));
+    let mut rgba = if is_svg {
+        let tree = resvg::usvg::Tree::from_data(&bytes, &resvg::usvg::Options::default()).ok()?;
+        let size = tree.size();
+        let scale = edge as f32 / size.width().max(size.height()).max(1.);
+        let mut pixmap = resvg::tiny_skia::Pixmap::new(edge, edge)?;
+        let dx = (edge as f32 - size.width() * scale) / 2.;
+        let dy = (edge as f32 - size.height() * scale) / 2.;
+        resvg::render(
+            &tree,
+            resvg::tiny_skia::Transform::from_row(scale, 0., 0., scale, dx, dy),
+            &mut pixmap.as_mut(),
+        );
+        // tiny-skia stores premultiplied RGBA; GPUI expects straight BGRA.
+        let mut data = pixmap.take();
+        for px in data.as_chunks_mut::<4>().0 {
+            let a = px[3] as u32;
+            if a > 0 && a < 255 {
+                for channel in &mut px[..3] {
+                    *channel = ((*channel as u32 * 255 + a / 2) / a).min(255) as u8;
+                }
+            }
+        }
+        image::RgbaImage::from_raw(edge, edge, data)?
+    } else {
+        let decoded = image::load_from_memory(&bytes).ok()?;
+        decoded
+            .resize(edge, edge, image::imageops::FilterType::Triangle)
+            .into_rgba8()
+    };
+    for px in rgba.as_chunks_mut::<4>().0 {
+        px.swap(0, 2);
+    }
+    Some(rgba)
 }
 
 #[cfg(target_os = "linux")]

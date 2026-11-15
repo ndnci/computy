@@ -2,7 +2,7 @@
 
 ## Access boundary
 
-Tauri loads local application assets. The renderer has no Node.js, shell commands or generic filesystem access. Rust commands accept known methods and bounded parameters. The production CSP restricts scripts, resources and communication to the application and its IPC. External links pass through an HTTPS domain allowlist and open in the system browser.
+The desktop interface is native Rust code drawn with GPUI: there is no web engine, no scripting runtime and no IPC surface between the interface and the engine, which is called in-process with typed, bounded parameters. All fonts, icons and images are embedded in the binary. External links pass through an HTTPS domain allowlist and open in the system browser.
 
 OS probes execute only programs and arguments defined in code. User arguments are never interpolated into PowerShell or a shell. Probe subprocesses have timeouts and bounded output.
 
@@ -64,7 +64,7 @@ USB preparation runs with user permissions after selection and confirmation. It 
 
 ## Monitoring and processes
 
-Monitoring uses the current user's permissions. GPU commands use fixed arguments, no shell or elevation, timeouts and bounded output. Names/PIDs are untrusted data, never instructions; arguments and environments are not collected. React escapes names and native menus sanitize them. Monitoring can be disabled and runs no stress tests. The read-only MCP tool `computy_monitor` exposes measurements and the process list accessible to Computy's account, including names, to already authorized clients.
+Monitoring uses the current user's permissions. GPU commands use fixed arguments, no shell or elevation, timeouts and bounded output. Names/PIDs are untrusted data, never instructions; arguments and environments are not collected. Names are rendered as plain text and native menus sanitize them. Monitoring can be disabled and runs no stress tests. The read-only MCP tool `computy_monitor` exposes measurements and the process list accessible to Computy's account, including names, to already authorized clients.
 
 ## Indicator panel
 

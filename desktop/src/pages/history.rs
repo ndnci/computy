@@ -2,13 +2,13 @@
 use crate::{
     app::{Computy, Page},
     components::{
-        self, ButtonKind, NoticeTone, button, button_foreground, button_with, empty, notice, score,
+        self, ButtonKind, NoticeTone, button, button_foreground, button_with, empty, notice,
         spinner, status_badge, text_button,
     },
     forms::{option, select, text_input},
     i18n::{tn, tx},
     intl,
-    model::{Report, Status},
+    model::Report,
     theme::{self, c, hex},
     ui::{icon, one_line, panel, spaced, text},
 };
@@ -827,5 +827,3 @@ pub fn modal(
     }
     None
 }
-
-pub fn unused(_: Status) {}

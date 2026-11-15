@@ -1,9 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const { version } = JSON.parse(await readFile('package.json', 'utf8'));
-const config = JSON.parse(await readFile('src-tauri/tauri.conf.json', 'utf8'));
-assert.equal(config.version, version);
-for (const file of ['native/Cargo.toml', 'src-tauri/Cargo.toml']) {
+for (const file of ['native/Cargo.toml', 'desktop/Cargo.toml']) {
   assert.equal((await readFile(file, 'utf8')).match(/^version = "([^"]+)"/m)?.[1], version, file);
 }
 const changelog = await readFile('CHANGELOG.md', 'utf8');

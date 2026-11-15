@@ -1,6 +1,6 @@
 //! Diagnostics: configuration, live progress and result (former Diagnostics.tsx).
 use crate::{
-    app::{Computy, DiagnosticMode, Page},
+    app::{Computy, DiagnosticMode},
     components::{
         self, ButtonKind, NoticeTone, button, button_with, check_card, notice, report_details,
         spinner,
@@ -891,5 +891,3 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
 fn running_view(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
     running(app, cx)
 }
-
-pub fn unused(_: Page) {}

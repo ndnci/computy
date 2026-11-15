@@ -1,5 +1,5 @@
 //! Message catalogs shared with the former web interface. French source strings
-//! are keys; other languages are generated catalogs in `src/locales/messages`.
+//! are keys; other languages are generated catalogs in `locales/messages`.
 use std::{
     collections::HashMap,
     sync::{OnceLock, RwLock},
@@ -117,8 +117,8 @@ macro_rules! catalogs {
     ($($code:literal => $file:literal),* $(,)?) => {
         fn raw(code: &str) -> Option<&'static str> {
             match code {
-                "fr" => Some(include_str!("../../src/locales/source.json")),
-                $($code => Some(include_str!(concat!("../../src/locales/messages/", $file))),)*
+                "fr" => Some(include_str!("../../locales/source.json")),
+                $($code => Some(include_str!(concat!("../../locales/messages/", $file))),)*
                 _ => None,
             }
         }
@@ -291,6 +291,17 @@ pub fn tp(key: &str, params: &[(&str, Arg)]) -> String {
     text
 }
 
+/// Translation in a given language without changing the interface language
+/// (tray indicators run outside the UI thread).
+pub fn translate_in(language: &str, key: &str) -> String {
+    load(language)
+        .get(key)
+        .filter(|v| !v.is_empty())
+        .or_else(|| load("en").get(key).filter(|v| !v.is_empty()))
+        .cloned()
+        .unwrap_or_else(|| key.to_owned())
+}
+
 pub fn t(key: &str) -> String {
     tp(key, &[])
 }
@@ -416,6 +427,7 @@ pub fn tn(value: impl Into<f64>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::prelude::v1::test;
 
     #[test]
     fn resolves_like_the_web_interface() {
@@ -441,6 +453,14 @@ mod tests {
             tx("Rapport non sauvegardé : disque plein"),
             "Rapport non sauvegardé : disque plein"
         );
+    }
+
+    #[test]
+    fn catalogs_translate_interface_labels() {
+        assert_eq!(translate_in("ja", "Vue d’ensemble"), "概要");
+        assert_eq!(translate_in("ja", "Anomalie détectée"), "問題を検出");
+        assert_eq!(translate_in("ar", "Non vérifié"), "لم يتم التحقق");
+        assert_eq!(translate_in("ja", "FIRMWARE-PART-123"), "FIRMWARE-PART-123");
     }
 
     #[test]

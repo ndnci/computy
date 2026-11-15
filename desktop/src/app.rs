@@ -6,7 +6,7 @@ use crate::{
     i18n::{t, tn, tx},
     model::*,
     pages,
-    theme::{self, c, hex, same},
+    theme::{self, c, hex},
     ui::{icon, shadow, spaced, text},
 };
 use gpui::{prelude::FluentBuilder, *};
@@ -563,9 +563,21 @@ impl Computy {
             _ => None,
         };
         let (size, icon_size, stroke, height, gap) = if bottom {
-            (12., 18., "2", 38., 10.)
+            (
+                12.,
+                18.,
+                "2",
+                38.,
+                if crate::layout::narrow() { 9. } else { 10. },
+            )
         } else {
-            (13., 19., "1.7", 42., 11.)
+            (
+                13.,
+                19.,
+                "1.7",
+                42.,
+                if crate::layout::narrow() { 9. } else { 11. },
+            )
         };
         let color = if active { c(NAV_ACTIVE) } else { hex(NAV_TEXT) };
         div()
@@ -592,7 +604,7 @@ impl Computy {
                 d.child(
                     div()
                         .absolute()
-                        .left(px(-20.))
+                        .left(px(-crate::layout::pick((12., 16., 20., 20.))))
                         .top(px(13.))
                         .bottom(px(13.))
                         .w(px(3.))
@@ -669,16 +681,23 @@ impl Computy {
             .collect();
         let settings = nav(Page::Settings, "Préférences", "settings-2");
         let about = nav(Page::About, "À propos de Computy", "circle-help");
+        use crate::layout::pick;
+        let (brand_gap, logo, word, word_lh, small, small_ls, small_lh, small_mt) = pick((
+            (5., 36., 22., 24.2, 5., 1.2, 5.5, 8.),
+            (8., 44., 24., 26.4, 6., 1.3, 6.6, 8.),
+            (11., 44., 26., 28.6, 7., 1.45, 7.7, 8.),
+            (11., 44., 26., 28.6, 7., 1.45, 7.7, 8.),
+        ));
         div()
             .id("sidebar")
-            .w(px(231.))
+            .w(px(pick((188., 211., 231., 231.))))
             .flex_none()
             .h_full()
             .bg(c(theme::SIDEBAR))
             .border_r_1()
             .border_color(c(theme::BORDER))
             .pt(px(31.))
-            .px(px(20.))
+            .px(px(pick((12., 16., 20., 20.))))
             .pb(px(16.))
             .flex()
             .flex_col()
@@ -688,11 +707,11 @@ impl Computy {
                     .id("brand")
                     .flex()
                     .items_center()
-                    .gap(px(11.))
+                    .gap(px(brand_gap))
                     .px(px(4.))
                     .mb(px(37.))
                     .cursor_pointer()
-                    .child(components::logo(44.))
+                    .child(components::logo(logo))
                     .child(
                         div()
                             .flex()
@@ -701,19 +720,19 @@ impl Computy {
                                 div()
                                     .flex()
                                     .font_family("Sora")
-                                    .text_size(px(26.))
+                                    .text_size(px(word))
                                     .font_weight(FontWeight(600.))
-                                    .line_height(px(28.6))
+                                    .line_height(px(word_lh))
                                     .child(spaced_word(&tx("computy"), -1.7, c(theme::TEXT)))
                                     .child(spaced_word(&tx("."), -1.7, hex(0x91ac69))),
                             )
-                            .child(div().mt(px(8.)).child(spaced(
+                            .child(div().mt(px(small_mt)).child(spaced(
                                 tx("VOTRE MATÉRIEL, EN CLAIR"),
-                                7.,
+                                small,
                                 500.,
                                 hex(0x6d7c70),
-                                1.45,
-                                7.7,
+                                small_ls,
+                                small_lh,
                             ))),
                     )
                     .on_click(
@@ -772,7 +791,7 @@ impl Computy {
             .items_center()
             .justify_between()
             .h(px(73.))
-            .px(px(37.))
+            .px(px(crate::layout::pick((24., 27., 37., 37.))))
             .bg(c(theme::TOPBAR))
             .border_b_1()
             .border_color(c(theme::BORDER))
@@ -790,7 +809,7 @@ impl Computy {
                 div()
                     .flex()
                     .items_center()
-                    .gap(px(18.))
+                    .gap(px(if crate::layout::narrow() { 12. } else { 18. }))
                     .when(self.loading || self.error.is_some(), |d| {
                         d.child(text(
                             tx(if self.loading {
@@ -822,12 +841,14 @@ impl Computy {
                                 17.,
                                 hex(0x6d7c70),
                             ))
-                            .child(text(
-                                tx("Actualiser les informations"),
-                                11.,
-                                400.,
-                                hex(0x6d7c70),
-                            ))
+                            .when(!crate::layout::narrow(), |d| {
+                                d.child(text(
+                                    tx("Actualiser les informations"),
+                                    11.,
+                                    400.,
+                                    hex(0x6d7c70),
+                                ))
+                            })
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 if !busy {
                                     this.refresh(true, cx)
@@ -856,7 +877,7 @@ impl Computy {
             .items_center()
             .justify_between()
             .pt(px(20.))
-            .px(px(37.))
+            .px(px(crate::layout::pick((27., 27., 37., 37.))))
             .pb(px(22.))
             .border_t_1()
             .border_color(c(theme::BORDER))
@@ -1052,15 +1073,19 @@ fn spaced_word(word: &str, spacing: f32, color: Hsla) -> Div {
 impl Render for Computy {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.apply_theme(window);
+        crate::layout::update(f32::from(window.viewport_size().width));
         let page = pages::render(self, window, cx);
         let floating = self.floating_job(cx).map(|e| e.into_any_element());
         let toast = self.toast_view(cx).map(|e| e.into_any_element());
         let modal = self.report_modal(window, cx);
         let modal = modal.or_else(|| pages::modal(self, window, cx));
-        div()
+        let title_bar = matches!(window.window_decorations(), Decorations::Client { .. })
+            .then(|| title_bar(window));
+        let content = div()
             .id("computy")
-            .key_context("Computy")
-            .size_full()
+            .flex_1()
+            .min_h_0()
+            .w_full()
             .relative()
             .flex()
             .flex_row()
@@ -1089,9 +1114,9 @@ impl Render for Computy {
                                     .min_w_0()
                                     .max_w(px(1610.))
                                     .mx_auto()
-                                    .pt(px(33.))
-                                    .px(px(37.))
-                                    .pb(px(24.))
+                                    .pt(px(crate::layout::pick((28., 33., 33., 40.))))
+                                    .px(px(crate::layout::pick((24., 27., 37., 37.))))
+                                    .pb(px(crate::layout::pick((22., 24., 24., 24.))))
                                     .when_some(self.error.clone(), |d, error| {
                                         d.child(components::engine_error(error, cx))
                                     })
@@ -1102,11 +1127,90 @@ impl Render for Computy {
             )
             .children(floating)
             .children(toast)
-            .children(modal)
+            .children(modal);
+        div()
+            .key_context("Computy")
+            .size_full()
+            .flex()
+            .flex_col()
+            .font_family("DM Sans")
+            .bg(c(theme::BG))
+            .children(title_bar)
+            .child(content)
             .on_action(cx.listener(|_, _: &crate::Quit, _, cx| crate::quit(cx)))
     }
 }
 
-pub fn same_color(value: u32) -> Hsla {
-    c(same(value))
+/// Linux title bar drawn by the application: drag to move, double-click to
+/// maximize, right-click for the compositor's window menu, and window buttons.
+fn title_bar(window: &Window) -> impl IntoElement + use<> {
+    let maximized = window.is_maximized();
+    let control = |id: &'static str, name: &'static str, danger: bool| {
+        div()
+            .id(id)
+            .w(px(46.))
+            .h_full()
+            .flex()
+            .items_center()
+            .justify_center()
+            .hover(move |s| {
+                if danger {
+                    s.bg(hex(0xe5484d))
+                } else {
+                    s.bg(c(theme::BORDER))
+                }
+            })
+            .on_mouse_down(MouseButton::Left, |_, window, cx| {
+                window.prevent_default();
+                cx.stop_propagation();
+            })
+            .child(icon(name, 15., "1.8", c(theme::MUTED)))
+    };
+    div()
+        .id("title-bar")
+        .flex_shrink_0()
+        .h(px(crate::platform::TITLE_BAR_HEIGHT))
+        .w_full()
+        .flex()
+        .items_center()
+        .bg(c(theme::TOPBAR))
+        .border_b_1()
+        .border_color(c(theme::BORDER))
+        .on_mouse_down(MouseButton::Left, |event, window, _| {
+            if event.click_count == 2 {
+                window.zoom_window();
+            } else {
+                window.start_window_move();
+            }
+        })
+        .on_mouse_down(MouseButton::Right, |event, window, _| {
+            window.show_window_menu(event.position)
+        })
+        .child(
+            div()
+                .flex_1()
+                .min_w_0()
+                .pl(px(14.))
+                .flex()
+                .items_center()
+                .gap(px(8.))
+                .child(img("brand/logo-96.png").size(px(16.)))
+                .child(text("Computy", 12.5, 550., c(theme::MUTED))),
+        )
+        .child(
+            control("window-minimize", "minus", false)
+                .on_click(|_, window, _| window.minimize_window()),
+        )
+        .child(
+            control(
+                "window-maximize",
+                if maximized { "copy" } else { "square" },
+                false,
+            )
+            .on_click(|_, window, _| window.zoom_window()),
+        )
+        .child(
+            control("window-close", "x", true)
+                .on_click(|_, window, cx| crate::close_main_window(window, cx)),
+        )
 }

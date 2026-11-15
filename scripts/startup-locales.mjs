@@ -32,9 +32,9 @@ const rows = {
   he: 'הפעלה אוטומטית|הצגת מחוונים בכניסה|מפעיל ניטור ברקע בלי לפתוח את החלון הראשי.|הניטור יתחיל בכניסה.',
   sw: 'Kuanzisha kiotomatiki|Onyesha viashiria wakati wa kuingia|Huanzisha ufuatiliaji chinichini bila kufungua dirisha kuu.|Ufuatiliaji utaanza wakati wa kuingia.',
 };
-const source = JSON.parse(readFileSync('src/locales/source.json'));
-const catalogs = JSON.parse(readFileSync('src/locales/catalogs.json'));
-const overrides = JSON.parse(readFileSync('src/locales/overrides.json'));
+const source = JSON.parse(readFileSync('locales/source.json'));
+const catalogs = JSON.parse(readFileSync('locales/catalogs.json'));
+const overrides = JSON.parse(readFileSync('locales/overrides.json'));
 for (const key of keys) source[key] = key;
 for (const [lang, row] of Object.entries(rows)) {
   const values = row.split('|');
@@ -44,4 +44,4 @@ for (const [lang, row] of Object.entries(rows)) {
   Object.assign(overrides[lang], entries);
 }
 for (const [name, value] of Object.entries({ source, catalogs, overrides }))
-  writeFileSync(`src/locales/${name}.json`, JSON.stringify(value, null, 2) + '\n');
+  writeFileSync(`locales/${name}.json`, JSON.stringify(value, null, 2) + '\n');

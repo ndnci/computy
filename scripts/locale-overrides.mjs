@@ -238,7 +238,7 @@ Object.assign(output.en, {
   'Aucune mesure par processus disponible.': 'No per-process measurement available.',
   GPU: 'GPU',
 });
-writeFileSync('src/locales/overrides.json', JSON.stringify(output, null, 2) + '\n');
+writeFileSync('locales/overrides.json', JSON.stringify(output, null, 2) + '\n');
 console.log(
   `${keys.length} reviewed navigation, action and result labels across ${Object.keys(rows).length} translated locales.`,
 );

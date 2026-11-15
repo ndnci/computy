@@ -126,10 +126,10 @@ fn rows() -> Vec<Line> {
             Box::new(|r| {
                 let mut values: Vec<f64> = vec![];
                 for m in &r.inventory.memory.modules {
-                    if let Some(v) = m.configured_speed_mts.filter(|v| *v != 0.) {
-                        if !values.contains(&v) {
-                            values.push(v);
-                        }
+                    if let Some(v) = m.configured_speed_mts.filter(|v| *v != 0.)
+                        && !values.contains(&v)
+                    {
+                        values.push(v);
                     }
                 }
                 Value::Text(if values.is_empty() {

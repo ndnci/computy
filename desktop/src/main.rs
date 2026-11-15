@@ -8,7 +8,9 @@ mod forms;
 mod i18n;
 mod instance;
 mod intl;
+mod layout;
 mod model;
+mod monitor_ui;
 mod pages;
 mod platform;
 mod popover;
@@ -39,6 +41,20 @@ pub struct AppWindows {
 
 impl Global for AppWindows {}
 
+static REQUESTED_METRIC: std::sync::Mutex<Option<String>> = std::sync::Mutex::new(None);
+
+/// Metric the processes page should sort by on its next opening (tray « Voir tout »).
+pub fn set_requested_metric(metric: String, _cx: &mut App) {
+    *REQUESTED_METRIC.lock().unwrap_or_else(|e| e.into_inner()) = Some(metric);
+}
+
+pub fn take_requested_metric() -> Option<String> {
+    REQUESTED_METRIC
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .take()
+}
+
 pub fn quit(cx: &mut App) {
     tray::shutdown();
     if let Some(service) = cx
@@ -57,10 +73,10 @@ pub fn open_main_window(page: Option<app::Page>, cx: &mut App) {
     if let Some(handle) = cx.global::<AppWindows>().main {
         let shown = handle
             .update(cx, |root, window, cx| {
-                if let Some(page) = page {
-                    if let Ok(view) = root.view().clone().downcast::<app::Computy>() {
-                        view.update(cx, |view, cx| view.navigate(page, window, cx));
-                    }
+                if let Some(page) = page
+                    && let Ok(view) = root.view().clone().downcast::<app::Computy>()
+                {
+                    view.update(cx, |view, cx| view.navigate(page, window, cx));
                 }
                 window.activate_window();
             })
@@ -99,11 +115,7 @@ pub fn open_main_window(page: Option<app::Page>, cx: &mut App) {
             handle
                 .update(cx, |_, window, cx| {
                     window.on_window_should_close(cx, |_, cx| {
-                        // Keep monitoring in the tray; free the interface.
-                        cx.global_mut::<AppWindows>().main = None;
-                        if !tray::has_icons() {
-                            quit(cx);
-                        }
+                        main_window_closed(cx);
                         true
                     });
                 })
@@ -113,6 +125,20 @@ pub fn open_main_window(page: Option<app::Page>, cx: &mut App) {
             eprintln!("Computy: unable to open the window: {error:#}");
         }
     }
+}
+
+/// Keep monitoring in the tray and free the interface.
+fn main_window_closed(cx: &mut App) {
+    cx.global_mut::<AppWindows>().main = None;
+    if !tray::has_icons() {
+        quit(cx);
+    }
+}
+
+/// Close button of the client-drawn title bar: same path as the compositor's close.
+pub fn close_main_window(window: &mut Window, cx: &mut App) {
+    main_window_closed(cx);
+    window.remove_window();
 }
 
 fn data_root() -> std::path::PathBuf {

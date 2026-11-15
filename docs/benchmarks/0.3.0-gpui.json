@@ -1,0 +1,158 @@
+{
+  "label": "GPUI 0.3.0",
+  "binary": "/home/sovetski/Desktop/Dev/Personal/computy/desktop/target/release/computy",
+  "binary_mib": 32.22,
+  "package_mib": 10.11,
+  "date": "2026-11-16",
+  "machine": {
+    "kernel": "7.0.0-43-generic",
+    "cpus": 16,
+    "gpus": [
+      "Intel Corporation CometLake-H GT2 [UHD Graphics] (rev 05)",
+      "NVIDIA Corporation GA106M [GeForce RTX 3060 Mobile / Max-Q] (rev a1)"
+    ],
+    "session": "wayland"
+  },
+  "method": {
+    "runs": 5,
+    "settle_seconds": 15,
+    "sample_seconds": 60,
+    "interval_seconds": 1,
+    "memory": "median of samples; PSS summed over the whole process tree",
+    "isolation": "private D-Bus session and temporary data directory per run"
+  },
+  "scenarios": {
+    "background": {
+      "pss_mib": {
+        "median": 53.4,
+        "min": 53.1,
+        "max": 53.6
+      },
+      "rss_mib": {
+        "median": 123.2,
+        "min": 122.9,
+        "max": 123.5
+      },
+      "uss_mib": {
+        "median": 39.1,
+        "min": 38.8,
+        "max": 39.3
+      },
+      "peak_pss_mib": {
+        "median": 53.5,
+        "min": 53.1,
+        "max": 53.6
+      },
+      "cpu_percent": {
+        "median": 0.95,
+        "min": 0.79,
+        "max": 1.01
+      },
+      "threads": {
+        "median": 30,
+        "min": 30,
+        "max": 30
+      },
+      "processes": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "per_process": [
+        {
+          "name": "computy",
+          "pss_mib": 53.5,
+          "threads": 30
+        }
+      ]
+    },
+    "window": {
+      "pss_mib": {
+        "median": 78.9,
+        "min": 71.1,
+        "max": 80.7
+      },
+      "rss_mib": {
+        "median": 140.4,
+        "min": 138.7,
+        "max": 141.9
+      },
+      "uss_mib": {
+        "median": 70.1,
+        "min": 56.7,
+        "max": 71.9
+      },
+      "peak_pss_mib": {
+        "median": 80.5,
+        "min": 71.1,
+        "max": 81.0
+      },
+      "cpu_percent": {
+        "median": 0.8,
+        "min": 0.6,
+        "max": 4.19
+      },
+      "threads": {
+        "median": 30,
+        "min": 30,
+        "max": 30
+      },
+      "processes": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "per_process": [
+        {
+          "name": "computy",
+          "pss_mib": 81.0,
+          "threads": 30
+        }
+      ]
+    },
+    "processes": {
+      "pss_mib": {
+        "median": 92.5,
+        "min": 90.5,
+        "max": 93.9
+      },
+      "rss_mib": {
+        "median": 152.3,
+        "min": 150.2,
+        "max": 153.7
+      },
+      "uss_mib": {
+        "median": 83.7,
+        "min": 81.6,
+        "max": 85.0
+      },
+      "peak_pss_mib": {
+        "median": 93.9,
+        "min": 93.3,
+        "max": 94.7
+      },
+      "cpu_percent": {
+        "median": 0.76,
+        "min": 0.73,
+        "max": 0.83
+      },
+      "threads": {
+        "median": 30,
+        "min": 30,
+        "max": 30
+      },
+      "processes": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "per_process": [
+        {
+          "name": "computy",
+          "pss_mib": 93.3,
+          "threads": 30
+        }
+      ]
+    }
+  }
+}

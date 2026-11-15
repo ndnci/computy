@@ -1,11 +1,11 @@
 //! Shared interface components (former components.tsx).
 use crate::{
     app::Computy,
-    i18n::{t, tn, tp, tx},
+    i18n::{tn, tp, tx},
     intl,
     model::*,
     theme::{self, Pair, c, hex},
-    ui::{icon, panel, shadow, spaced, text},
+    ui::{icon, shadow, spaced, text},
 };
 use gpui::{prelude::FluentBuilder, *};
 use std::time::Duration;
@@ -79,8 +79,8 @@ pub fn score_status(score: Option<f64>, status: Status) -> Status {
         return status;
     }
     match score {
-        Some(s) if s == 10. => Status::Passed,
-        Some(s) if s == 0. => Status::Failed,
+        Some(10.) => Status::Passed,
+        Some(0.) => Status::Failed,
         _ => status,
     }
 }
@@ -133,7 +133,7 @@ pub fn component_summary(checks: &[Check], component: &str) -> ComponentSummary 
         })
         .reduce(f64::min);
     let status = match score {
-        Some(s) if s == 0. => Status::Failed,
+        Some(0.) => Status::Failed,
         None => Status::Unavailable,
         Some(s) if s == 5. || known.len() < relevant.len() => Status::Warning,
         _ => Status::Passed,
@@ -158,12 +158,20 @@ pub fn badge(tone: Tone, icon_name: Option<&str>, label: impl Into<SharedString>
         .items_center()
         .justify_center()
         .gap(px(4.))
-        .px(px(6.))
-        .py(px(4.))
+        .px(px(if crate::layout::compact() { 4. } else { 6. }))
+        .py(px(if crate::layout::compact() { 3. } else { 4. }))
         .rounded(px(5.))
         .bg(c(bg))
         .when_some(icon_name, |d, name| d.child(icon(name, 12., "2", c(fg))))
-        .child(text(label, 10., 550., c(fg)).line_height(px(14.)))
+        .child(
+            text(
+                label,
+                if crate::layout::compact() { 9. } else { 10. },
+                550.,
+                c(fg),
+            )
+            .line_height(px(if crate::layout::compact() { 12.6 } else { 14. })),
+        )
 }
 
 pub fn neutral_badge(label: impl Into<SharedString>) -> Div {
@@ -407,12 +415,24 @@ pub fn section_title(
                         16.5,
                     )))
                 })
-                .child(spaced(tx(title), 32., 650., c(theme::HEADING), -1.2, 41.6))
+                .child(spaced(
+                    tx(title),
+                    if crate::layout::narrow() { 28. } else { 32. },
+                    650.,
+                    c(theme::HEADING),
+                    -1.2,
+                    if crate::layout::narrow() { 36.4 } else { 41.6 },
+                ))
                 .when_some(description, |d, text_value| {
                     d.child(
-                        text(tx(text_value), 13., 400., hex(0x6d7c70))
-                            .line_height(px(21.45))
-                            .mt(px(8.)),
+                        text(
+                            tx(text_value),
+                            if crate::layout::narrow() { 12. } else { 13. },
+                            400.,
+                            hex(0x6d7c70),
+                        )
+                        .line_height(px(if crate::layout::narrow() { 19.8 } else { 21.45 }))
+                        .mt(px(8.)),
                     )
                 }),
         )
@@ -550,12 +570,15 @@ pub fn text_button(
         })
 }
 
+/// Handler shared by a modal's close button and backdrop.
+pub type CloseHandler = std::rc::Rc<dyn Fn(&ClickEvent, &mut Window, &mut App)>;
+
 pub fn modal(
     id: &'static str,
     title: String,
     wide: bool,
     body: AnyElement,
-    on_close: std::rc::Rc<dyn Fn(&ClickEvent, &mut Window, &mut App)>,
+    on_close: CloseHandler,
     window: &Window,
 ) -> AnyElement {
     let viewport = window.viewport_size();
@@ -1081,16 +1104,48 @@ pub fn engine_error(error: String, cx: &mut Context<Computy>) -> impl IntoElemen
         )
 }
 
-pub fn stat_card(label: &str, value: String, foot: String) -> impl IntoElement {
-    panel()
-        .flex()
-        .flex_col()
-        .p(px(20.))
-        .child(text(tx(label), 11., 400., c(theme::MUTED)))
-        .child(text(tx(&value), 22., 550., c(theme::HEADING)).mt(px(8.)))
-        .child(text(tx(&foot), 10., 400., c(theme::SOFT_TEXT)).mt(px(6.)))
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::prelude::v1::test;
 
-pub fn t_static(key: &str) -> String {
-    t(key)
+    fn check(component: &str, status: Status) -> Check {
+        Check {
+            component: component.into(),
+            status,
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn scores_describe_executed_checks() {
+        assert_eq!(score_status(Some(10.), Status::Warning), Status::Passed);
+        assert_eq!(score_status(Some(0.), Status::Warning), Status::Failed);
+        assert_eq!(score_status(None, Status::Unavailable), Status::Unavailable);
+        let summary = component_summary(
+            &[
+                check("memory", Status::Passed),
+                check("memory", Status::Unavailable),
+            ],
+            "memory",
+        );
+        assert_eq!(
+            (summary.score, summary.status),
+            (Some(10.), Status::Warning)
+        );
+        assert_eq!(component_summary(&[], "cpu").status, Status::Unavailable);
+        let outcome = check_outcome(
+            &[
+                check("cpu", Status::Passed),
+                check("cpu", Status::Unavailable),
+            ],
+            true,
+        );
+        assert_eq!(outcome.status, Status::Passed);
+        assert_eq!(outcome.unavailable.len(), 1);
+        assert_eq!(
+            check_outcome(&[check("cpu", Status::Passed)], false).status,
+            Status::Cancelled
+        );
+    }
 }

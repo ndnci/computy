@@ -38,9 +38,9 @@ const rows = {
   he: 'התקנה ונתונים|הסרת Computy|מחיקת כל הנתונים|ההיסטוריה, ההעדפות והייבוא הממתין יימחקו. קובצי ייצוא אישיים יישמרו.|המערכת תבקש את אישורך. הנתונים יישמרו.|גרסה ניידת: יש למחוק את קובץ היישום או את התיקייה.|לא ניתן לבטל פעולה זו.',
   sw: 'Usakinishaji na data|Ondoa Computy|Futa data zote|Historia, mapendeleo na uagizaji unaosubiri vitafutwa. Faili binafsi zilizohamishwa zitahifadhiwa.|Mfumo utaomba ruhusa yako. Data itahifadhiwa.|Toleo linalobebeka: futa faili au folda ya programu.|Hatua hii haiwezi kutenduliwa.',
 };
-const source = JSON.parse(readFileSync('src/locales/source.json'));
-const catalogs = JSON.parse(readFileSync('src/locales/catalogs.json'));
-const overrides = JSON.parse(readFileSync('src/locales/overrides.json'));
+const source = JSON.parse(readFileSync('locales/source.json'));
+const catalogs = JSON.parse(readFileSync('locales/catalogs.json'));
+const overrides = JSON.parse(readFileSync('locales/overrides.json'));
 for (const key of keys) source[key] = key;
 for (const [lang, row] of Object.entries(rows)) {
   const values = row.split('|');
@@ -50,4 +50,4 @@ for (const [lang, row] of Object.entries(rows)) {
   Object.assign(overrides[lang], additions);
 }
 for (const [file, value] of Object.entries({ source, catalogs, overrides }))
-  writeFileSync(`src/locales/${file}.json`, JSON.stringify(value, null, 2) + '\n');
+  writeFileSync(`locales/${file}.json`, JSON.stringify(value, null, 2) + '\n');

@@ -8,8 +8,8 @@ manual runs also produce downloadable workflow artifacts. The same workflow is r
 
 | Target | Installer | CLI asset suffix |
 |---|---|---|
-| Linux x86-64 | `.deb`, `.AppImage` | `linux-x86_64` |
-| Windows x86-64 | NSIS `.exe` | `windows-x86_64` |
+| Linux x86-64 | `.deb` | `linux-x86_64` |
+| Windows x86-64 | portable `.zip` | `windows-x86_64` |
 | Intel Mac | `.dmg` | `macos-x86_64` |
 | Apple Silicon Mac | `.dmg` | `macos-aarch64` |
 
@@ -18,14 +18,21 @@ and `NOTICE`. Extract before running (`tar -xzf FILE.tar.gz`, also available on
 current Windows versions). Each archive and installer has a SHA-256 entry.
 
 Linux's `.deb` includes the boot helper and GPL preboot component with its sources.
-The portable AppImage does not install privileged boot integration under `/boot`;
-that functionality requires the supported installed package. Windows/macOS keep
-their platform-specific preboot workflows.
+It is assembled by `scripts/package-deb.sh` inside the Debian toolchain image
+(`scripts/gpui-docker.sh`), which keeps the binary's glibc requirement low. Package
+dependencies are computed with `dpkg-shlibdeps`; WebKitGTK and GTK are no longer
+required, while `libvulkan1` is. Windows/macOS keep their platform-specific preboot
+workflows.
+
+The interface renders with GPUI on the GPU: Vulkan on Linux, DirectX 11 on
+Windows and Metal on macOS. Machines or virtual machines without a hardware
+Vulkan driver can use Mesa's software driver (`mesa-vulkan-drivers`, recommended
+by the package).
 
 To publish a release:
 
-1. Update `package.json`/lockfile, both Rust package versions/lockfiles, and
-   `src-tauri/tauri.conf.json` to the same version.
+1. Update `package.json`/lockfile and the `native` and `desktop` Rust package
+   versions/lockfiles to the same version (`scripts/check-release.mjs` checks them).
 2. Add a dated section to root `CHANGELOG.md`; keep future changes in `Unreleased`.
 3. Run the relevant checks and commit/push the version.
 4. In GitHub **Releases → Draft a new release**, choose the matching tag, for
@@ -54,15 +61,15 @@ reruns: publish a new version for changed binaries, especially after submitting
 an installer URL to a store. SHA-256 files detect download corruption but do not
 replace publisher signatures. The header's hardware refresh is not an updater.
 
-References: [Tauri's GitHub pipeline guide](https://v2.tauri.app/distribute/pipelines/github/),
-[GitHub hosted runner architectures](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
+References: [GitHub hosted runner architectures](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 
 ## Windows and Microsoft Store
 
-The CI Windows runner compiles Rust and packages the application into an NSIS
-`.exe`. For a local Windows build, install the Tauri prerequisites, Node and Rust,
-then run `npm ci` and `npm run package -- --bundles nsis` in a Windows checkout.
-Building a Linux `.deb` does not produce a Windows executable.
+The CI Windows runner compiles the Rust desktop application and publishes it as a
+portable `.zip`. For a local Windows build, install Node and Rust 1.100+, then run
+`cargo build --release --manifest-path desktop/Cargo.toml` in a Windows checkout.
+Building a Linux `.deb` does not produce a Windows executable. The GPUI build for
+Windows and macOS is compiled by CI but has not been physically tested yet.
 
 There are two Store submission paths to evaluate:
 
@@ -71,22 +78,22 @@ There are two Store submission paths to evaluate:
   PE files, plus silent installation support. Updates to that URL/version are
   your responsibility.
 - Prepare a Store-compatible MSIX package. This is a separate packaging effort;
-  the current NSIS output is not an MSIX. Microsoft handles signing for the Store
+  the current zip output is not an MSIX. Microsoft handles signing for the Store
   MSIX submission path and provides Store-managed update delivery.
 
 Reserve the product in Partner Center, prepare the listing, screenshots, privacy
 information and age rating, then submit for certification. Current GitHub EXEs
 are unsigned development outputs; the workflow does not yet contain a Windows
-signing certificate or publish to the Store. Signing and physical Windows checks
+signing certificate or publish to the Store; an installer still has to be added. Signing and physical Windows checks
 must be completed before presenting these files as Store-ready releases.
 
-References: [Tauri Microsoft Store guide](https://v2.tauri.app/distribute/microsoft-store/),
-[Microsoft distribution paths](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/choose-distribution-path),
+References: [Microsoft distribution paths](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/choose-distribution-path),
 [EXE/MSI package requirements](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msi/app-package-requirements).
 
 ## macOS and Mac App Store
 
-CI creates separate Intel and Apple Silicon DMGs with ad-hoc signing for testing.
+`scripts/package-macos.sh` creates separate Intel and Apple Silicon DMGs with
+ad-hoc signing for testing.
 This is not a Developer ID signature or notarization. Direct public distribution
 should use an Apple Developer ID certificate and Apple's notarization workflow.
 Store submission instead requires the appropriate App Store signing/provisioning,
@@ -105,12 +112,11 @@ build already passes Store review or has identical access inside a sandbox.
 Configure signing secrets only for trusted release jobs; never expose them to
 pull requests from forks. No Apple credentials are configured by these changes.
 
-References: [Tauri App Store guide](https://v2.tauri.app/distribute/app-store/),
-[Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
+References: [Apple notarization](https://developer.apple.com/documentation/security/notarizing-macos-software-before-distribution).
 
 ## Linux stores
 
-The current release workflow provides direct `.deb` and AppImage downloads. Snap
+The current release workflow provides direct `.deb` downloads. Snap
 and Flathub require their own manifests, accounts/listings and review. Their
 confinement changes access to host hardware, processes, external tools and boot
 configuration. Add those packages only after validating their actual supported
@@ -118,20 +124,17 @@ features and explaining unavailable measurements. A Debian download is not an
 APT repository: `apt install ./file.deb` upgrades the package, but ordinary
 `apt update` cannot discover new Computy releases without a configured repository.
 
-References: [Tauri Flathub guide](https://v2.tauri.app/distribute/flathub/),
-[Tauri Snapcraft guide](https://v2.tauri.app/distribute/snapcraft/).
-
 ## Uninstalling and erasing local data
 
 In **Preferences → Installation and data**, actions are separate:
 
 - **Uninstall Computy** delegates to APT with PolicyKit on an installed Debian
-  package, the NSIS uninstaller on Windows, or Finder's Trash on a macOS app bundle.
-  Portable files must be removed through the file manager. This action does not
+  package, or Finder's Trash on a macOS app bundle.
+  Portable files, including the Windows zip, must be removed through the file manager. This action does not
   ask Computy to erase history first. OS/uninstaller prompts remain authoritative.
 - **Erase all data** requires a separate dialog and checkbox. It removes saved
   reports, preferences, pending Windows imports and diagnostic scratch files,
-  clears UI browsing data and reloads the interface. It keeps user-exported files
+  and reloads the interface. It keeps user-exported files
   and an empty technical lock file. It does not remove prepared USB files, clear
   firmware state or alter a scheduled boot. Cancel any scheduled preboot test in
   its own wizard before uninstalling.

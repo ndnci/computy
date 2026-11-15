@@ -1,10 +1,10 @@
 # Computy brand identity
 
-The logo was created with the built-in **imagegen** tool and added to the project. Icon variants were generated with `tauri icon` from the original transparent image.
+The logo was created with the built-in **imagegen** tool and added to the project. Icon variants were generated from the original transparent image.
 
-- Project original : [`public/computy-logo.png`](../public/computy-logo.png).
-- Interface icon : [`public/icon.png`](../public/icon.png).
-- Distribution icons : [`src-tauri/icons/`](../src-tauri/icons/).
+- Project original : [`packaging/computy-logo.png`](../packaging/computy-logo.png).
+- Interface logo : [`desktop/assets/brand/`](../desktop/assets/brand/).
+- Distribution icons : [`packaging/icons/`](../packaging/icons/).
 
 Generation prompt:
 

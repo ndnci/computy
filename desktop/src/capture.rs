@@ -121,6 +121,35 @@ pub fn backend(scenario: &Scenario) -> Backend {
     }))
 }
 
+/// Popover captures: signal readiness, then wait for `quit`.
+pub fn ready_after_delay(_window: &mut Window, cx: &mut App) {
+    let (sender, receiver) = std::sync::mpsc::channel::<String>();
+    std::thread::spawn(move || {
+        for line in std::io::stdin().lock().lines().map_while(Result::ok) {
+            if sender.send(line).is_err() {
+                break;
+            }
+        }
+    });
+    let executor = cx.background_executor().clone();
+    cx.spawn(async move |cx| {
+        executor.timer(Duration::from_millis(1200)).await;
+        println!("ready");
+        loop {
+            match receiver.try_recv() {
+                Ok(line) if line == "quit" => break,
+                Ok(_) => {}
+                Err(std::sync::mpsc::TryRecvError::Empty) => {
+                    executor.timer(Duration::from_millis(30)).await
+                }
+                Err(_) => break,
+            }
+        }
+        let _ = cx.update(|cx| cx.quit());
+    })
+    .detach();
+}
+
 /// Apply the scenario's actions once data has loaded, then serve commands.
 pub fn run(view: Entity<Computy>, scenario: Scenario, window: &mut Window, cx: &mut App) {
     let (sender, receiver) = std::sync::mpsc::channel::<String>();

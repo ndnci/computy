@@ -12,14 +12,14 @@ use crate::{
 use gpui::{prelude::FluentBuilder, *};
 use gpui_component::input::{Input, InputEvent, InputState};
 use serde_json::json;
-use std::{collections::HashMap, path::PathBuf, time::Duration};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 pub struct ProcessesState {
     pub snapshot: Option<MonitorSnapshot>,
     pub problem: String,
     pub query: Entity<InputState>,
     pub metric: String,
-    pub icons: HashMap<u32, Option<PathBuf>>,
+    pub icons: HashMap<u32, Option<Arc<RenderImage>>>,
     _subscription: Subscription,
     _poll: Task<()>,
 }
@@ -45,14 +45,15 @@ impl ProcessesState {
                     .background_executor()
                     .spawn(async move {
                         let snapshot = backend.typed::<MonitorSnapshot>("monitor", json!({}));
-                        let icons: HashMap<u32, Option<PathBuf>> = match (&snapshot, fixture) {
-                            (Ok(snapshot), false) => snapshot
-                                .processes
-                                .iter()
-                                .map(|p| (p.pid, crate::platform::process_icon(p.pid)))
-                                .collect(),
-                            _ => HashMap::new(),
-                        };
+                        let icons: HashMap<u32, Option<Arc<RenderImage>>> =
+                            match (&snapshot, fixture) {
+                                (Ok(snapshot), false) => snapshot
+                                    .processes
+                                    .iter()
+                                    .map(|p| (p.pid, crate::platform::process_image(p.pid)))
+                                    .collect(),
+                                _ => HashMap::new(),
+                            };
                         (snapshot, icons)
                     })
                     .await;
@@ -93,7 +94,7 @@ impl ProcessesState {
 }
 
 /// Process icon resolved locally, or the generic application glyph.
-pub fn avatar(icon_path: Option<&PathBuf>) -> impl IntoElement {
+pub fn avatar(icon_image: Option<&Arc<RenderImage>>) -> impl IntoElement {
     div()
         .size(px(29.))
         .flex_none()
@@ -105,8 +106,10 @@ pub fn avatar(icon_path: Option<&PathBuf>) -> impl IntoElement {
         .items_center()
         .justify_center()
         .overflow_hidden()
-        .child(match icon_path {
-            Some(path) => img(path.clone()).size(px(20.)).into_any_element(),
+        .child(match icon_image {
+            Some(image) => img(ImageSource::Render(image.clone()))
+                .size(px(20.))
+                .into_any_element(),
             None => icon("app-window", 17., "2", hex(0x6d7c70)).into_any_element(),
         })
 }
@@ -138,7 +141,11 @@ fn cell(index: usize) -> Div {
 
 pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>) -> AnyElement {
     if app.pages.processes.is_none() {
-        let metric = app.pages.requested_metric.take();
+        let metric = app
+            .pages
+            .requested_metric
+            .take()
+            .or_else(crate::take_requested_metric);
         let state = ProcessesState::new(metric, window, cx);
         app.pages.processes = Some(state);
     }
@@ -175,7 +182,18 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
     };
     let bytes = |n: Option<f64>| n.map_or("—".to_owned(), |v| intl::bytes(locale, Some(v), 1));
     let count = processes.len();
-    let rows = processes.iter().enumerate().map(|(i, p)| {
+    // Only rows near the viewport become elements: the list is unbounded (often
+    // several hundred processes) and every row would otherwise be laid out and
+    // shaped each frame. Spacers keep the scroll height and position exact. The
+    // table starts below the page header, whose height is at most HEADER_MAX.
+    const ROW: f32 = 64.;
+    const HEADER_MAX: f32 = 1400.;
+    let offset = -f32::from(app.scroll.offset().y);
+    let viewport = f32::from(window.viewport_size().height);
+    let first = (((offset - HEADER_MAX) / ROW).floor().max(0.) as usize).min(count);
+    let last = (((offset + viewport) / ROW).ceil() as usize + 2).clamp(first, count);
+    let rows = processes[first..last].iter().enumerate().map(|(i, p)| {
+        let i = first + i;
         let values = [
             bytes(p.memory_bytes),
             percent(p.memory_percent),
@@ -317,7 +335,9 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                             cell(i).child(spaced(tx(label).to_uppercase(), 10., 500., hex(0xa6b299), 0.5, 13.))
                         })),
                 )
+                .when(first > 0, |d| d.child(div().flex_none().h(px(ROW * first as f32))))
                 .children(rows)
+                .when(last < count, |d| d.child(div().flex_none().h(px(ROW * (count - last) as f32))))
                 .when(state.snapshot.is_some() && count == 0, |d| {
                     d.child(div().p(px(22.)).child(text(tx("Aucun processus ne correspond à la recherche."), 12., 400., c(theme::MUTED))))
                 }),

@@ -1,26 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { languages, resolveLanguage, setLanguage, tx, t, currentLocale } from '../src/i18n.mjs';
 const source = JSON.parse(
-  await readFile(new URL('../src/locales/source.json', import.meta.url), 'utf8'),
+  await readFile(new URL('../locales/source.json', import.meta.url), 'utf8'),
 );
 const catalogs = JSON.parse(
-  await readFile(new URL('../src/locales/catalogs.json', import.meta.url), 'utf8'),
+  await readFile(new URL('../locales/catalogs.json', import.meta.url), 'utf8'),
 );
 const markers = (value) =>
   [...value.matchAll(/\{\{[^{}]+\}\}|\{[A-Za-z_]\w*\}/g)].map((match) => match[0]).sort();
-test('25 genuine locales include RTL and resolve system variants correctly', () => {
-  assert.equal(languages.length, 25);
-  assert.equal(new Set(languages.map((l) => l.code)).size, 25);
-  assert.equal(resolveLanguage('system', ['zh-Hant-HK', 'en-US']), 'zh-TW');
-  assert.equal(resolveLanguage('system', ['pt-PT']), 'pt-BR');
-  assert.equal(resolveLanguage('system', ['fr-CA']), 'fr');
-  assert.equal(resolveLanguage('system', ['xx-XX']), 'en');
-  assert.deepEqual(
-    languages.filter((l) => l.dir === 'rtl').map((l) => l.code),
-    ['ar', 'ur', 'fa', 'he'],
-  );
+test('25 locales are shipped as embedded catalogs', async () => {
+  assert.equal(Object.keys(catalogs).length, 24);
+  for (const language of Object.keys(catalogs))
+    JSON.parse(
+      await readFile(new URL(`../locales/messages/${language}.json`, import.meta.url), 'utf8'),
+    );
 });
 test('every locale contains every extracted message with intact interpolation variables', () => {
   for (const [language, catalog] of Object.entries(catalogs))
@@ -54,15 +48,4 @@ test('Computy remains a product name in every translated paragraph', () => {
       );
     }
   }
-});
-test('catalogs load on demand, preserve data and format numbers per locale', async () => {
-  await setLanguage('ja');
-  assert.equal(currentLocale(), 'ja');
-  assert.equal(t('Vue d’ensemble'), '概要');
-  assert.equal(t('Anomalie détectée'), '問題を検出');
-  assert.equal(tx('FIRMWARE-PART-123'), 'FIRMWARE-PART-123');
-  await setLanguage('ar');
-  assert.equal(t('Non vérifié'), 'لم يتم التحقق');
-  assert.equal(tx(123), new Intl.NumberFormat('ar').format(123));
-  await setLanguage('fr');
 });

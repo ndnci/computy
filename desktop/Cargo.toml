@@ -1,6 +1,6 @@
 [package]
 name = "computy-desktop"
-version = "0.2.0"
+version = "0.3.0"
 license = "GPL-3.0-only"
 description = "Votre matériel, en clair."
 authors = ["NDNCI"]
@@ -23,13 +23,16 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "std"
 url = "2"
 fs2 = "0.4"
 auto-launch = "0.5"
+image = { version = "0.25", default-features = false, features = ["png", "ico", "jpeg", "webp", "bmp"] }
+resvg = "0.45"
+smallvec = "1"
 png = "0.18"
 env_logger = { version = "0.11", default-features = false, features = ["auto-color"] }
 log = "0.4"
 futures = "0.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-zbus = { version = "5.9", default-features = false, features = ["blocking-api", "async-io"] }
+zbus = "5.9"
 
 [target.'cfg(any(target_os = "macos", target_os = "windows"))'.dependencies]
 tray-icon = "0.21"

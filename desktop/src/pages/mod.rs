@@ -1,17 +1,19 @@
 //! Page views. Each page keeps local state like its React component did; the
 //! state is reset when the page is entered again.
+mod about;
+pub mod applications;
+pub mod clean;
 mod compare;
 pub mod diagnostics;
+pub mod fans;
 mod hardware;
 pub mod history;
 pub mod offline;
-mod overview;
+pub mod overview;
 pub mod processes;
+pub mod settings;
 
-use crate::{
-    app::{Computy, Page},
-    ui::text,
-};
+use crate::app::{Computy, Page};
 use gpui::*;
 use std::collections::HashSet;
 
@@ -25,6 +27,10 @@ pub struct PageStates {
     pub offline: Option<offline::OfflineState>,
     pub history: Option<history::HistoryState>,
     pub processes: Option<processes::ProcessesState>,
+    pub applications: Option<applications::ApplicationsState>,
+    pub clean: Option<clean::CleanState>,
+    pub fans: Option<fans::FansState>,
+    pub settings: Option<settings::SettingsState>,
     /// Metric requested by the tray popover's « Voir tout ».
     pub requested_metric: Option<String>,
 }
@@ -37,6 +43,10 @@ pub fn enter(app: &mut Computy, _window: &mut Window, _cx: &mut Context<Computy>
     app.pages.offline = None;
     app.pages.history = None;
     app.pages.processes = None;
+    app.pages.applications = None;
+    app.pages.clean = None;
+    app.pages.fans = None;
+    app.pages.settings = None;
 }
 
 pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>) -> AnyElement {
@@ -47,13 +57,11 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         Page::History => history::render(app, window, cx),
         Page::Compare => compare::render(app, window, cx),
         Page::Processes => processes::render(app, window, cx),
-        other => text(
-            format!("{other:?}"),
-            14.,
-            400.,
-            crate::theme::c(crate::theme::TEXT),
-        )
-        .into_any_element(),
+        Page::Applications => applications::render(app, window, cx),
+        Page::Clean => clean::render(app, window, cx),
+        Page::Fans => fans::render(app, window, cx),
+        Page::About => about::render(app, window, cx),
+        Page::Settings => settings::render(app, window, cx),
     }
 }
 
@@ -65,6 +73,9 @@ pub fn modal(
 ) -> Option<AnyElement> {
     match app.page {
         Page::History => history::modal(app, window, cx),
+        Page::Applications => applications::modal(app, window, cx),
+        Page::Clean => clean::modal(app, window, cx),
+        Page::Settings => settings::modal(app, window, cx),
         _ => None,
     }
 }
@@ -77,6 +88,7 @@ pub fn capture_action(
     cx: &mut Context<Computy>,
 ) {
     match action {
+        "clean-preview" => clean::capture_preview(app, cx),
         "boot-mode" => {
             app.diagnostic_mode = crate::app::DiagnosticMode::Boot;
             cx.notify();

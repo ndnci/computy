@@ -37,8 +37,8 @@ const rows = {
   sw: 'Mtindo wa eneo la arifa|Aikoni + asilimia|Pete|Aikoni inayojazwa|Chaguo-msingi|Bluu|Njano|Nyekundu',
 };
 
-const catalogs = JSON.parse(readFileSync('src/locales/catalogs.json', 'utf8'));
-const overrides = JSON.parse(readFileSync('src/locales/overrides.json', 'utf8'));
+const catalogs = JSON.parse(readFileSync('locales/catalogs.json', 'utf8'));
+const overrides = JSON.parse(readFileSync('locales/overrides.json', 'utf8'));
 for (const [lang, row] of Object.entries(rows)) {
   const values = row.split('|');
   if (values.length !== keys.length) throw Error(lang);
@@ -100,5 +100,5 @@ for (const [lang, row] of Object.entries(rows)) {
   Object.assign(catalogs[lang], additions);
   Object.assign(overrides[lang], additions);
 }
-writeFileSync('src/locales/catalogs.json', JSON.stringify(catalogs, null, 2) + '\n');
-writeFileSync('src/locales/overrides.json', JSON.stringify(overrides, null, 2) + '\n');
+writeFileSync('locales/catalogs.json', JSON.stringify(catalogs, null, 2) + '\n');
+writeFileSync('locales/overrides.json', JSON.stringify(overrides, null, 2) + '\n');

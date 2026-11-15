@@ -1,8 +1,8 @@
-<p align="center"><img src="public/computy-logo.png" width="120" alt="Computy logo" /></p>
+<p align="center"><img src="packaging/computy-logo.png" width="120" alt="Computy logo" /></p>
 
 # Computy
 
-**Understand your hardware.** A **Rust + Tauri** desktop application, **native CLI** and **MCP server** for inspecting, testing and tracking your computer.
+**Understand your hardware.** A **native Rust desktop application (GPUI)**, **native CLI** and **MCP server** for inspecting, testing and tracking your computer.
 
 Created by **[NDNCI](https://www.ndnci.com)**. No account or usage tracking. Your history stays on your machine.
 
@@ -60,11 +60,14 @@ Runtime libraries are present on the development PC used for validation. Files i
 
 ### Desktop application
 
-Requirements: Node.js 22+, stable Rust (1.95+), and the [Tauri system dependencies](https://v2.tauri.app/start/prerequisites/). Linux uses WebKitGTK, macOS uses WKWebView, and Windows uses WebView2. **Computy does not bundle Chromium.**
+The interface is drawn natively with [GPUI](https://www.gpui.rs/) on the GPU (Vulkan on Linux, DirectX 11 on Windows, Metal on macOS). It calls the Rust engine in-process: **no web engine, no Chromium, no WebView.** Any GPU from the last decade, including integrated graphics, is enough; virtual machines without GPU acceleration fall back to Mesa's software Vulkan driver.
+
+Requirements: Docker (Linux builds), or Rust 1.100+ with the [GPUI platform libraries](https://github.com/zed-industries/zed/blob/main/docs/src/development/linux.md) for a host build.
 
 ```bash
 npm ci
-npm run desktop
+npm run desktop     # cargo build --release in the GPUI toolchain container
+desktop/target/release/computy
 ```
 
 Build a native package for the current platform:
@@ -73,26 +76,23 @@ Build a native package for the current platform:
 npm run package
 ```
 
-Packages are written to `src-tauri/target/release/bundle/`. Build Windows and macOS packages on their respective operating systems. GitHub Actions build Linux, Windows, Intel Mac and Apple Silicon packages. Publishing a matching GitHub release attaches downloadable installers and CLI binaries automatically. Releases are not signed or notarized yet.
+The `.deb` is written to `release/` by `scripts/package-deb.sh`; macOS disk images come from `scripts/package-macos.sh` and Windows builds are distributed as a portable zip. Build Windows and macOS packages on their respective operating systems. GitHub Actions build Linux, Windows, Intel Mac and Apple Silicon packages. Publishing a matching GitHub release attaches downloadable installers and CLI binaries automatically. Releases are not signed or notarized yet.
 
-The locally validated Linux package is [`release/Computy_0.2.0_amd64.deb`](release/Computy_0.2.0_amd64.deb), alongside the desktop and CLI binaries in `release/`. This build directory is excluded from Git. The package is approximately **7.6 MiB**.
+The locally validated Linux package is `release/Computy_0.3.0_amd64.deb`. This build directory is excluded from Git. Resource use compared with the former Tauri/WebKit interface is measured in the [benchmark report](docs/BENCHMARK.md).
 
 ### Develop and validate with Docker
 
-Docker provides Rust and the Linux Tauri dependencies without installing a compiler on the host.
+Docker provides Rust and the GPUI system libraries without installing a compiler on the host.
 
 ```bash
-# Engine, frontend and Tauri integration checks
+# Engine, desktop and catalog checks
 docker compose run --build --rm verify
-
-# Development preview at http://127.0.0.1:1420
-docker compose up --build dev
 
 # Linux .deb package, copied into ./release
 docker compose run --build --rm desktop-build
 ```
 
-**A container reports its own runtime environment.** The Docker preview is a development tool and does not provide a complete hardware inventory of the host. Run the native binary on the computer you want to diagnose. No `--privileged` option is required.
+**A container reports its own runtime environment.** Containers are build tools and do not provide a complete hardware inventory of the host. Run the native binary on the computer you want to diagnose. No `--privileged` option is required.
 
 ### Headless CLI
 
@@ -124,7 +124,7 @@ cargo build --release --manifest-path native/Cargo.toml
 
 `Ctrl+C` cancels a diagnostic cleanly. Progress goes to `stderr`; JSON results go to `stdout`. Exit codes: `0` completed without a blocking anomaly, `1` command error, `2` anomaly detected, `3` no usable checks, `130` interrupted. Code `0` may still accompany partial coverage: inspect `summary.status`, `checked/total`, and individual checks.
 
-Use `--data-dir PATH` to isolate history. Installed CLI and Tauri builds use the current user's `com.ndnci.computy` application data directory. Development mode uses `.computy`; pass `--data-dir .computy` to the CLI to share that history. `COMPUTY_DATA_DIR` also configures the development engine's data directory.
+Use `--data-dir PATH` to isolate history. Installed CLI and desktop builds use the current user's `com.ndnci.computy` application data directory. Development mode uses `.computy`; pass `--data-dir .computy` to the CLI to share that history. `COMPUTY_DATA_DIR` also configures the development engine's data directory.
 
 ## AI agents and MCP
 
@@ -267,9 +267,9 @@ Uninstallation and data erasure are separate confirmed actions in Preferences. T
 | ![About in light mode](docs/screenshots/about-light.png) | ![About in dark mode](docs/screenshots/about-dark.png) |
 
 <details>
-<summary>Native Tauri Linux window: light and dark</summary>
+<summary>Native Linux window: light and dark</summary>
 
-These additional screenshots come from the final Tauri binary running WebKitGTK in a validation container, without a development web server. RAM, temporary file and CPU checks actually ran, and their measurements were read back from the reports.
+These screenshots were taken from the native Linux build in a validation container. RAM, temporary file and CPU checks actually ran, and their measurements were read back from the reports.
 
 | Light | Dark |
 |---|---|
@@ -325,25 +325,25 @@ The integrated preboot component in a UEFI VM (its display environment depends o
 
 ```text
 native/             Domain, diagnostics, OS inventory, history, CLI, MCP
-src-tauri/          Rust desktop host: validated commands, windows and OS integration
-src/                React/TypeScript interface and bundled i18n catalogs
-scripts/            Native preview, offline localization, screenshots and presentations
+desktop/            Native GPUI interface, tray indicators and OS integration
+locales/            French source messages and the 24 embedded translation catalogs
+packaging/          Linux package metadata, GRUB entry, icons
+scripts/            Packaging, benchmark, visual regression and offline localization
 tests/              Presentation contracts and CLI/MCP integration with the official SDK
 docs/               Methodology, security, RGR journal and screenshots
 Dockerfile          Build, validation and development preview
 ```
 
-The domain and diagnostics are independent of the interface. Inventory and history adapters use dedicated interfaces. CLI, Tauri and MCP share the same application service. Reports are written atomically with a SHA-256 digest to detect accidental changes; this digest does not authenticate files against an attacker with the user's permissions.
+The domain and diagnostics are independent of the interface. Inventory and history adapters use dedicated interfaces. CLI, desktop and MCP share the same application service. Reports are written atomically with a SHA-256 digest to detect accidental changes; this digest does not authenticate files against an attacker with the user's permissions.
 
 ```bash
 npm run build:engine
 npm test
 npm run test:native
-npm run build
-npm run check:desktop
+npm run test:desktop
 
-# Complete workflows, isolated data and automatic screenshots
-npm run test:ui
+# Pixel comparison with the pre-migration interface (see docs/VALIDATION.md)
+npm run visual:capture && npm run visual:compare
 ```
 
 **Red → Green → Refactor** cycles are recorded in the [RGR journal](docs/RGR.md). The [methodology](docs/DIAGNOSTICS.md) explains algorithms, scoring and primary sources. The [localization documentation](docs/I18N.md) describes offline generation and editorial overrides.

@@ -2,7 +2,7 @@
 // lucide-react package. Each icon is written for every stroke width the UI uses,
 // because GPUI rasterises SVG files as monochrome masks.
 // Usage: node scripts/generate-icons.mjs
-import { readdir, readFile, mkdir, writeFile, rm } from 'node:fs/promises';
+import { readFile, mkdir, writeFile, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -10,35 +10,81 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..')
 const icons = path.join(root, 'node_modules/lucide-react/dist/esm/icons');
 const output = path.join(root, 'desktop/assets/icons');
 const strokes = ['1', '1.5', '1.6', '1.7', '1.8', '2', '2.4'];
-const kebab = (name) =>
-  name
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
-    .replace(/([a-zA-Z])(\d)/g, '$1-$2')
-    .toLowerCase();
 
-async function sources(directory) {
-  const files = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const file = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await sources(file)));
-    else if (/\.tsx?$/.test(entry.name)) files.push(file);
-  }
-  return files;
-}
-
-const names = new Set(
-  // Icons the native interface needs beyond the React imports.
-  ['chevron-down', 'chevron-up', 'minimize', 'maximize', 'copy'],
-);
-for (const file of await sources(path.join(root, 'src'))) {
-  const text = await readFile(file, 'utf8');
-  for (const match of text.matchAll(/import\s*\{([^}]+)\}\s*from\s*'lucide-react'/g))
-    for (const raw of match[1].split(',')) {
-      const name = raw.trim().split(/\s+as\s+/)[0];
-      if (name && !name.startsWith('type ') && name !== 'LucideIcon') names.add(kebab(name));
-    }
-}
+// Lucide icons used by the interface (kebab-case module names).
+const names = new Set([
+  'activity',
+  'app-window',
+  'arrow-down',
+  'arrow-down-to-line',
+  'arrow-left-right',
+  'arrow-right',
+  'arrow-up',
+  'arrow-up-right',
+  'book-open',
+  'brush-cleaning',
+  'calendar-clock',
+  'check',
+  'check-check',
+  'chevron-down',
+  'chevron-right',
+  'chevron-up',
+  'circle-help',
+  'clock-3',
+  'code-2',
+  'copy',
+  'cpu',
+  'external-link',
+  'fan',
+  'folder',
+  'folder-open',
+  'frown',
+  'hard-drive',
+  'heart',
+  'history',
+  'info',
+  'laptop',
+  'layers',
+  'layout-dashboard',
+  'loader-circle',
+  'lock-keyhole',
+  'maximize',
+  'meh',
+  'memory-stick',
+  'minimize',
+  'minus',
+  'monitor',
+  'monitor-up',
+  'moon',
+  'package',
+  'package-minus',
+  'pencil',
+  'pin',
+  'play',
+  'plus',
+  'power',
+  'refresh-cw',
+  'rotate-ccw',
+  'save',
+  'scan-line',
+  'search',
+  'search-check',
+  'settings-2',
+  'shield-check',
+  'sliders-horizontal',
+  'smile',
+  'sparkles',
+  'square',
+  'sun',
+  'thermometer',
+  'timer',
+  'trash-2',
+  'triangle-alert',
+  'usb',
+  'wrench',
+  'x',
+  'zap',
+]);
 const attributes = (props) =>
   Object.entries(props)
     .filter(([key]) => key !== 'key')
@@ -67,6 +113,14 @@ for (const name of [...names].sort()) {
   const body = module.__iconData.node
     .map(([tag, props]) => `<${tag} ${attributes(props)}/>`)
     .join('');
+  // The tray "fill" style paints these glyphs filled with the usage color.
+  if (['memory-stick', 'cpu', 'monitor', 'hard-drive'].includes(name)) {
+    await writeFile(
+      path.join(output, `${name}@1.8-fill.svg`),
+      `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${body}</svg>\n`,
+    );
+    count++;
+  }
   for (const stroke of strokes) {
     await writeFile(
       path.join(output, `${name}@${stroke}.svg`),

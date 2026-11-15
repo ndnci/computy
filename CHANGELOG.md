@@ -8,6 +8,37 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-16
+
+### Changed
+
+- The desktop interface is now native Rust drawn on the GPU with GPUI, instead
+  of a Tauri window rendering React in the system web engine. Pages, themes,
+  languages, the tray indicators and their popover keep the same layout and
+  behavior; a frozen-data pixel comparison against 0.2.0 is described in
+  `docs/VALIDATION.md`.
+- Much lower resource use, measured on the same machine
+  (`docs/BENCHMARK.md`): 53 MiB instead of 219 MiB in the
+  background, 79 MiB instead of 277 MiB with the window open, one process and
+  30 threads instead of seven processes and about 120 threads, and roughly half
+  the CPU time.
+- Starting in the background creates no window at all; closing the window frees
+  the interface while monitoring continues in the tray.
+- On Linux the window draws its own title bar with minimize, maximize and close
+  buttons; closing keeps Computy running in the tray.
+- Process icons are decoded as small thumbnails, and only the visible rows of
+  the process list are drawn.
+- Arabic, Hebrew, Persian and Urdu text keeps a left-to-right page layout.
+
+### Removed
+
+- WebKitGTK, GTK, WebView2/WKWebView and the bundled web frontend. The Linux
+  package now depends on Vulkan (`libvulkan1`), with Mesa's software driver
+  recommended for machines without a hardware driver.
+- The Linux AppImage and the Windows NSIS installer; Windows builds are
+  published as a portable zip. Windows and macOS builds are compiled by CI but
+  have not been physically tested with the new interface.
+
 ## [0.2.0] - 2026-10-29
 
 ### Added

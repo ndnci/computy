@@ -125,10 +125,10 @@ def main():
             print("Model ready:",language,flush=True)
     lock = {language:{"package":packages[language],"sha256":paths[language][2]} for language in LANGUAGES}
     (ROOT/"scripts/locales-models.lock.json").write_text(json.dumps(lock,ensure_ascii=False,indent=2)+"\n")
-    source = json.loads((ROOT/"src/locales/source.json").read_text())
-    output_file = ROOT/"src/locales/catalogs.json"
+    source = json.loads((ROOT/"locales/source.json").read_text())
+    output_file = ROOT/"locales/catalogs.json"
     catalogs = json.loads(output_file.read_text()) if output_file.exists() else {}
-    overrides_file=ROOT/"src/locales/overrides.json"
+    overrides_file=ROOT/"locales/overrides.json"
     overrides=json.loads(overrides_file.read_text()) if overrides_file.exists() else {}
     def degenerate(key,value):
         words=value.split();grams=[" ".join(words[i:i+3]) for i in range(max(0,len(words)-2))]

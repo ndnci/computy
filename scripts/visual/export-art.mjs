@@ -11,7 +11,11 @@ const output = path.join(root, 'desktop/assets/art');
 const fixture = JSON.parse(await readFile(path.join(root, 'tests/visual/fixture.json'), 'utf8'));
 await mkdir(output, { recursive: true });
 const base = 'http://127.0.0.1:1420';
-const server = spawn('npx', ['vite', '--host', '127.0.0.1'], { cwd: root, stdio: 'ignore', detached: true });
+const server = spawn('npx', ['vite', '--host', '127.0.0.1'], {
+  cwd: root,
+  stdio: 'ignore',
+  detached: true,
+});
 for (let i = 0; i < 100; i++) {
   try {
     if ((await fetch(base)).ok) break;
@@ -76,13 +80,31 @@ for (const theme of ['light', 'dark']) {
       ([selector, container]) => {
         const r = document.querySelector(selector).getBoundingClientRect();
         const c = document.querySelector(container).getBoundingClientRect();
-        return { x: r.x, y: r.y, w: r.width, h: r.height, cx: c.x, cy: c.y, cw: c.width, ch: c.height };
+        return {
+          x: r.x,
+          y: r.y,
+          w: r.width,
+          h: r.height,
+          cx: c.x,
+          cy: c.y,
+          cw: c.width,
+          ch: c.height,
+        };
       },
       [selector, container],
     );
     const pad = 24;
-    const clip = { x: box.x - pad, y: box.y - pad, width: box.w + 2 * pad, height: box.h + 2 * pad };
-    await page.screenshot({ path: path.join(output, `${name}-${theme}.png`), clip, omitBackground: true });
+    const clip = {
+      x: box.x - pad,
+      y: box.y - pad,
+      width: box.w + 2 * pad,
+      height: box.h + 2 * pad,
+    };
+    await page.screenshot({
+      path: path.join(output, `${name}-${theme}.png`),
+      clip,
+      omitBackground: true,
+    });
     anchors[name] = {
       width: clip.width,
       height: clip.height,

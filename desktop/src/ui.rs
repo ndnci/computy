@@ -1,8 +1,8 @@
 //! Styling primitives shared by every view: text with the stylesheet's metrics,
 //! letter spacing, icons, badges and common containers.
-use crate::theme::{self, Pair, c};
+use crate::theme::{self, c};
 use gpui::{
-    AnyElement, App, AvailableSpace, Bounds, BoxShadow, Div, Element, ElementId, Font, FontWeight,
+    App, AvailableSpace, Bounds, BoxShadow, Div, Element, ElementId, Font, FontWeight,
     GlobalElementId, Hsla, InspectorElementId, IntoElement, LayoutId, ParentElement, Pixels,
     Refineable, SharedString, Style, StyleRefinement, Styled, Svg, TextRun, Window, div, point, px,
     size as size2, svg,
@@ -10,7 +10,6 @@ use gpui::{
 
 /// DM Sans ascender + descender: CSS `line-height: normal`.
 pub const NORMAL: f32 = 1.302;
-pub const SORA_NORMAL: f32 = 1.26;
 
 /// A text run with explicit size, weight, line height and color.
 pub fn text(content: impl Into<SharedString>, size: f32, weight: f32, color: Hsla) -> Div {
@@ -76,10 +75,6 @@ impl Spaced {
     }
     pub fn nowrap(mut self) -> Self {
         self.nowrap = true;
-        self
-    }
-    pub fn centered(mut self) -> Self {
-        self.centered = true;
         self
     }
 }
@@ -346,12 +341,4 @@ pub fn panel() -> Div {
         .border_color(c(theme::BORDER))
         .rounded(px(14.))
         .shadow(vec![shadow(theme::SHADOW, 0.012, 5., 20.)])
-}
-
-pub fn any(element: impl IntoElement) -> AnyElement {
-    element.into_any_element()
-}
-
-pub fn pair_text(content: impl Into<SharedString>, size: f32, weight: f32, color: Pair) -> Div {
-    text(content, size, weight, c(color))
 }

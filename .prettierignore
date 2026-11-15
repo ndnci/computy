@@ -1,13 +1,9 @@
 node_modules
 dist
 native/target
-src-tauri/target
-src-tauri/gen
-src-tauri/icons
-src/locales/**/*.json
+desktop/target
+locales/**/*.json
 scripts/locales-models.lock.json
 docs/screenshots
 package-lock.json
-
-src/locales/messages/
-src/locales/loaders.mjs
+tests/visual

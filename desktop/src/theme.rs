@@ -36,18 +36,6 @@ pub fn c(pair: Pair) -> Hsla {
     hex(if is_dark() { pair.1 } else { pair.0 })
 }
 
-pub fn ca(pair: Pair, alpha: (f32, f32)) -> Hsla {
-    if is_dark() {
-        hexa(pair.1, alpha.1)
-    } else {
-        hexa(pair.0, alpha.0)
-    }
-}
-
-pub fn same(value: u32) -> Pair {
-    (value, value)
-}
-
 // Shared surface tokens.
 pub const BG: Pair = (0xf6f8f6, 0x17221b);
 pub const PANEL: Pair = (0xffffff, 0x202d23);
@@ -70,7 +58,5 @@ pub const BAD: Pair = (0xb55350, 0xd39180);
 pub const BAD_BG: Pair = (0xfbedeb, 0x442e26);
 pub const MUTED_BADGE: Pair = (0x7c8b70, 0xb3c69f);
 pub const MUTED_BADGE_BG: Pair = (0xf3f5ef, 0x303d29);
-pub const NEUTRAL_BADGE: Pair = (0x7c8b70, 0xb3c69f);
-pub const NEUTRAL_BADGE_BG: Pair = (0xf3f5ef, 0x303d29);
 
 pub const SHADOW: u32 = 0x213b2a;

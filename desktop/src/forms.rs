@@ -169,6 +169,34 @@ pub fn radio_visual(checked: bool) -> impl IntoElement {
         })
 }
 
+/// Unstyled browser checkbox (13 px, UA margins 3/3/3/4) with an accent color.
+pub fn native_checkbox(checked: bool, disabled: bool, accent: Hsla) -> impl IntoElement {
+    div()
+        .mt(px(3.))
+        .mb(px(3.))
+        .ml(px(4.))
+        .mr(px(3.))
+        .size(px(13.))
+        .flex_none()
+        .rounded(px(2.))
+        .border_1()
+        .when(disabled, |d| d.opacity(0.5))
+        .map(|d| {
+            if checked {
+                d.bg(accent)
+                    .border_color(accent)
+                    .flex()
+                    .items_center()
+                    .justify_center()
+                    .child(icon("check", 11., "2.4", hex(0xffffff)))
+            } else {
+                d.bg(hex(0xffffff)).border_color(hex(0x767676))
+            }
+        })
+}
+
+pub const BROWSER_ACCENT: u32 = 0x0075ff;
+
 /// `.text-input` around a GPUI input state.
 pub fn text_input(state: &Entity<InputState>) -> impl IntoElement {
     div()

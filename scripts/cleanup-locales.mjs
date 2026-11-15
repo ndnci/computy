@@ -66,8 +66,8 @@ const volumeLabels = {
   he: 'לכלול אמצעי אחסון של Docker שאינם בשימוש',
   sw: 'Jumuisha volume za Docker zisizotumika',
 };
-const catalogs = JSON.parse(readFileSync('src/locales/catalogs.json'));
-const overrides = JSON.parse(readFileSync('src/locales/overrides.json'));
+const catalogs = JSON.parse(readFileSync('locales/catalogs.json'));
+const overrides = JSON.parse(readFileSync('locales/overrides.json'));
 for (const [language, row] of Object.entries(rows)) {
   const values = row.split('|');
   if (values.length !== keys.length) throw Error(language);
@@ -79,4 +79,4 @@ for (const [language, row] of Object.entries(rows)) {
   Object.assign(overrides[language], entries);
 }
 for (const [name, value] of Object.entries({ catalogs, overrides }))
-  writeFileSync(`src/locales/${name}.json`, JSON.stringify(value, null, 2) + '\n');
+  writeFileSync(`locales/${name}.json`, JSON.stringify(value, null, 2) + '\n');

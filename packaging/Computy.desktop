@@ -1,0 +1,9 @@
+[Desktop Entry]
+Categories=Utility;
+Comment=Comprenez, testez et suivez votre matériel.
+Exec=computy
+StartupWMClass=computy
+Icon=computy
+Name=Computy
+Terminal=false
+Type=Application

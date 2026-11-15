@@ -169,6 +169,98 @@
           "threads": 1
         }
       ]
+    },
+    "processes": {
+      "pss_mib": {
+        "median": 279.5,
+        "min": 275.1,
+        "max": 281.4
+      },
+      "rss_mib": {
+        "median": 767.4,
+        "min": 760.8,
+        "max": 769.6
+      },
+      "uss_mib": {
+        "median": 205.9,
+        "min": 201.7,
+        "max": 207.5
+      },
+      "peak_pss_mib": {
+        "median": 292.4,
+        "min": 286.7,
+        "max": 292.8
+      },
+      "cpu_percent": {
+        "median": 1.36,
+        "min": 1.23,
+        "max": 1.41
+      },
+      "threads": {
+        "median": 123,
+        "min": 115,
+        "max": 127
+      },
+      "processes": {
+        "median": 7,
+        "min": 7,
+        "max": 10
+      },
+      "per_process": [
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 117.6,
+          "threads": 26
+        },
+        {
+          "name": "computy",
+          "pss_mib": 82.7,
+          "threads": 51
+        },
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 67.1,
+          "threads": 29
+        },
+        {
+          "name": "WebKitNetworkPr",
+          "pss_mib": 12.3,
+          "threads": 11
+        },
+        {
+          "name": "glycin-image-rs",
+          "pss_mib": 2.6,
+          "threads": 3
+        },
+        {
+          "name": "glycin-image-rs",
+          "pss_mib": 1.9,
+          "threads": 3
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.3,
+          "threads": 1
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.3,
+          "threads": 1
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.1,
+          "threads": 1
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.1,
+          "threads": 1
+        }
+      ]
     }
-  }
+  },
+  "notes": [
+    "processes scenario: 3 runs, measured separately with the same method"
+  ]
 }

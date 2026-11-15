@@ -295,12 +295,12 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
         .flex_grow()
         .flex_basis(relative(0.))
         .map(|mut d| {
-            d.style().flex_grow = Some(1.95);
+            d.style().flex_grow = Some(if crate::layout::wide() { 2.05 } else { 1.95 });
             d
         })
         .min_w_0()
         .relative()
-        .min_h(px(298.))
+        .min_h(px(if crate::layout::wide() { 330. } else { 298. }))
         .flex()
         .items_center()
         .bg(c((0xeaf0e1, 0x2c4028)))
@@ -358,7 +358,7 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                 .w(relative(0.65))
                 .pt(px(30.))
                 .pb(px(27.))
-                .pl(px(29.))
+                .pl(px(crate::layout::pick((22., 23., 29., 35.))))
                 .flex()
                 .flex_col()
                 .child(
@@ -394,31 +394,38 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .flex_col()
                         .child(spaced(
                             tx("Un check-up."),
-                            31.,
+                            crate::layout::pick((25., 27., 31., 37.)),
                             600.,
                             c((0x2e4834, 0xd6e7bd)),
                             -1.1,
-                            38.75,
+                            crate::layout::pick((31.25, 33.75, 38.75, 46.25)),
                         ))
                         .child(
                             div()
                                 .flex()
                                 .child(spaced(
                                     tx("L’esprit plus léger"),
-                                    31.,
+                                    crate::layout::pick((25., 27., 31., 37.)),
                                     600.,
                                     c((0x2e4834, 0xd6e7bd)),
                                     -1.1,
-                                    38.75,
+                                    crate::layout::pick((31.25, 33.75, 38.75, 46.25)),
                                 ))
-                                .child(spaced(tx("."), 31., 600., hex(0x92a956), -1.1, 38.75)),
+                                .child(spaced(
+                                    tx("."),
+                                    crate::layout::pick((25., 27., 31., 37.)),
+                                    600.,
+                                    hex(0x92a956),
+                                    -1.1,
+                                    crate::layout::pick((31.25, 33.75, 38.75, 46.25)),
+                                )),
                         ),
                 )
                 .child(
                     div()
                         .mt(px(11.))
                         .text_size(px(13.))
-                        .line_height(px(23.4))
+                        .line_height(px(crate::layout::pick((19.8, 21.6, 23.4, 23.4))))
                         .text_color(c((0x728264, 0xb5c7a0)))
                         .child(tx("RAM, disques, processeur : faites le point"))
                         .child(
@@ -466,9 +473,9 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
         .flex()
         .flex_col()
         .items_center()
-        .pt(px(22.))
-        .px(px(24.))
-        .pb(px(19.))
+        .pt(px(crate::layout::pick((22., 22., 22., 25.))))
+        .px(px(crate::layout::pick((18., 18., 24., 25.))))
+        .pb(px(crate::layout::pick((19., 19., 19., 25.))))
         .bg(c(theme::PANEL))
         .border_1()
         .border_color(c(theme::BORDER))
@@ -618,8 +625,8 @@ fn component_card(app: &Computy, card: Card, cx: &mut Context<Computy>) -> impl 
         .min_w_0()
         .flex()
         .flex_col()
-        .pt(px(18.))
-        .px(px(19.))
+        .pt(px(crate::layout::pick((18., 18., 18., 23.))))
+        .px(px(crate::layout::pick((15., 15., 19., 23.))))
         .pb(px(15.))
         .cursor_pointer()
         .hover(|s| s.border_color(c((0xcad9bc, 0x4d6340))))
@@ -645,7 +652,17 @@ fn component_card(app: &Computy, card: Card, cx: &mut Context<Computy>) -> impl 
                 .child(icon("arrow-up-right", 18., "2", hex(0xadb6a4))),
         )
         .child(text(tx(card.name), 12., 400., c((0x718166, 0xadc29a))))
-        .child(spaced(tx(&card.value), 26., 550., c(theme::HEADING), -0.7, 33.8).mt(px(5.)))
+        .child(
+            spaced(
+                tx(&card.value),
+                crate::layout::pick((24., 26., 26., 30.)),
+                550.,
+                c(theme::HEADING),
+                -0.7,
+                crate::layout::pick((31.2, 33.8, 33.8, 39.)),
+            )
+            .mt(px(5.)),
+        )
         .child(
             div()
                 .mt(px(5.))
@@ -865,9 +882,9 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
         .flex_basis(relative(0.))
         .min_w_0()
         .relative()
-        .pt(px(22.))
-        .px(px(23.))
-        .pb(px(14.))
+        .pt(px(crate::layout::pick((22., 22., 22., 25.))))
+        .px(px(crate::layout::pick((18., 18., 23., 25.))))
+        .pb(px(crate::layout::pick((14., 14., 14., 25.))))
         .bg(c((0xf0f2e9, 0x253322)))
         .border_1()
         .border_color(c((0xe5e9db, 0x394a2e)))
@@ -914,7 +931,7 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
                 .flex()
                 .items_center()
                 .justify_end()
-                .gap(px(13.))
+                .gap(px(if crate::layout::compact() { 8. } else { 13. }))
                 .child(side("AVANT", true))
                 .child(icon("arrow-right", 18., "2", hex(0xb1bb9a)))
                 .child(side("APRÈS", false)),
@@ -948,7 +965,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .child(
             div()
                 .flex()
-                .gap(px(20.))
+                .gap(px(if crate::layout::compact() { 16. } else { 20. }))
                 .mb(px(31.))
                 .child(hero(app, cx))
                 .child(health_card(app, cx)),
@@ -1007,16 +1024,20 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 })),
         )
         .child(
-            div().flex().gap(px(18.)).mb(px(28.)).children(
-                cards
-                    .into_iter()
-                    .map(|card| component_card(app, card, cx).into_any_element()),
-            ),
+            div()
+                .flex()
+                .gap(px(if crate::layout::compact() { 14. } else { 18. }))
+                .mb(px(28.))
+                .children(
+                    cards
+                        .into_iter()
+                        .map(|card| component_card(app, card, cx).into_any_element()),
+                ),
         )
         .child(
             div()
                 .flex()
-                .gap(px(20.))
+                .gap(px(if crate::layout::narrow() { 16. } else { 20. }))
                 .child(recent_panel(app, cx))
                 .child(tip_card(cx)),
         )
