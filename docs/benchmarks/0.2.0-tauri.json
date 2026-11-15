@@ -1,0 +1,174 @@
+{
+  "label": "Tauri 0.2.0",
+  "binary": "/usr/bin/computy",
+  "binary_mib": 15.65,
+  "package_mib": 8.48,
+  "date": "2026-11-15",
+  "machine": {
+    "kernel": "7.0.0-43-generic",
+    "cpus": 16,
+    "gpus": [
+      "Intel Corporation CometLake-H GT2 [UHD Graphics] (rev 05)",
+      "NVIDIA Corporation GA106M [GeForce RTX 3060 Mobile / Max-Q] (rev a1)"
+    ],
+    "session": "wayland"
+  },
+  "method": {
+    "runs": 5,
+    "settle_seconds": 15,
+    "sample_seconds": 60,
+    "interval_seconds": 1,
+    "memory": "median of samples; PSS summed over the whole process tree",
+    "isolation": "private D-Bus session and temporary data directory per run"
+  },
+  "scenarios": {
+    "background": {
+      "pss_mib": {
+        "median": 219.2,
+        "min": 218.9,
+        "max": 234.5
+      },
+      "rss_mib": {
+        "median": 679.3,
+        "min": 677.1,
+        "max": 688.5
+      },
+      "uss_mib": {
+        "median": 147.3,
+        "min": 147.2,
+        "max": 163.4
+      },
+      "peak_pss_mib": {
+        "median": 236.9,
+        "min": 233.1,
+        "max": 239.7
+      },
+      "cpu_percent": {
+        "median": 2.06,
+        "min": 1.51,
+        "max": 2.12
+      },
+      "threads": {
+        "median": 113,
+        "min": 106,
+        "max": 115
+      },
+      "processes": {
+        "median": 7,
+        "min": 7,
+        "max": 10
+      },
+      "per_process": [
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 75.4,
+          "threads": 19
+        },
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 69.5,
+          "threads": 30
+        },
+        {
+          "name": "computy",
+          "pss_mib": 61.7,
+          "threads": 48
+        },
+        {
+          "name": "WebKitNetworkPr",
+          "pss_mib": 12.3,
+          "threads": 11
+        },
+        {
+          "name": "glycin-image-rs",
+          "pss_mib": 1.9,
+          "threads": 3
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.3,
+          "threads": 1
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.1,
+          "threads": 1
+        }
+      ]
+    },
+    "window": {
+      "pss_mib": {
+        "median": 276.9,
+        "min": 275.7,
+        "max": 277.9
+      },
+      "rss_mib": {
+        "median": 750.8,
+        "min": 744.7,
+        "max": 753.9
+      },
+      "uss_mib": {
+        "median": 202.0,
+        "min": 200.6,
+        "max": 202.9
+      },
+      "peak_pss_mib": {
+        "median": 288.9,
+        "min": 287.3,
+        "max": 289.8
+      },
+      "cpu_percent": {
+        "median": 1.87,
+        "min": 1.61,
+        "max": 2.03
+      },
+      "threads": {
+        "median": 122,
+        "min": 115,
+        "max": 124
+      },
+      "processes": {
+        "median": 7,
+        "min": 7,
+        "max": 7
+      },
+      "per_process": [
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 114.5,
+          "threads": 26
+        },
+        {
+          "name": "computy",
+          "pss_mib": 79.9,
+          "threads": 51
+        },
+        {
+          "name": "WebKitWebProces",
+          "pss_mib": 67.1,
+          "threads": 23
+        },
+        {
+          "name": "WebKitNetworkPr",
+          "pss_mib": 12.3,
+          "threads": 12
+        },
+        {
+          "name": "glycin-image-rs",
+          "pss_mib": 1.9,
+          "threads": 3
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.3,
+          "threads": 1
+        },
+        {
+          "name": "bwrap",
+          "pss_mib": 0.1,
+          "threads": 1
+        }
+      ]
+    }
+  }
+}

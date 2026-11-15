@@ -13,3 +13,6 @@ third_party/computy-memory-boot/build/*/memtest_text.bin
 third_party/computy-memory-boot/build/*/memtest_data.bin
 
 release-assets/
+
+# Local visual regression captures and frozen hardware fixtures
+tests/visual/
