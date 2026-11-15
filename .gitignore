@@ -16,3 +16,4 @@ release-assets/
 
 # Local visual regression captures and frozen hardware fixtures
 tests/visual/
+desktop/target/

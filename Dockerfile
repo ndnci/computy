@@ -51,3 +51,17 @@ RUN mkdir /data && chown node:node /data
 USER node
 EXPOSE 1420
 CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+# Native GPUI desktop toolchain. Xvfb and Mesa's software Vulkan driver (lavapipe)
+# render the interface headlessly for visual regression captures.
+FROM rust:1.100.0-bookworm AS gpui
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential pkg-config libssl-dev libfontconfig1-dev libfreetype6-dev libasound2-dev \
+    libgbm-dev libvulkan-dev libwayland-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-xkb-dev \
+    libxkbcommon-dev libxkbcommon-x11-dev libxcursor-dev libxrandr-dev libxinerama-dev libxi-dev \
+    libxrender-dev libdbus-1-dev mesa-vulkan-drivers vulkan-tools xvfb xauth x11-utils \
+    imagemagick dbus-x11 fonts-noto-core fonts-noto-cjk dpkg-dev fakeroot file sway grim \
+    && rm -rf /var/lib/apt/lists/*
+RUN rustup component add rustfmt clippy
+ENV CARGO_HOME=/cargo
+WORKDIR /workspace

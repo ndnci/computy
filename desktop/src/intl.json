@@ -1,0 +1,2237 @@
+{
+ "en": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "month",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": ", "
+   },
+   "year",
+   {
+    "literal": " at "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "date_short": [
+   "month",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "months_long": [
+   "January",
+   "February",
+   "March",
+   "April",
+   "May",
+   "June",
+   "July",
+   "August",
+   "September",
+   "October",
+   "November",
+   "December"
+  ],
+  "months_short": [
+   "Jan",
+   "Feb",
+   "Mar",
+   "Apr",
+   "May",
+   "Jun",
+   "Jul",
+   "Aug",
+   "Sep",
+   "Oct",
+   "Nov",
+   "Dec"
+  ],
+  "periods": {
+   "am": "AM",
+   "pm": "PM"
+  },
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} sec",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "November 23, 2031 at 05:45 PM",
+   "short": "Nov 23, 05:45 PM",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "fr": {
+  "decimal": ",",
+  "group": " ",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " à "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "janvier",
+   "février",
+   "mars",
+   "avril",
+   "mai",
+   "juin",
+   "juillet",
+   "août",
+   "septembre",
+   "octobre",
+   "novembre",
+   "décembre"
+  ],
+  "months_short": [
+   "janv.",
+   "févr.",
+   "mars",
+   "avr.",
+   "mai",
+   "juin",
+   "juil.",
+   "août",
+   "sept.",
+   "oct.",
+   "nov.",
+   "déc."
+  ],
+  "periods": {},
+  "plural": [
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} s",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 novembre 2031 à 17:45",
+   "short": "23 nov., 17:45",
+   "number": "1 234 567,5",
+   "small": "1 234"
+  }
+ },
+ "es": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 2,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " de "
+   },
+   "month",
+   {
+    "literal": " de "
+   },
+   "year",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "enero",
+   "febrero",
+   "marzo",
+   "abril",
+   "mayo",
+   "junio",
+   "julio",
+   "agosto",
+   "septiembre",
+   "octubre",
+   "noviembre",
+   "diciembre"
+  ],
+  "months_short": [
+   "ene",
+   "feb",
+   "mar",
+   "abr",
+   "may",
+   "jun",
+   "jul",
+   "ago",
+   "sept",
+   "oct",
+   "nov",
+   "dic"
+  ],
+  "periods": {},
+  "plural": [
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} s",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 de noviembre de 2031, 17:45",
+   "short": "23 nov, 17:45",
+   "number": "1.234.567,5",
+   "small": "1234"
+  }
+ },
+ "pt-BR": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " de "
+   },
+   "month",
+   {
+    "literal": " de "
+   },
+   "year",
+   {
+    "literal": " às "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " de "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "janeiro",
+   "fevereiro",
+   "março",
+   "abril",
+   "maio",
+   "junho",
+   "julho",
+   "agosto",
+   "setembro",
+   "outubro",
+   "novembro",
+   "dezembro"
+  ],
+  "months_short": [
+   "jan.",
+   "fev.",
+   "mar.",
+   "abr.",
+   "mai.",
+   "jun.",
+   "jul.",
+   "ago.",
+   "set.",
+   "out.",
+   "nov.",
+   "dez."
+  ],
+  "periods": {},
+  "plural": [
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} s",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 de novembro de 2031 às 17:45",
+   "short": "23 de nov., 17:45",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "de": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": ". "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " um "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": ". "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "Januar",
+   "Februar",
+   "März",
+   "April",
+   "Mai",
+   "Juni",
+   "Juli",
+   "August",
+   "September",
+   "Oktober",
+   "November",
+   "Dezember"
+  ],
+  "months_short": [
+   "Jan.",
+   "Feb.",
+   "März",
+   "Apr.",
+   "Mai",
+   "Juni",
+   "Juli",
+   "Aug.",
+   "Sept.",
+   "Okt.",
+   "Nov.",
+   "Dez."
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} Sek.",
+   "minute": "{0} Min."
+  },
+  "samples": {
+   "long": "23. November 2031 um 17:45",
+   "short": "23. Nov., 17:45",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "it": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 2,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " alle ore "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "gennaio",
+   "febbraio",
+   "marzo",
+   "aprile",
+   "maggio",
+   "giugno",
+   "luglio",
+   "agosto",
+   "settembre",
+   "ottobre",
+   "novembre",
+   "dicembre"
+  ],
+  "months_short": [
+   "gen",
+   "feb",
+   "mar",
+   "apr",
+   "mag",
+   "giu",
+   "lug",
+   "ago",
+   "set",
+   "ott",
+   "nov",
+   "dic"
+  ],
+  "periods": {},
+  "plural": [
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} s",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 novembre 2031 alle ore 17:45",
+   "short": "23 nov, 17:45",
+   "number": "1.234.567,5",
+   "small": "1234"
+  }
+ },
+ "nl": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " om "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "januari",
+   "februari",
+   "maart",
+   "april",
+   "mei",
+   "juni",
+   "juli",
+   "augustus",
+   "september",
+   "oktober",
+   "november",
+   "december"
+  ],
+  "months_short": [
+   "jan",
+   "feb",
+   "mrt",
+   "apr",
+   "mei",
+   "jun",
+   "jul",
+   "aug",
+   "sep",
+   "okt",
+   "nov",
+   "dec"
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} sec",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 november 2031 om 17:45",
+   "short": "23 nov, 17:45",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "pl": {
+  "decimal": ",",
+  "group": " ",
+  "grouping": "standard",
+  "min_grouping": 2,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "stycznia",
+   "lutego",
+   "marca",
+   "kwietnia",
+   "maja",
+   "czerwca",
+   "lipca",
+   "sierpnia",
+   "września",
+   "października",
+   "listopada",
+   "grudnia"
+  ],
+  "months_short": [
+   "sty",
+   "lut",
+   "mar",
+   "kwi",
+   "maj",
+   "cze",
+   "lip",
+   "sie",
+   "wrz",
+   "paź",
+   "lis",
+   "gru"
+  ],
+  "periods": {},
+  "plural": [
+   "few",
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} sek.",
+   "minute": "{0} min"
+  },
+  "samples": {
+   "long": "23 listopada 2031 17:45",
+   "short": "23 lis, 17:45",
+   "number": "1 234 567,5",
+   "small": "1234"
+  }
+ },
+ "ru": {
+  "decimal": ",",
+  "group": " ",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " г. в "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "января",
+   "февраля",
+   "марта",
+   "апреля",
+   "мая",
+   "июня",
+   "июля",
+   "августа",
+   "сентября",
+   "октября",
+   "ноября",
+   "декабря"
+  ],
+  "months_short": [
+   "янв.",
+   "февр.",
+   "мар.",
+   "апр.",
+   "мая",
+   "июн.",
+   "июл.",
+   "авг.",
+   "сент.",
+   "окт.",
+   "нояб.",
+   "дек."
+  ],
+  "periods": {},
+  "plural": [
+   "few",
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} мс",
+   "second": "{0} с",
+   "minute": "{0} мин"
+  },
+  "samples": {
+   "long": "23 ноября 2031 г. в 17:45",
+   "short": "23 нояб., 17:45",
+   "number": "1 234 567,5",
+   "small": "1 234"
+  }
+ },
+ "uk": {
+  "decimal": ",",
+  "group": " ",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " р. о "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "січня",
+   "лютого",
+   "березня",
+   "квітня",
+   "травня",
+   "червня",
+   "липня",
+   "серпня",
+   "вересня",
+   "жовтня",
+   "листопада",
+   "грудня"
+  ],
+  "months_short": [
+   "січ.",
+   "лют.",
+   "бер.",
+   "квіт.",
+   "трав.",
+   "черв.",
+   "лип.",
+   "серп.",
+   "вер.",
+   "жовт.",
+   "лист.",
+   "груд."
+  ],
+  "periods": {},
+  "plural": [
+   "few",
+   "many",
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} мс",
+   "second": "{0} с",
+   "minute": "{0} хв"
+  },
+  "samples": {
+   "long": "23 листопада 2031 р. о 17:45",
+   "short": "23 лист., 17:45",
+   "number": "1 234 567,5",
+   "small": "1 234"
+  }
+ },
+ "tr": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "Ocak",
+   "Şubat",
+   "Mart",
+   "Nisan",
+   "Mayıs",
+   "Haziran",
+   "Temmuz",
+   "Ağustos",
+   "Eylül",
+   "Ekim",
+   "Kasım",
+   "Aralık"
+  ],
+  "months_short": [
+   "Oca",
+   "Şub",
+   "Mar",
+   "Nis",
+   "May",
+   "Haz",
+   "Tem",
+   "Ağu",
+   "Eyl",
+   "Eki",
+   "Kas",
+   "Ara"
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} msn",
+   "second": "{0} sn.",
+   "minute": "{0} dk."
+  },
+  "samples": {
+   "long": "23 Kasım 2031 17:45",
+   "short": "23 Kas 17:45",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "ar": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " في "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": "، "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "months_long": [
+   "يناير",
+   "فبراير",
+   "مارس",
+   "أبريل",
+   "مايو",
+   "يونيو",
+   "يوليو",
+   "أغسطس",
+   "سبتمبر",
+   "أكتوبر",
+   "نوفمبر",
+   "ديسمبر"
+  ],
+  "months_short": [
+   "يناير",
+   "فبراير",
+   "مارس",
+   "أبريل",
+   "مايو",
+   "يونيو",
+   "يوليو",
+   "أغسطس",
+   "سبتمبر",
+   "أكتوبر",
+   "نوفمبر",
+   "ديسمبر"
+  ],
+  "periods": {
+   "am": "ص",
+   "pm": "م"
+  },
+  "plural": [
+   "few",
+   "many",
+   "one",
+   "two",
+   "zero",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ملي ث",
+   "second": "{0} ث",
+   "minute": "{0} د"
+  },
+  "samples": {
+   "long": "23 نوفمبر 2031 في 05:45 م",
+   "short": "23 نوفمبر، 05:45 م",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "hi": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "indian",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " को "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod",
+   {
+    "literal": " बजे"
+   }
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "months_long": [
+   "जनवरी",
+   "फ़रवरी",
+   "मार्च",
+   "अप्रैल",
+   "मई",
+   "जून",
+   "जुलाई",
+   "अगस्त",
+   "सितंबर",
+   "अक्तूबर",
+   "नवंबर",
+   "दिसंबर"
+  ],
+  "months_short": [
+   "जन॰",
+   "फ़र॰",
+   "मार्च",
+   "अप्रैल",
+   "मई",
+   "जून",
+   "जुल॰",
+   "अग॰",
+   "सित॰",
+   "अक्तू॰",
+   "नव॰",
+   "दिस॰"
+  ],
+  "periods": {
+   "am": "am",
+   "pm": "pm"
+  },
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} मि॰से॰",
+   "second": "{0} से॰",
+   "minute": "{0} मि॰"
+  },
+  "samples": {
+   "long": "23 नवंबर 2031 को 05:45 pm बजे",
+   "short": "23 नव॰, 05:45 pm",
+   "number": "12,34,567.5",
+   "small": "1,234"
+  }
+ },
+ "bn": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "indian",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "০১২৩৪৫৬৭৮৯",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "year",
+   {
+    "literal": " এ "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "months_long": [
+   "জানুয়ারী",
+   "ফেব্রুয়ারী",
+   "মার্চ",
+   "এপ্রিল",
+   "মে",
+   "জুন",
+   "জুলাই",
+   "আগস্ট",
+   "সেপ্টেম্বর",
+   "অক্টোবর",
+   "নভেম্বর",
+   "ডিসেম্বর"
+  ],
+  "months_short": [
+   "জানু",
+   "ফেব",
+   "মার্চ",
+   "এপ্রি",
+   "মে",
+   "জুন",
+   "জুল",
+   "আগ",
+   "সেপ",
+   "অক্টো",
+   "নভে",
+   "ডিসে"
+  ],
+  "periods": {
+   "am": "AM",
+   "pm": "PM"
+  },
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} সেকেন্ড",
+   "minute": "{0} মিনিট"
+  },
+  "samples": {
+   "long": "২৩ নভেম্বর, ২০৩১ এ ০৫:৪৫ PM",
+   "short": "২৩ নভে, ০৫:৪৫ PM",
+   "number": "১২,৩৪,৫৬৭.৫",
+   "small": "১,২৩৪"
+  }
+ },
+ "ur": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": "، "
+   },
+   "year",
+   {
+    "literal": " کو "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": "، "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "dayPeriod"
+  ],
+  "months_long": [
+   "جنوری",
+   "فروری",
+   "مارچ",
+   "اپریل",
+   "مئی",
+   "جون",
+   "جولائی",
+   "اگست",
+   "ستمبر",
+   "اکتوبر",
+   "نومبر",
+   "دسمبر"
+  ],
+  "months_short": [
+   "جنوری",
+   "فروری",
+   "مارچ",
+   "اپریل",
+   "مئی",
+   "جون",
+   "جولائی",
+   "اگست",
+   "ستمبر",
+   "اکتوبر",
+   "نومبر",
+   "دسمبر"
+  ],
+  "periods": {
+   "am": "AM",
+   "pm": "PM"
+  },
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ملی سیکنڈ",
+   "second": "{0} سیکنڈ",
+   "minute": "{0} منٹ"
+  },
+  "samples": {
+   "long": "23 نومبر، 2031 کو 05:45 PM",
+   "short": "23 نومبر، 05:45 PM",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "id": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " pukul "
+   },
+   "hour",
+   {
+    "literal": "."
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": "."
+   },
+   "minute"
+  ],
+  "months_long": [
+   "Januari",
+   "Februari",
+   "Maret",
+   "April",
+   "Mei",
+   "Juni",
+   "Juli",
+   "Agustus",
+   "September",
+   "Oktober",
+   "November",
+   "Desember"
+  ],
+  "months_short": [
+   "Jan",
+   "Feb",
+   "Mar",
+   "Apr",
+   "Mei",
+   "Jun",
+   "Jul",
+   "Agu",
+   "Sep",
+   "Okt",
+   "Nov",
+   "Des"
+  ],
+  "periods": {},
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} md",
+   "second": "{0} dtk",
+   "minute": "{0} mnt"
+  },
+  "samples": {
+   "long": "23 November 2031 pukul 17.45",
+   "short": "23 Nov, 17.45",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "vi": {
+  "decimal": ",",
+  "group": ".",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   {
+    "literal": "lúc "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "year"
+  ],
+  "date_short": [
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": " "
+   },
+   "month"
+  ],
+  "months_long": [
+   "tháng 1",
+   "tháng 2",
+   "tháng 3",
+   "tháng 4",
+   "tháng 5",
+   "tháng 6",
+   "tháng 7",
+   "tháng 8",
+   "tháng 9",
+   "tháng 10",
+   "tháng 11",
+   "tháng 12"
+  ],
+  "months_short": [
+   "thg 1",
+   "thg 2",
+   "thg 3",
+   "thg 4",
+   "thg 5",
+   "thg 6",
+   "thg 7",
+   "thg 8",
+   "thg 9",
+   "thg 10",
+   "thg 11",
+   "thg 12"
+  ],
+  "periods": {},
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} mili giây",
+   "second": "{0} giây",
+   "minute": "{0} phút"
+  },
+  "samples": {
+   "long": "lúc 17:45 23 tháng 11, 2031",
+   "short": "17:45 23 thg 11",
+   "number": "1.234.567,5",
+   "small": "1.234"
+  }
+ },
+ "th": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "buddhist",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " เวลา "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "มกราคม",
+   "กุมภาพันธ์",
+   "มีนาคม",
+   "เมษายน",
+   "พฤษภาคม",
+   "มิถุนายน",
+   "กรกฎาคม",
+   "สิงหาคม",
+   "กันยายน",
+   "ตุลาคม",
+   "พฤศจิกายน",
+   "ธันวาคม"
+  ],
+  "months_short": [
+   "ม.ค.",
+   "ก.พ.",
+   "มี.ค.",
+   "เม.ย.",
+   "พ.ค.",
+   "มิ.ย.",
+   "ก.ค.",
+   "ส.ค.",
+   "ก.ย.",
+   "ต.ค.",
+   "พ.ย.",
+   "ธ.ค."
+  ],
+  "periods": {},
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} มิลลิวินาที",
+   "second": "{0} วิ",
+   "minute": "{0} นาที"
+  },
+  "samples": {
+   "long": "23 พฤศจิกายน 2574 เวลา 17:45",
+   "short": "23 พ.ย. 17:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "ko": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "year",
+   {
+    "literal": "년 "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": "일 "
+   },
+   "dayPeriod",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "month",
+   {
+    "literal": " "
+   },
+   "day",
+   {
+    "literal": "일 "
+   },
+   "dayPeriod",
+   {
+    "literal": " "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "1월",
+   "2월",
+   "3월",
+   "4월",
+   "5월",
+   "6월",
+   "7월",
+   "8월",
+   "9월",
+   "10월",
+   "11월",
+   "12월"
+  ],
+  "months_short": [
+   "1월",
+   "2월",
+   "3월",
+   "4월",
+   "5월",
+   "6월",
+   "7월",
+   "8월",
+   "9월",
+   "10월",
+   "11월",
+   "12월"
+  ],
+  "periods": {
+   "am": "오전",
+   "pm": "오후"
+  },
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0}ms",
+   "second": "{0}초",
+   "minute": "{0}분"
+  },
+  "samples": {
+   "long": "2031년 11월 23일 오후 05:45",
+   "short": "11월 23일 오후 05:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "ja": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "year",
+   {
+    "literal": "年"
+   },
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "months_short": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "periods": {},
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} 秒",
+   "minute": "{0} 分"
+  },
+  "samples": {
+   "long": "2031年11月23日 17:45",
+   "short": "11月23日 17:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "zh-CN": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "year",
+   {
+    "literal": "年"
+   },
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "months_short": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "periods": {},
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0}毫秒",
+   "second": "{0}秒",
+   "minute": "{0}分钟"
+  },
+  "samples": {
+   "long": "2031年11月23日 17:45",
+   "short": "11月23日 17:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "zh-TW": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "year",
+   {
+    "literal": "年"
+   },
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "dayPeriod",
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "month",
+   {
+    "literal": "月"
+   },
+   "day",
+   {
+    "literal": "日 "
+   },
+   "dayPeriod",
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "months_short": [
+   "1",
+   "2",
+   "3",
+   "4",
+   "5",
+   "6",
+   "7",
+   "8",
+   "9",
+   "10",
+   "11",
+   "12"
+  ],
+  "periods": {
+   "am": "上午",
+   "pm": "下午"
+  },
+  "plural": [
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} 毫秒",
+   "second": "{0} 秒",
+   "minute": "{0} 分鐘"
+  },
+  "samples": {
+   "long": "2031年11月23日 下午05:45",
+   "short": "11月23日 下午05:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "fa": {
+  "decimal": "٫",
+  "group": "٬",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "persian",
+  "digits": "۰۱۲۳۴۵۶۷۸۹",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " ساعت "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": "، "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "فروردین",
+   "اردیبهشت",
+   "خرداد",
+   "تیر",
+   "مرداد",
+   "شهریور",
+   "مهر",
+   "آبان",
+   "آذر",
+   "دی",
+   "بهمن",
+   "اسفند"
+  ],
+  "months_short": [
+   "فروردین",
+   "اردیبهشت",
+   "خرداد",
+   "تیر",
+   "مرداد",
+   "شهریور",
+   "مهر",
+   "آبان",
+   "آذر",
+   "دی",
+   "بهمن",
+   "اسفند"
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} میلی‌ثانیه",
+   "second": "{0} ثانیه",
+   "minute": "{0} دقیقه"
+  },
+  "samples": {
+   "long": "۲ آذر ۱۴۱۰ ساعت ۱۷:۴۵",
+   "short": "۰۲ آذر، ۱۷:۴۵",
+   "number": "۱٬۲۳۴٬۵۶۷٫۵",
+   "small": "۱٬۲۳۴"
+  }
+ },
+ "he": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " ב"
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": " בשעה "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " ב"
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "ינואר",
+   "פברואר",
+   "מרץ",
+   "אפריל",
+   "מאי",
+   "יוני",
+   "יולי",
+   "אוגוסט",
+   "ספטמבר",
+   "אוקטובר",
+   "נובמבר",
+   "דצמבר"
+  ],
+  "months_short": [
+   "ינו׳",
+   "פבר׳",
+   "מרץ",
+   "אפר׳",
+   "מאי",
+   "יוני",
+   "יולי",
+   "אוג׳",
+   "ספט׳",
+   "אוק׳",
+   "נוב׳",
+   "דצמ׳"
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "two",
+   "other"
+  ],
+  "units": {
+   "millisecond": "{0} ms",
+   "second": "{0} שנ׳",
+   "minute": "{0} דק׳"
+  },
+  "samples": {
+   "long": "23 בנובמבר 2031 בשעה 17:45",
+   "short": "23 בנוב׳, 17:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ },
+ "sw": {
+  "decimal": ".",
+  "group": ",",
+  "grouping": "standard",
+  "min_grouping": 1,
+  "calendar": "gregory",
+  "digits": "0123456789",
+  "date_long": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": " "
+   },
+   "year",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "date_short": [
+   "day",
+   {
+    "literal": " "
+   },
+   "month",
+   {
+    "literal": ", "
+   },
+   "hour",
+   {
+    "literal": ":"
+   },
+   "minute"
+  ],
+  "months_long": [
+   "Januari",
+   "Februari",
+   "Machi",
+   "Aprili",
+   "Mei",
+   "Juni",
+   "Julai",
+   "Agosti",
+   "Septemba",
+   "Oktoba",
+   "Novemba",
+   "Desemba"
+  ],
+  "months_short": [
+   "Jan",
+   "Feb",
+   "Mac",
+   "Apr",
+   "Mei",
+   "Jun",
+   "Jul",
+   "Ago",
+   "Sep",
+   "Okt",
+   "Nov",
+   "Des"
+  ],
+  "periods": {},
+  "plural": [
+   "one",
+   "other"
+  ],
+  "units": {
+   "millisecond": "ms {0}",
+   "second": "sekunde {0}",
+   "minute": "dakika {0}"
+  },
+  "samples": {
+   "long": "23 Novemba 2031, 17:45",
+   "short": "23 Nov, 17:45",
+   "number": "1,234,567.5",
+   "small": "1,234"
+  }
+ }
+}
