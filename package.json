@@ -1,6 +1,6 @@
 {
   "name": "computy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "Comprendre, tester et suivre la santé de son ordinateur.",
   "type": "module",

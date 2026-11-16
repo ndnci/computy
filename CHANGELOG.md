@@ -8,6 +8,8 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-16
+
 ### Added
 
 - Preferences → System tray monitor: **Keep running in the background when
