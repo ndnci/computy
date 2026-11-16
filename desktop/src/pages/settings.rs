@@ -495,6 +495,18 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
             })),
         ))
         .when(enabled, |d| {
+            d.child(setting_row(
+                "app-window",
+                "Continuer en arrière-plan à la fermeture",
+                "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.",
+                toggle_switch("keep-running", draft.keep_running_on_close, false).on_click(cx.listener(|this, _, _, cx| {
+                    let d = &mut state(this).draft;
+                    d.keep_running_on_close = !d.keep_running_on_close;
+                    cx.notify();
+                })),
+            ))
+        })
+        .when(enabled, |d| {
             d.child(
                 div()
                     .px(px(28.))

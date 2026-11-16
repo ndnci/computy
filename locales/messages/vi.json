@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} bỏ qua",
   "{{count}} éléments supprimés": "{{count}} mục đã xoá",
   "{{count}} éléments sélectionnés": "{{count}} mục đã chọn",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Tính toán, đọc phần cứng và chẩn đoán bằng Rust. Giao diện gốc được vẽ bằng GPUI, không dùng công cụ web hay Chromium."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Tính toán, đọc phần cứng và chẩn đoán bằng Rust. Giao diện gốc được vẽ bằng GPUI, không dùng công cụ web hay Chromium.",
+  "Continuer en arrière-plan à la fermeture": "Tiếp tục chạy nền khi đóng",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Đóng cửa sổ vẫn giữ Computy và các chỉ báo hoạt động. Để thoát, hãy dùng menu của chỉ báo."
 }

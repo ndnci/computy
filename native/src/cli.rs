@@ -210,6 +210,9 @@ pub enum SettingsAction {
         language: Option<String>,
         #[arg(long)]
         tray_enabled: Option<bool>,
+        /// Keep running in the system tray when the window is closed.
+        #[arg(long)]
+        keep_running_on_close: Option<bool>,
         #[arg(long)]
         tray_style: Option<String>,
         /// Comma-separated memory,cpu,gpu; an empty string hides all three.
@@ -560,6 +563,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                     theme,
                     language,
                     tray_enabled,
+                    keep_running_on_close,
                     tray_style,
                     tray_components,
                     tray_disks,
@@ -574,6 +578,10 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                         ("theme", theme.map(|v| json!(v))),
                         ("language", language.map(|v| json!(v))),
                         ("tray_enabled", tray_enabled.map(|v| json!(v))),
+                        (
+                            "keep_running_on_close",
+                            keep_running_on_close.map(|v| json!(v)),
+                        ),
                         ("tray_style", tray_style.map(|v| json!(v))),
                         (
                             "tray_components",

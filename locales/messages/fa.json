@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} فرار",
   "{{count}} éléments supprimés": "{{count}} موارد حذف شده",
   "{{count}} éléments sélectionnés": "{{count}} آیتم های انتخاب شده",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "محاسبات، خواندن سخت‌افزار و عیب‌یابی با Rust انجام می‌شود. رابط بومی با GPUI ترسیم می‌شود، بدون موتور وب یا Chromium."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "محاسبات، خواندن سخت‌افزار و عیب‌یابی با Rust انجام می‌شود. رابط بومی با GPUI ترسیم می‌شود، بدون موتور وب یا Chromium.",
+  "Continuer en arrière-plan à la fermeture": "ادامهٔ اجرا در پس‌زمینه هنگام بستن",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "بستن پنجره Computy و نشانگرهایش را فعال نگه می‌دارد. برای خروج از منوی نشانگر استفاده کنید."
 }

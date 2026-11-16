@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} 건너뛰기",
   "{{count}} éléments supprimés": "{{count}} 상품 삭제",
   "{{count}} éléments sélectionnés": "{{count}} 상품 선택",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "계산, 하드웨어 읽기, 진단은 Rust로 수행됩니다. 네이티브 인터페이스는 웹 엔진이나 Chromium 없이 GPUI로 그려집니다."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "계산, 하드웨어 읽기, 진단은 Rust로 수행됩니다. 네이티브 인터페이스는 웹 엔진이나 Chromium 없이 GPUI로 그려집니다.",
+  "Continuer en arrière-plan à la fermeture": "닫을 때 백그라운드에서 계속 실행",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "창을 닫아도 Computy와 표시기가 계속 실행됩니다. 종료하려면 표시기 메뉴를 사용하세요."
 }

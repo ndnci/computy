@@ -2,3 +2,6 @@
 
 # Keep vendored upstream formatting intact; normal checks still apply to Computy code.
 third_party/computy-memory-boot/** linguist-vendored -whitespace
+
+# Vendored upstream crates keep their own formatting.
+vendor/** linguist-vendored -whitespace

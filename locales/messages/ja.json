@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} スキップ",
   "{{count}} éléments supprimés": "{{count}} アイテムを削除",
   "{{count}} éléments sélectionnés": "{{count}} 選択した項目",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、ハードウェアの読み取り、診断は Rust で行われます。ネイティブインターフェイスは Web エンジンや Chromium を使わず GPUI で描画されます。"
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、ハードウェアの読み取り、診断は Rust で行われます。ネイティブインターフェイスは Web エンジンや Chromium を使わず GPUI で描画されます。",
+  "Continuer en arrière-plan à la fermeture": "閉じてもバックグラウンドで実行を続ける",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "ウィンドウを閉じても Computy とインジケーターは動作し続けます。終了するにはインジケーターのメニューを使用してください。"
 }

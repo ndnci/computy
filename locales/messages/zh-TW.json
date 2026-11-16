@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} 跳過",
   "{{count}} éléments supprimés": "{{count}} 刪除的專案",
   "{{count}} éléments sélectionnés": "{{count}} 選中的專案",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、硬體讀取與診斷均在 Rust 中完成。原生介面由 GPUI 繪製，無需 Web 引擎或 Chromium。"
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、硬體讀取與診斷均在 Rust 中完成。原生介面由 GPUI 繪製，無需 Web 引擎或 Chromium。",
+  "Continuer en arrière-plan à la fermeture": "關閉後繼續在背景執行",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "關閉視窗後，Computy 及其指示器仍會持續執行。若要結束，請使用指示器選單。"
 }

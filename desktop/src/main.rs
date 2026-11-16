@@ -130,7 +130,17 @@ pub fn open_main_window(page: Option<app::Page>, cx: &mut App) {
 /// Keep monitoring in the tray and free the interface.
 fn main_window_closed(cx: &mut App) {
     cx.global_mut::<AppWindows>().main = None;
-    if !tray::has_icons() {
+    let keep_running = cx
+        .global::<AppWindows>()
+        .backend
+        .as_ref()
+        .and_then(|b| {
+            b.typed::<model::Preferences>("preferences", serde_json::json!({}))
+                .ok()
+        })
+        .is_none_or(|p| p.keep_running_on_close);
+    // Without a visible indicator nothing could reopen the window: quit.
+    if !(keep_running && tray::has_icons()) {
         quit(cx);
     }
 }

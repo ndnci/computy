@@ -2,6 +2,8 @@
 
 Computy provides RAM, CPU and GPU indicators enabled by default. In **Preferences → System tray monitoring**, select individual indicators and volumes, or disable monitoring entirely. Saved changes take effect within two seconds.
 
+**Keep running in the background when closed** is enabled by default: closing the window leaves Computy and its indicators running, and the indicator menu or Ctrl+Q quits. When it is disabled, or when no indicator is shown, closing the window quits Computy.
+
 Three styles are available: **icon + percentage** by default, the previous **ring** design, and an **icon filled** according to usage. Colors are blue below 65%, yellow from 65% to 89%, and red from 90%. Unknown values remain gray and never become 0%.
 
 The detailed panel reuses application components: a large ring, percentage, component icon and name, ten processes with measurements, application icons when accessible, and actions with icons. **View all** opens the complete process list in the main window. Escape, the close button or loss of focus dismisses the panel. A hidden panel does not sample telemetry.

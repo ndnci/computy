@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} pominięty",
   "{{count}} éléments supprimés": "{{count}} pozycje usunięte",
   "{{count}} éléments sélectionnés": "{{count}} zaznaczone elementy",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Obliczenia, odczyt sprzętu i diagnostyka w Rust. Natywny interfejs jest rysowany przez GPUI, bez silnika WWW i bez Chromium."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Obliczenia, odczyt sprzętu i diagnostyka w Rust. Natywny interfejs jest rysowany przez GPUI, bez silnika WWW i bez Chromium.",
+  "Continuer en arrière-plan à la fermeture": "Działaj w tle po zamknięciu",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Zamknięcie okna pozostawia Computy i jego wskaźniki aktywne. Aby zakończyć, użyj menu wskaźnika."
 }

@@ -905,7 +905,9 @@
     "{{count}} ignorés": "{{count}} skipped",
     "{{count}} éléments supprimés": "{{count}} items deleted",
     "{{count}} éléments sélectionnés": "{{count}} items selected",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Calculations, hardware reading and diagnostics in Rust. The native interface is drawn with GPUI, without a web engine or Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Calculations, hardware reading and diagnostics in Rust. The native interface is drawn with GPUI, without a web engine or Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Keep running in the background when closed",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Closing the window keeps Computy and its indicators running. To quit, use the indicator menu."
   },
   "es": {
     "10": "10",
@@ -1812,7 +1814,9 @@
     "{{count}} ignorés": "{{count}} saltando",
     "{{count}} éléments supprimés": "{{count}} ítems eliminados",
     "{{count}} éléments sélectionnés": "{{count}} items selected",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Cálculos, lectura del hardware y diagnósticos en Rust. La interfaz nativa se dibuja con GPUI, sin motor web ni Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Cálculos, lectura del hardware y diagnósticos en Rust. La interfaz nativa se dibuja con GPUI, sin motor web ni Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Seguir en segundo plano al cerrar",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Al cerrar la ventana, Computy y sus indicadores siguen activos. Para salir, use el menú del indicador."
   },
   "pt-BR": {
     "10": "10",
@@ -2719,7 +2723,9 @@
     "{{count}} ignorés": "{{count}} pulou",
     "{{count}} éléments supprimés": "{{count}} itens apagados",
     "{{count}} éléments sélectionnés": "{{count}} itens selecionados",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Cálculos, leitura do hardware e diagnósticos em Rust. A interface nativa é desenhada com GPUI, sem mecanismo web nem Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Cálculos, leitura do hardware e diagnósticos em Rust. A interface nativa é desenhada com GPUI, sem mecanismo web nem Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Continuar em segundo plano ao fechar",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Fechar a janela mantém o Computy e seus indicadores ativos. Para sair, use o menu do indicador."
   },
   "de": {
     "10": "10",
@@ -3626,7 +3632,9 @@
     "{{count}} ignorés": "{{count}} übersprungen",
     "{{count}} éléments supprimés": "{{count}} Elemente gelöscht",
     "{{count}} éléments sélectionnés": "{{count}} ausgewählt",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Berechnungen, Hardwareabfrage und Diagnosen in Rust. Die native Oberfläche wird mit GPUI gezeichnet, ohne Web-Engine und ohne Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Berechnungen, Hardwareabfrage und Diagnosen in Rust. Die native Oberfläche wird mit GPUI gezeichnet, ohne Web-Engine und ohne Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Beim Schließen im Hintergrund weiterlaufen",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Beim Schließen des Fensters bleiben Computy und seine Anzeigen aktiv. Zum Beenden das Menü der Anzeige verwenden."
   },
   "it": {
     "10": "10",
@@ -4533,7 +4541,9 @@
     "{{count}} ignorés": "{{count}} saltato",
     "{{count}} éléments supprimés": "{{count}} elementi eliminati",
     "{{count}} éléments sélectionnés": "{{count}} elementi selezionati",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Calcoli, lettura dell’hardware e diagnostica in Rust. L’interfaccia nativa è disegnata con GPUI, senza motore web né Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Calcoli, lettura dell’hardware e diagnostica in Rust. L’interfaccia nativa è disegnata con GPUI, senza motore web né Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Continua in background alla chiusura",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Chiudendo la finestra, Computy e i suoi indicatori restano attivi. Per uscire, usa il menu dell’indicatore."
   },
   "nl": {
     "10": "10",
@@ -5440,7 +5450,9 @@
     "{{count}} ignorés": "{{count}} overgeslagen",
     "{{count}} éléments supprimés": "{{count}} geschrapt",
     "{{count}} éléments sélectionnés": "{{count}} items geselecteerd",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Berekeningen, hardware-uitlezing en diagnoses in Rust. De native interface wordt met GPUI getekend, zonder webengine of Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Berekeningen, hardware-uitlezing en diagnoses in Rust. De native interface wordt met GPUI getekend, zonder webengine of Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Op de achtergrond blijven draaien na sluiten",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Na het sluiten van het venster blijven Computy en de indicatoren actief. Gebruik het indicatormenu om af te sluiten."
   },
   "pl": {
     "10": "10",
@@ -6347,7 +6359,9 @@
     "{{count}} ignorés": "{{count}} pominięty",
     "{{count}} éléments supprimés": "{{count}} pozycje usunięte",
     "{{count}} éléments sélectionnés": "{{count}} zaznaczone elementy",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Obliczenia, odczyt sprzętu i diagnostyka w Rust. Natywny interfejs jest rysowany przez GPUI, bez silnika WWW i bez Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Obliczenia, odczyt sprzętu i diagnostyka w Rust. Natywny interfejs jest rysowany przez GPUI, bez silnika WWW i bez Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Działaj w tle po zamknięciu",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Zamknięcie okna pozostawia Computy i jego wskaźniki aktywne. Aby zakończyć, użyj menu wskaźnika."
   },
   "ru": {
     "10": "10",
@@ -7254,7 +7268,9 @@
     "{{count}} ignorés": "{{count}} пропущенный",
     "{{count}} éléments supprimés": "{{count}} пункты, исключенные",
     "{{count}} éléments sélectionnés": "{{count}} выбранные пункты",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Вычисления, чтение данных об оборудовании и диагностика — на Rust. Нативный интерфейс отрисовывается с помощью GPUI, без веб-движка и Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Вычисления, чтение данных об оборудовании и диагностика — на Rust. Нативный интерфейс отрисовывается с помощью GPUI, без веб-движка и Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Продолжать работу в фоне после закрытия",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "После закрытия окна Computy и его индикаторы продолжают работать. Чтобы выйти, используйте меню индикатора."
   },
   "uk": {
     "10": "10",
@@ -8161,7 +8177,9 @@
     "{{count}} ignorés": "{{count}} Пропустити",
     "{{count}} éléments supprimés": "{{count}} вилучені елементи",
     "{{count}} éléments sélectionnés": "{{count}} вибрані",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Обчислення, зчитування обладнання та діагностика — на Rust. Нативний інтерфейс малюється за допомогою GPUI, без вебрушія та Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Обчислення, зчитування обладнання та діагностика — на Rust. Нативний інтерфейс малюється за допомогою GPUI, без вебрушія та Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Працювати у фоні після закриття",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Після закриття вікна Computy та його індикатори залишаються активними. Щоб вийти, скористайтеся меню індикатора."
   },
   "tr": {
     "10": "10",
@@ -9068,7 +9086,9 @@
     "{{count}} ignorés": "{{count}} atladı",
     "{{count}} éléments supprimés": "{{count}} öğeleri silindi",
     "{{count}} éléments sélectionnés": "{{count}} seçilen öğeler",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesaplamalar, donanım okuma ve tanılama Rust ile yapılır. Yerel arayüz, web motoru veya Chromium olmadan GPUI ile çizilir."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesaplamalar, donanım okuma ve tanılama Rust ile yapılır. Yerel arayüz, web motoru veya Chromium olmadan GPUI ile çizilir.",
+    "Continuer en arrière-plan à la fermeture": "Kapatınca arka planda çalışmaya devam et",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Pencereyi kapatmak Computy’yi ve göstergelerini etkin bırakır. Çıkmak için gösterge menüsünü kullanın."
   },
   "ar": {
     "10": "10",
@@ -9975,7 +9995,9 @@
     "{{count}} ignorés": "{{count}} تخطيت",
     "{{count}} éléments supprimés": "{{count}} البنود المحذفة",
     "{{count}} éléments sélectionnés": "{{count}} بنود مختارة",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "تتم الحسابات وقراءة العتاد والتشخيصات بلغة Rust. تُرسم الواجهة الأصلية باستخدام GPUI، دون محرك ويب أو Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "تتم الحسابات وقراءة العتاد والتشخيصات بلغة Rust. تُرسم الواجهة الأصلية باستخدام GPUI، دون محرك ويب أو Chromium.",
+    "Continuer en arrière-plan à la fermeture": "مواصلة العمل في الخلفية عند الإغلاق",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "يؤدي إغلاق النافذة إلى إبقاء Computy ومؤشراته نشطة. للخروج، استخدم قائمة المؤشر."
   },
   "hi": {
     "10": "10",
@@ -10882,7 +10904,9 @@
     "{{count}} ignorés": "{{count}} चीखना",
     "{{count}} éléments supprimés": "{{count}} आइटम हटाए गए",
     "{{count}} éléments sélectionnés": "{{count}} आइटम चयनित",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "गणनाएँ, हार्डवेयर पढ़ना और निदान Rust में होते हैं। मूल इंटरफ़ेस GPUI से बनाया जाता है, बिना वेब इंजन या Chromium के।"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "गणनाएँ, हार्डवेयर पढ़ना और निदान Rust में होते हैं। मूल इंटरफ़ेस GPUI से बनाया जाता है, बिना वेब इंजन या Chromium के।",
+    "Continuer en arrière-plan à la fermeture": "बंद करने पर पृष्ठभूमि में चलते रहें",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "विंडो बंद करने पर Computy और उसके संकेतक सक्रिय रहते हैं। बाहर निकलने के लिए संकेतक मेनू का उपयोग करें।"
   },
   "bn": {
     "10": "10",
@@ -11789,7 +11813,9 @@
     "{{count}} ignorés": "{{count}} এড়িয়ে যাও",
     "{{count}} éléments supprimés": "{{count}} বস্তু মুছে ফেলুন",
     "{{count}} éléments sélectionnés": "{{count}} নির্বাচিত সামগ্রী মুছে ফেলুন",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "গণনা, হার্ডওয়্যার পড়া ও ডায়াগনস্টিক Rust-এ হয়। নেটিভ ইন্টারফেসটি GPUI দিয়ে আঁকা হয়, কোনো ওয়েব ইঞ্জিন বা Chromium ছাড়াই।"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "গণনা, হার্ডওয়্যার পড়া ও ডায়াগনস্টিক Rust-এ হয়। নেটিভ ইন্টারফেসটি GPUI দিয়ে আঁকা হয়, কোনো ওয়েব ইঞ্জিন বা Chromium ছাড়াই।",
+    "Continuer en arrière-plan à la fermeture": "বন্ধ করলে পটভূমিতে চালু থাকুক",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "উইন্ডো বন্ধ করলে Computy এবং এর নির্দেশকগুলি সক্রিয় থাকে। বের হতে নির্দেশকের মেনু ব্যবহার করুন।"
   },
   "ur": {
     "10": "10",
@@ -12696,7 +12722,9 @@
     "{{count}} ignorés": "{{count}} طےشدہ",
     "{{count}} éléments supprimés": "{{count}} آئٹمس حذف ہوگئی",
     "{{count}} éléments sélectionnés": "{{count}} منتخب عناصر",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "حسابات، ہارڈویئر کی جانچ اور تشخیص Rust میں ہوتی ہیں۔ مقامی انٹرفیس GPUI سے بنایا جاتا ہے، بغیر ویب انجن یا Chromium کے۔"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "حسابات، ہارڈویئر کی جانچ اور تشخیص Rust میں ہوتی ہیں۔ مقامی انٹرفیس GPUI سے بنایا جاتا ہے، بغیر ویب انجن یا Chromium کے۔",
+    "Continuer en arrière-plan à la fermeture": "بند کرنے پر پس منظر میں چلتا رہے",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "ونڈو بند کرنے پر Computy اور اس کے اشاریے فعال رہتے ہیں۔ باہر نکلنے کے لیے اشاریے کا مینو استعمال کریں۔"
   },
   "id": {
     "10": "10",
@@ -13603,7 +13631,9 @@
     "{{count}} ignorés": "{{count}} dilewati",
     "{{count}} éléments supprimés": "{{count}} butir dihapus",
     "{{count}} éléments sélectionnés": "{{count}} butir yang dipilih",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Perhitungan, pembacaan perangkat keras, dan diagnostik dilakukan di Rust. Antarmuka native digambar dengan GPUI, tanpa mesin web atau Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Perhitungan, pembacaan perangkat keras, dan diagnostik dilakukan di Rust. Antarmuka native digambar dengan GPUI, tanpa mesin web atau Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Tetap berjalan di latar belakang saat ditutup",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Menutup jendela membiarkan Computy dan indikatornya tetap aktif. Untuk keluar, gunakan menu indikator."
   },
   "vi": {
     "10": "10",
@@ -14510,7 +14540,9 @@
     "{{count}} ignorés": "{{count}} bỏ qua",
     "{{count}} éléments supprimés": "{{count}} mục đã xoá",
     "{{count}} éléments sélectionnés": "{{count}} mục đã chọn",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Tính toán, đọc phần cứng và chẩn đoán bằng Rust. Giao diện gốc được vẽ bằng GPUI, không dùng công cụ web hay Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Tính toán, đọc phần cứng và chẩn đoán bằng Rust. Giao diện gốc được vẽ bằng GPUI, không dùng công cụ web hay Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Tiếp tục chạy nền khi đóng",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Đóng cửa sổ vẫn giữ Computy và các chỉ báo hoạt động. Để thoát, hãy dùng menu của chỉ báo."
   },
   "th": {
     "10": "10",
@@ -15417,7 +15449,9 @@
     "{{count}} ignorés": "{{count}} ข้าม",
     "{{count}} éléments supprimés": "{{count}} ลบรายการ",
     "{{count}} éléments sélectionnés": "{{count}} รายการที่เลือก",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "การคำนวณ การอ่านฮาร์ดแวร์ และการวินิจฉัยทำงานด้วย Rust อินเทอร์เฟซแบบเนทีฟวาดด้วย GPUI โดยไม่ใช้เว็บเอนจินหรือ Chromium"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "การคำนวณ การอ่านฮาร์ดแวร์ และการวินิจฉัยทำงานด้วย Rust อินเทอร์เฟซแบบเนทีฟวาดด้วย GPUI โดยไม่ใช้เว็บเอนจินหรือ Chromium",
+    "Continuer en arrière-plan à la fermeture": "ทำงานต่อในเบื้องหลังเมื่อปิด",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "การปิดหน้าต่างจะทำให้ Computy และตัวบ่งชี้ยังทำงานอยู่ หากต้องการออก ให้ใช้เมนูของตัวบ่งชี้"
   },
   "ko": {
     "10": "10",
@@ -16324,7 +16358,9 @@
     "{{count}} ignorés": "{{count}} 건너뛰기",
     "{{count}} éléments supprimés": "{{count}} 상품 삭제",
     "{{count}} éléments sélectionnés": "{{count}} 상품 선택",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "계산, 하드웨어 읽기, 진단은 Rust로 수행됩니다. 네이티브 인터페이스는 웹 엔진이나 Chromium 없이 GPUI로 그려집니다."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "계산, 하드웨어 읽기, 진단은 Rust로 수행됩니다. 네이티브 인터페이스는 웹 엔진이나 Chromium 없이 GPUI로 그려집니다.",
+    "Continuer en arrière-plan à la fermeture": "닫을 때 백그라운드에서 계속 실행",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "창을 닫아도 Computy와 표시기가 계속 실행됩니다. 종료하려면 표시기 메뉴를 사용하세요."
   },
   "ja": {
     "10": "10",
@@ -17231,7 +17267,9 @@
     "{{count}} ignorés": "{{count}} スキップ",
     "{{count}} éléments supprimés": "{{count}} アイテムを削除",
     "{{count}} éléments sélectionnés": "{{count}} 選択した項目",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、ハードウェアの読み取り、診断は Rust で行われます。ネイティブインターフェイスは Web エンジンや Chromium を使わず GPUI で描画されます。"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、ハードウェアの読み取り、診断は Rust で行われます。ネイティブインターフェイスは Web エンジンや Chromium を使わず GPUI で描画されます。",
+    "Continuer en arrière-plan à la fermeture": "閉じてもバックグラウンドで実行を続ける",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "ウィンドウを閉じても Computy とインジケーターは動作し続けます。終了するにはインジケーターのメニューを使用してください。"
   },
   "zh-CN": {
     "10": "10",
@@ -18138,7 +18176,9 @@
     "{{count}} ignorés": "{{count}} 跳过",
     "{{count}} éléments supprimés": "{{count}} 删除的项目",
     "{{count}} éléments sélectionnés": "{{count}} 选中的项目",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "计算、硬件读取和诊断均在 Rust 中完成。原生界面由 GPUI 绘制，无需 Web 引擎或 Chromium。"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "计算、硬件读取和诊断均在 Rust 中完成。原生界面由 GPUI 绘制，无需 Web 引擎或 Chromium。",
+    "Continuer en arrière-plan à la fermeture": "关闭后继续在后台运行",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "关闭窗口后，Computy 及其指示器仍保持运行。要退出，请使用指示器菜单。"
   },
   "zh-TW": {
     "10": "10",
@@ -19045,7 +19085,9 @@
     "{{count}} ignorés": "{{count}} 跳過",
     "{{count}} éléments supprimés": "{{count}} 刪除的專案",
     "{{count}} éléments sélectionnés": "{{count}} 選中的專案",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、硬體讀取與診斷均在 Rust 中完成。原生介面由 GPUI 繪製，無需 Web 引擎或 Chromium。"
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "計算、硬體讀取與診斷均在 Rust 中完成。原生介面由 GPUI 繪製，無需 Web 引擎或 Chromium。",
+    "Continuer en arrière-plan à la fermeture": "關閉後繼續在背景執行",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "關閉視窗後，Computy 及其指示器仍會持續執行。若要結束，請使用指示器選單。"
   },
   "fa": {
     "10": "10",
@@ -19952,7 +19994,9 @@
     "{{count}} ignorés": "{{count}} فرار",
     "{{count}} éléments supprimés": "{{count}} موارد حذف شده",
     "{{count}} éléments sélectionnés": "{{count}} آیتم های انتخاب شده",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "محاسبات، خواندن سخت‌افزار و عیب‌یابی با Rust انجام می‌شود. رابط بومی با GPUI ترسیم می‌شود، بدون موتور وب یا Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "محاسبات، خواندن سخت‌افزار و عیب‌یابی با Rust انجام می‌شود. رابط بومی با GPUI ترسیم می‌شود، بدون موتور وب یا Chromium.",
+    "Continuer en arrière-plan à la fermeture": "ادامهٔ اجرا در پس‌زمینه هنگام بستن",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "بستن پنجره Computy و نشانگرهایش را فعال نگه می‌دارد. برای خروج از منوی نشانگر استفاده کنید."
   },
   "he": {
     "10": "10",
@@ -20859,7 +20903,9 @@
     "{{count}} ignorés": "{{count}} לדלג",
     "{{count}} éléments supprimés": "{{count}} פריטים נמחקים",
     "{{count}} éléments sélectionnés": "{{count}} פריטים נבחרים",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "חישובים, קריאת החומרה ואבחונים מתבצעים ב-Rust. הממשק המקורי מצויר באמצעות GPUI, ללא מנוע אינטרנט וללא Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "חישובים, קריאת החומרה ואבחונים מתבצעים ב-Rust. הממשק המקורי מצויר באמצעות GPUI, ללא מנוע אינטרנט וללא Chromium.",
+    "Continuer en arrière-plan à la fermeture": "להמשיך לפעול ברקע בעת סגירה",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "סגירת החלון משאירה את Computy והמחוונים שלו פעילים. כדי לצאת, השתמשו בתפריט המחוון."
   },
   "sw": {
     "10": "10",
@@ -21766,6 +21812,8 @@
     "{{count}} ignorés": "{{count}} Waliozaliwa",
     "{{count}} éléments supprimés": "{{count}} Vitu vilivyoondolewa",
     "{{count}} éléments sélectionnés": "{{count}} Vitu vilivyochaguliwa",
-    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesabu, usomaji wa maunzi na uchunguzi hufanyika kwa Rust. Kiolesura asili huchorwa kwa GPUI, bila injini ya wavuti wala Chromium."
+    "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesabu, usomaji wa maunzi na uchunguzi hufanyika kwa Rust. Kiolesura asili huchorwa kwa GPUI, bila injini ya wavuti wala Chromium.",
+    "Continuer en arrière-plan à la fermeture": "Endelea kufanya kazi chinichini ukifunga",
+    "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Kufunga dirisha huacha Computy na viashiria vyake vikiendelea. Ili kuondoka, tumia menyu ya kiashiria."
   }
 }

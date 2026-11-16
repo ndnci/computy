@@ -8,6 +8,20 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+### Added
+
+- Preferences → System tray monitor: **Keep running in the background when
+  closed**, enabled by default. Closing the window then leaves Computy and its
+  indicators running; turning it off makes the close button quit. The CLI
+  (`settings set --keep-running-on-close`) and MCP preferences accept the same
+  setting.
+
+### Fixed
+
+- On Linux, closing the main window (or the tray popover while the window was
+  closed) quit Computy and removed its tray indicators. GPUI is now patched
+  (`vendor/gpui`) so the application only quits explicitly.
+
 ## [0.3.0] - 2026-11-16
 
 ### Changed

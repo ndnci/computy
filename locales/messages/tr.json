@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} atladı",
   "{{count}} éléments supprimés": "{{count}} öğeleri silindi",
   "{{count}} éléments sélectionnés": "{{count}} seçilen öğeler",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesaplamalar, donanım okuma ve tanılama Rust ile yapılır. Yerel arayüz, web motoru veya Chromium olmadan GPUI ile çizilir."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesaplamalar, donanım okuma ve tanılama Rust ile yapılır. Yerel arayüz, web motoru veya Chromium olmadan GPUI ile çizilir.",
+  "Continuer en arrière-plan à la fermeture": "Kapatınca arka planda çalışmaya devam et",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Pencereyi kapatmak Computy’yi ve göstergelerini etkin bırakır. Çıkmak için gösterge menüsünü kullanın."
 }

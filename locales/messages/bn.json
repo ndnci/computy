@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} এড়িয়ে যাও",
   "{{count}} éléments supprimés": "{{count}} বস্তু মুছে ফেলুন",
   "{{count}} éléments sélectionnés": "{{count}} নির্বাচিত সামগ্রী মুছে ফেলুন",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "গণনা, হার্ডওয়্যার পড়া ও ডায়াগনস্টিক Rust-এ হয়। নেটিভ ইন্টারফেসটি GPUI দিয়ে আঁকা হয়, কোনো ওয়েব ইঞ্জিন বা Chromium ছাড়াই।"
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "গণনা, হার্ডওয়্যার পড়া ও ডায়াগনস্টিক Rust-এ হয়। নেটিভ ইন্টারফেসটি GPUI দিয়ে আঁকা হয়, কোনো ওয়েব ইঞ্জিন বা Chromium ছাড়াই।",
+  "Continuer en arrière-plan à la fermeture": "বন্ধ করলে পটভূমিতে চালু থাকুক",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "উইন্ডো বন্ধ করলে Computy এবং এর নির্দেশকগুলি সক্রিয় থাকে। বের হতে নির্দেশকের মেনু ব্যবহার করুন।"
 }

@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} चीखना",
   "{{count}} éléments supprimés": "{{count}} आइटम हटाए गए",
   "{{count}} éléments sélectionnés": "{{count}} आइटम चयनित",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "गणनाएँ, हार्डवेयर पढ़ना और निदान Rust में होते हैं। मूल इंटरफ़ेस GPUI से बनाया जाता है, बिना वेब इंजन या Chromium के।"
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "गणनाएँ, हार्डवेयर पढ़ना और निदान Rust में होते हैं। मूल इंटरफ़ेस GPUI से बनाया जाता है, बिना वेब इंजन या Chromium के।",
+  "Continuer en arrière-plan à la fermeture": "बंद करने पर पृष्ठभूमि में चलते रहें",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "विंडो बंद करने पर Computy और उसके संकेतक सक्रिय रहते हैं। बाहर निकलने के लिए संकेतक मेनू का उपयोग करें।"
 }

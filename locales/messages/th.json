@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} ข้าม",
   "{{count}} éléments supprimés": "{{count}} ลบรายการ",
   "{{count}} éléments sélectionnés": "{{count}} รายการที่เลือก",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "การคำนวณ การอ่านฮาร์ดแวร์ และการวินิจฉัยทำงานด้วย Rust อินเทอร์เฟซแบบเนทีฟวาดด้วย GPUI โดยไม่ใช้เว็บเอนจินหรือ Chromium"
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "การคำนวณ การอ่านฮาร์ดแวร์ และการวินิจฉัยทำงานด้วย Rust อินเทอร์เฟซแบบเนทีฟวาดด้วย GPUI โดยไม่ใช้เว็บเอนจินหรือ Chromium",
+  "Continuer en arrière-plan à la fermeture": "ทำงานต่อในเบื้องหลังเมื่อปิด",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "การปิดหน้าต่างจะทำให้ Computy และตัวบ่งชี้ยังทำงานอยู่ หากต้องการออก ให้ใช้เมนูของตัวบ่งชี้"
 }

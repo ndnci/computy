@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} Waliozaliwa",
   "{{count}} éléments supprimés": "{{count}} Vitu vilivyoondolewa",
   "{{count}} éléments sélectionnés": "{{count}} Vitu vilivyochaguliwa",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesabu, usomaji wa maunzi na uchunguzi hufanyika kwa Rust. Kiolesura asili huchorwa kwa GPUI, bila injini ya wavuti wala Chromium."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Hesabu, usomaji wa maunzi na uchunguzi hufanyika kwa Rust. Kiolesura asili huchorwa kwa GPUI, bila injini ya wavuti wala Chromium.",
+  "Continuer en arrière-plan à la fermeture": "Endelea kufanya kazi chinichini ukifunga",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Kufunga dirisha huacha Computy na viashiria vyake vikiendelea. Ili kuondoka, tumia menyu ya kiashiria."
 }

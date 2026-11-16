@@ -903,5 +903,7 @@
   "{{count}} ignorés": "{{count}} dilewati",
   "{{count}} éléments supprimés": "{{count}} butir dihapus",
   "{{count}} éléments sélectionnés": "{{count}} butir yang dipilih",
-  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Perhitungan, pembacaan perangkat keras, dan diagnostik dilakukan di Rust. Antarmuka native digambar dengan GPUI, tanpa mesin web atau Chromium."
+  "Calculs, lecture du matériel et diagnostics dans Rust. L’interface native est dessinée avec GPUI, sans moteur web ni Chromium.": "Perhitungan, pembacaan perangkat keras, dan diagnostik dilakukan di Rust. Antarmuka native digambar dengan GPUI, tanpa mesin web atau Chromium.",
+  "Continuer en arrière-plan à la fermeture": "Tetap berjalan di latar belakang saat ditutup",
+  "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.": "Menutup jendela membiarkan Computy dan indikatornya tetap aktif. Untuk keluar, gunakan menu indikator."
 }

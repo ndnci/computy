@@ -48,3 +48,5 @@ opt-level = 3
 # by current libc. vendor/xattr keeps the upstream API and fixes that alias.
 [patch.crates-io]
 xattr = { path = "../vendor/xattr" }
+# Closing the last window must not quit while the tray is running (see vendor/gpui).
+gpui = { path = "../vendor/gpui" }

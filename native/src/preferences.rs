@@ -10,6 +10,8 @@ pub struct Preferences {
     pub theme: String,
     pub language: String,
     pub tray_enabled: bool,
+    /// Closing the window keeps Computy running in the system tray.
+    pub keep_running_on_close: bool,
     pub tray_style: String,
     pub tray_components: Vec<String>,
     pub tray_disks: Vec<String>,
@@ -24,6 +26,7 @@ impl Default for Preferences {
             theme: "system".into(),
             language: "system".into(),
             tray_enabled: true,
+            keep_running_on_close: true,
             tray_style: "icon_text".into(),
             tray_components: vec!["memory".into(), "cpu".into(), "gpu".into()],
             tray_disks: vec![],
