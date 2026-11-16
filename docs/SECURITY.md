@@ -73,3 +73,13 @@ The panel uses local Computy assets and the same CSP. Its `engine_call` access i
 ## Local maintenance
 
 Uninstall and full data-erasure commands require the main window and an explicit confirmation flag; neither is exposed through engine RPC or MCP. Erasure refuses an active diagnostic or another process's diagnostic lock, rejects symlinked managed paths, and preserves unrelated files and user exports. The CLI requires `erase-data --yes`. Linux removal uses fixed PolicyKit/APT arguments; Windows uses the adjacent NSIS uninstaller; macOS passes the current app bundle as a separate Finder argument. Portable installations receive manual removal guidance. Automated tests never invoke a real uninstaller or wipe host data.
+
+## Published repository files
+
+Screenshots, benchmarks and fixtures are recorded on contributors' machines, so they must not reveal who recorded them. Hardware descriptions (CPU, GPU, memory, kernel) are fine; home-directory paths, host names and user names are not.
+
+- `scripts/visual/record-fixture.mjs` replaces the host name, user name and home directory with `demo-machine`, `user` and `/home/user` before writing the screenshot fixture.
+- `scripts/benchmark-desktop.py` records the measured binary relative to the repository (or by file name when it lives in the home directory).
+- `npm run check:privacy` (`scripts/check-privacy.mjs`) fails on absolute `/home/…`, `/Users/…` or `C:\Users\…` paths that are not placeholders, on the local host name, and on terms listed in an untracked `.privacy-terms` file (one per line) or in `COMPUTY_PRIVATE_TERMS`. It also reads PNG text metadata. It runs in CI; enable it before each commit with `git config core.hooksPath .githooks`.
+
+The check cannot read text drawn inside images: review new screenshots before committing them.

@@ -1,0 +1,14 @@
+#!/bin/sh
+# Blocks commits that would publish details of this computer (home paths, host name,
+# terms listed in .privacy-terms). Enable once with: git config core.hooksPath .githooks
+# GUI Git clients often run without the shell's PATH: fall back to an nvm install.
+if ! command -v node >/dev/null 2>&1; then
+  for bin in "${NVM_DIR:-$HOME/.nvm}"/versions/node/*/bin; do
+    [ -x "$bin/node" ] && PATH="$bin:$PATH"
+  done
+fi
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: Node.js is required for scripts/check-privacy.mjs" >&2
+  exit 1
+fi
+exec node scripts/check-privacy.mjs

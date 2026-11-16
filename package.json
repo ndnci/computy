@@ -7,6 +7,7 @@
   "scripts": {
     "build:engine": "cargo build --release --manifest-path native/Cargo.toml",
     "test": "node --test tests/*.test.mjs",
+    "check:privacy": "node scripts/check-privacy.mjs",
     "test:native": "cargo test --manifest-path native/Cargo.toml",
     "test:desktop": "scripts/gpui-docker.sh cargo test --manifest-path desktop/Cargo.toml",
     "desktop": "scripts/gpui-docker.sh cargo build --release --manifest-path desktop/Cargo.toml",

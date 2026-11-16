@@ -15,3 +15,7 @@ release-assets/
 # Local visual regression captures and frozen hardware fixtures
 tests/visual/
 desktop/target/
+
+# Private terms for scripts/check-privacy.mjs (one per line, never committed)
+.privacy-terms
+__pycache__/

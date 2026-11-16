@@ -166,6 +166,17 @@ def gpu_names():
     return [l.split(": ", 1)[1] for l in output.splitlines() if "VGA" in l or "3D controller" in l]
 
 
+def public_path(binary):
+    """Path recorded in the published JSON, without the contributor's home directory."""
+    path = Path(binary)
+    root = Path(__file__).resolve().parent.parent
+    if path.is_relative_to(root):
+        return str(path.relative_to(root))
+    if path.is_relative_to(Path.home()):
+        return path.name
+    return str(path)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--binary", required=True)
@@ -203,7 +214,7 @@ def main():
         results[scenario] = summarize(runs)
     document = {
         "label": args.label,
-        "binary": binary,
+        "binary": public_path(binary),
         "binary_mib": round(os.path.getsize(binary) / 1024 ** 2, 2),
         "package_mib": round(args.package.stat().st_size / 1024 ** 2, 2) if args.package else None,
         "date": time.strftime("%Y-%m-%d"),

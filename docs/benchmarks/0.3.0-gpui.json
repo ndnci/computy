@@ -1,6 +1,6 @@
 {
   "label": "GPUI 0.3.0",
-  "binary": "/home/sovetski/Desktop/Dev/Personal/computy/desktop/target/release/computy",
+  "binary": "desktop/target/release/computy",
   "binary_mib": 32.22,
   "package_mib": 10.11,
   "date": "2026-11-16",

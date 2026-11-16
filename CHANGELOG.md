@@ -12,6 +12,11 @@ commits and locally built packages, not from previously published store releases
 
 - The desktop application builds on Windows again: embedded icon and artwork
   paths are now escaped correctly in the generated asset table.
+- Documentation screenshots and benchmark results no longer show the host name
+  or home-directory path of the machine they were recorded on. Screenshot
+  fixtures and benchmarks are now anonymised when recorded, and a privacy check
+  (`npm run check:privacy`, also run in CI and as an optional pre-commit hook)
+  rejects such details in tracked files.
 
 ## [0.3.1] - 2026-11-16
 

@@ -94,8 +94,18 @@ fixture.tauri = {
   monitor_panel_target: { metric: 'memory', volume: '', visible: true },
   monitor_tray_status: { active: true, items: [] },
 };
+// Screenshots are published: replace the host name, user name and home directory
+// with placeholders. Hardware descriptions stay as recorded.
+const placeholders = [
+  [os.homedir(), '/home/user'],
+  [os.hostname(), 'demo-machine'],
+  [os.userInfo().username, 'user'],
+].filter(([value]) => value && value.length >= 3);
+let serialized = JSON.stringify(fixture, null, 2);
+for (const [value, placeholder] of placeholders)
+  serialized = serialized.split(value).join(placeholder);
 await mkdir(path.join(root, 'tests/visual'), { recursive: true });
-await writeFile(path.join(root, 'tests/visual/fixture.json'), JSON.stringify(fixture, null, 2));
+await writeFile(path.join(root, 'tests/visual/fixture.json'), serialized);
 console.log(
   JSON.stringify({
     reports: Object.keys(fixture.reports).length,
