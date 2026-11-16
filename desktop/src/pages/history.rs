@@ -29,7 +29,7 @@ pub struct HistoryState {
 impl HistoryState {
     pub fn new(window: &mut Window, cx: &mut Context<Computy>) -> Self {
         let query =
-            cx.new(|cx| InputState::new(window, cx).placeholder(tx("Rechercher un diagnostic…")));
+            cx.new(|cx| InputState::new(window, cx).placeholder(tx("history.search_diagnostics")));
         let name = cx.new(|cx| InputState::new(window, cx));
         let subscriptions = vec![
             cx.subscribe(&query, |_, _, event: &InputEvent, cx| {
@@ -256,7 +256,7 @@ fn row(app: &Computy, report: &Report, last: bool, cx: &mut Context<Computy>) ->
                         tn(report.summary.checked as f64),
                         tx("/"),
                         tn(report.summary.total as f64),
-                        tx(" contrôles exploitables")
+                        tx(" common.usable_checks")
                     ),
                     10.,
                     400.,
@@ -414,20 +414,29 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
     let table: AnyElement = if app.reports.is_empty() {
         empty(
             "history",
-            tx("Le premier chapitre reste à écrire."),
-            Some(tx("Lancez un diagnostic pour conserver un instantané du matériel, des contrôles et de leurs résultats.").into_any_element()),
+            tx("history.first_chapter_remains_written"),
+            Some(tx("history.start_diagnostic_keep_snapshot_hardware").into_any_element()),
             Some(
-                button("first-report", ButtonKind::Primary, false, Some("activity"), tx("Créer mon premier bilan"), false)
-                    .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::Diagnostics, window, cx)))
-                    .into_any_element(),
+                button(
+                    "first-report",
+                    ButtonKind::Primary,
+                    false,
+                    Some("activity"),
+                    tx("history.create_my_first_review"),
+                    false,
+                )
+                .on_click(
+                    cx.listener(|this, _, window, cx| this.navigate(Page::Diagnostics, window, cx)),
+                )
+                .into_any_element(),
             ),
         )
         .into_any_element()
     } else if filtered.is_empty() {
         empty(
             "search",
-            tx("Aucun diagnostic ne correspond."),
-            Some(tx("Essayez un autre nom, une date ou un filtre différent.").into_any_element()),
+            tx("history.no_diagnostics_match"),
+            Some(tx("history.try_another_name_date_filter").into_any_element()),
             None,
         )
         .into_any_element()
@@ -442,10 +451,10 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                     .border_b_1()
                     .border_color(c(theme::BORDER))
                     .child(header_cell(None, ""))
-                    .child(header_cell(Some(0), "Diagnostic"))
-                    .child(header_cell(Some(1), "Date et durée"))
-                    .child(header_cell(Some(2), "Résultat"))
-                    .child(header_cell(Some(3), "Note des contrôles"))
+                    .child(header_cell(Some(0), "history.diagnostic"))
+                    .child(header_cell(Some(1), "history.date_duration"))
+                    .child(header_cell(Some(2), "history.result"))
+                    .child(header_cell(Some(3), "common.check_score"))
                     .child(header_cell(Some(4), "")),
             )
             .children(
@@ -463,25 +472,36 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("LES REPÈRES QUI COMPTENT"),
-            "L’histoire de votre matériel.",
-            Some("Retrouvez chaque bilan, chaque configuration et ce qui a changé."),
+            Some("history.benchmarks_eyebrow"),
+            "history.hardware_has_history",
+            Some("history.find_each_report_configuration_what"),
             Some(
-                button("new-diagnostic", ButtonKind::Primary, false, Some("plus"), tx("Nouveau diagnostic"), false)
-                    .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::Diagnostics, window, cx)))
-                    .into_any_element(),
+                button(
+                    "new-diagnostic",
+                    ButtonKind::Primary,
+                    false,
+                    Some("plus"),
+                    tx("common.new_diagnostic"),
+                    false,
+                )
+                .on_click(
+                    cx.listener(|this, _, window, cx| this.navigate(Page::Diagnostics, window, cx)),
+                )
+                .into_any_element(),
             ),
         ))
         .when(app.unreadable > 0, |d| {
             d.child(
                 notice(
                     NoticeTone::Warn,
-                    vec![format!(
-                        "{}{}",
-                        tn(app.unreadable as f64),
-                        tx(" fichier(s) d’historique illisible(s) ou altéré(s) ont été écartés. Les fichiers originaux ont été conservés pour examen.")
-                    )
-                    .into_any_element()],
+                    vec![
+                        format!(
+                            "{}{}",
+                            tn(app.unreadable as f64),
+                            tx(" history.unreadable_altered_file_have_been")
+                        )
+                        .into_any_element(),
+                    ],
                 )
                 .mb(px(20.)),
             )
@@ -495,17 +515,27 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .border_1()
                 .border_color(c(theme::BORDER))
                 .rounded(px(13.))
-                .child(stat("history", tn(app.reports.len() as f64), "Diagnostics enregistrés", (0., 20.), true).map(|mut d| {
-                    d.style().flex_grow = Some(330.);
-                    d
-                }))
+                .child(
+                    stat(
+                        "history",
+                        tn(app.reports.len() as f64),
+                        "history.registered_diagnostics",
+                        (0., 20.),
+                        true,
+                    )
+                    .map(|mut d| {
+                        d.style().flex_grow = Some(330.);
+                        d
+                    }),
+                )
                 .child(
                     stat(
                         "clock-3",
-                        app.reports
-                            .first()
-                            .map_or_else(|| tx("Votre premier bilan vous attend"), |r| intl::date(locale, r.created_at as i64, true)),
-                        "dernier diagnostic",
+                        app.reports.first().map_or_else(
+                            || tx("history.first_review_waiting"),
+                            |r| intl::date(locale, r.created_at as i64, true),
+                        ),
+                        "history.last_diagnostic",
                         (20., 20.),
                         true,
                     )
@@ -514,10 +544,19 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         d
                     }),
                 )
-                .child(stat("arrow-left-right", tx("Jusqu’à 4 bilans"), "à comparer côte à côte", (20., 0.), false).map(|mut d| {
-                    d.style().flex_grow = Some(330.);
-                    d
-                })),
+                .child(
+                    stat(
+                        "arrow-left-right",
+                        tx("history.up_4_reports"),
+                        "history.compared_side_side",
+                        (20., 0.),
+                        false,
+                    )
+                    .map(|mut d| {
+                        d.style().flex_grow = Some(330.);
+                        d
+                    }),
+                ),
         )
         .child(
             panel()
@@ -547,7 +586,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 .rounded(px(7.))
                                 .text_size(px(13.))
                                 .child(icon("search", 17., "2", c((0xb0bd9f, 0xb1c699))))
-                                .child(div().flex_1().child(gpui_component::input::Input::new(&query_entity).appearance(false)))
+                                .child(
+                                    div().flex_1().child(
+                                        gpui_component::input::Input::new(&query_entity)
+                                            .appearance(false),
+                                    ),
+                                )
                                 .when(has_query, |d| {
                                     d.child(
                                         div()
@@ -555,31 +599,36 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                             .cursor_pointer()
                                             .child(icon("x", 14., "2", c(theme::MUTED)))
                                             .on_click(cx.listener(move |this, _, window, cx| {
-                                                state(this).query.update(cx, |input, cx| input.set_value("", window, cx));
+                                                state(this).query.update(cx, |input, cx| {
+                                                    input.set_value("", window, cx)
+                                                });
                                                 cx.notify();
                                             })),
                                     )
                                 }),
                         )
-                        .child(
-                            div().w(px(177.)).flex().items_center().child(select(
-                                "history-filter",
-                                &filter,
-                                vec![
-                                    option("all", tx("Tous les résultats")),
-                                    option("passed", tx("Conformes aux tests")),
-                                    option("warning", tx("À examiner")),
-                                    option("failed", tx("Anomalies détectées")),
-                                    option("unavailable", tx("Non vérifiés")),
-                                    option("cancelled", tx("Interrompus")),
-                                ],
-                                app,
-                                cx,
-                                |this, value, _, _| state(this).filter = value,
-                            )),
-                        )
+                        .child(div().w(px(177.)).flex().items_center().child(select(
+                            "history-filter",
+                            &filter,
+                            vec![
+                                option("all", tx("history.all_results")),
+                                option("passed", tx("history.passed_tests")),
+                                option("warning", tx("common.needs_review")),
+                                option("failed", tx("history.anomalies_detected")),
+                                option("unavailable", tx("history.unverified")),
+                                option("cancelled", tx("history.interrupted")),
+                            ],
+                            app,
+                            cx,
+                            |this, value, _, _| state(this).filter = value,
+                        )))
                         .child(div().flex_1())
-                        .child(text(format!("{} : {}", tx("Résultats"), tn(count as f64)), 10., 400., hex(0xa5b097))),
+                        .child(text(
+                            format!("{} : {}", tx("history.results"), tn(count as f64)),
+                            10.,
+                            400.,
+                            hex(0xa5b097),
+                        )),
                 )
                 .child(table),
         )
@@ -609,13 +658,18 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                     div()
                         .flex()
                         .flex_col()
-                        .child(text(tx("Diagnostics sélectionnés"), 11., 550., c(theme::TEXT)))
+                        .child(text(
+                            tx("history.selected_diagnostics"),
+                            11.,
+                            550.,
+                            c(theme::TEXT),
+                        ))
                         .child(
                             text(
                                 tx(if selected < 2 {
-                                    "Sélectionnez un second bilan pour comparer."
+                                    "history.select_second_report_compare"
                                 } else {
-                                    "Le premier bilan sélectionné sera votre référence."
+                                    "history.first_report_selected_reference"
                                 }),
                                 9.,
                                 400.,
@@ -626,18 +680,28 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 )
                 .child(div().flex_1())
                 .child(
-                    text_button("unselect", tx("Tout désélectionner"), None).on_click(cx.listener(|this, _, _, cx| {
-                        this.selected_ids.clear();
-                        cx.notify();
-                    })),
+                    text_button("unselect", tx("history.deselect_all"), None).on_click(
+                        cx.listener(|this, _, _, cx| {
+                            this.selected_ids.clear();
+                            cx.notify();
+                        }),
+                    ),
                 )
                 .child(
                     button_with(
                         "compare-selected",
                         ButtonKind::Primary,
                         false,
-                        Some(icon("arrow-left-right", 16., "2", button_foreground(ButtonKind::Primary)).into_any_element()),
-                        tx("Comparer les bilans "),
+                        Some(
+                            icon(
+                                "arrow-left-right",
+                                16.,
+                                "2",
+                                button_foreground(ButtonKind::Primary),
+                            )
+                            .into_any_element(),
+                        ),
+                        tx("history.compare_reports "),
                         selected < 2,
                     )
                     .child(icon("arrow-right", 16., "2", hex(0xffffff)))
@@ -656,8 +720,13 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .px(px(5.))
                 .child(icon("arrow-left-right", 17., "2", hex(0xa1b38d)))
                 .child(
-                    text(tx("Un changement de RAM ? Sélectionnez les bilans avant et après pour comparer vos configurations."), 11., 400., hex(0xa1b38d))
-                        .line_height(px(18.15)),
+                    text(
+                        tx("history.change_ram_select_reports_before"),
+                        11.,
+                        400.,
+                        hex(0xa1b38d),
+                    )
+                    .line_height(px(18.15)),
                 )
                 .into_any_element()
         })
@@ -683,7 +752,7 @@ pub fn modal(
         let body = div()
             .flex()
             .flex_col()
-            .child(text(tx("Nom du diagnostic"), 12., 400., hex(0x8d9e79)).mb(px(10.)))
+            .child(text(tx("history.diagnostic_name"), 12., 400., hex(0x8d9e79)).mb(px(10.)))
             .child(text_input(&s.name))
             .child(
                 div()
@@ -698,7 +767,7 @@ pub fn modal(
                             ButtonKind::Secondary,
                             false,
                             None,
-                            tx("Annuler"),
+                            tx("common.cancel"),
                             busy,
                         )
                         .on_click({
@@ -712,7 +781,7 @@ pub fn modal(
                             ButtonKind::Primary,
                             false,
                             busy.then(|| spinner(15., hex(0xffffff))),
-                            tx("Enregistrer"),
+                            tx("history.save"),
                             busy || name.is_empty(),
                         )
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -731,7 +800,11 @@ pub fn modal(
                                         Ok(_) => {
                                             this.reload_history(cx);
                                             state(this).rename = None;
-                                            this.notify(tx("Diagnostic renommé."), false, cx);
+                                            this.notify(
+                                                tx("history.diagnostic_renamed"),
+                                                false,
+                                                cx,
+                                            );
                                         }
                                         Err(error) => this.notify(error, true, cx),
                                     }
@@ -743,7 +816,7 @@ pub fn modal(
             .into_any_element();
         return Some(components::modal(
             "rename",
-            tx("Renommer ce diagnostic"),
+            tx("history.rename_diagnostic"),
             false,
             body,
             close,
@@ -764,9 +837,9 @@ pub fn modal(
                 text(
                     format!(
                         "{}{}{}",
-                        tx("Le bilan « "),
+                        tx("history.report_quote_open "),
                         report.label,
-                        tx(" » sera supprimé de cet ordinateur. Exportez-le avant de le supprimer si vous souhaitez en garder une copie.")
+                        tx(" history.deleted_computer_export_before_deleting")
                     ),
                     12.,
                     400.,
@@ -781,17 +854,31 @@ pub fn modal(
                     .items_center()
                     .gap(px(10.))
                     .mt(px(22.))
-                    .child(button("delete-keep", ButtonKind::Secondary, false, None, tx("Conserver"), busy).on_click({
-                        let close = close.clone();
-                        move |e, w, cx| close(e, w, cx)
-                    }))
+                    .child(
+                        button(
+                            "delete-keep",
+                            ButtonKind::Secondary,
+                            false,
+                            None,
+                            tx("history.keep"),
+                            busy,
+                        )
+                        .on_click({
+                            let close = close.clone();
+                            move |e, w, cx| close(e, w, cx)
+                        }),
+                    )
                     .child(
                         button_with(
                             "delete-confirm",
                             ButtonKind::Danger,
                             false,
-                            Some(if busy { spinner(15., hex(0xffffff)) } else { icon("trash-2", 15., "2", hex(0xffffff)).into_any_element() }),
-                            tx("Supprimer le bilan"),
+                            Some(if busy {
+                                spinner(15., hex(0xffffff))
+                            } else {
+                                icon("trash-2", 15., "2", hex(0xffffff)).into_any_element()
+                            }),
+                            tx("history.delete_report"),
                             busy,
                         )
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -800,25 +887,34 @@ pub fn modal(
                             }
                             state(this).busy = true;
                             let id = report.id.clone();
-                            this.call("delete", json!({"id": id.clone()}), cx, move |this, result: Result<Value, String>, cx| {
-                                state(this).busy = false;
-                                match result {
-                                    Ok(_) => {
-                                        this.selected_ids.retain(|v| *v != id);
-                                        this.reload_history(cx);
-                                        state(this).deleting = None;
-                                        this.notify(tx("Diagnostic supprimé de cet appareil."), false, cx);
+                            this.call(
+                                "delete",
+                                json!({"id": id.clone()}),
+                                cx,
+                                move |this, result: Result<Value, String>, cx| {
+                                    state(this).busy = false;
+                                    match result {
+                                        Ok(_) => {
+                                            this.selected_ids.retain(|v| *v != id);
+                                            this.reload_history(cx);
+                                            state(this).deleting = None;
+                                            this.notify(
+                                                tx("history.diagnostic_deleted_device"),
+                                                false,
+                                                cx,
+                                            );
+                                        }
+                                        Err(error) => this.notify(error, true, cx),
                                     }
-                                    Err(error) => this.notify(error, true, cx),
-                                }
-                            });
+                                },
+                            );
                         })),
                     ),
             )
             .into_any_element();
         return Some(components::modal(
             "delete",
-            tx("Supprimer ce diagnostic ?"),
+            tx("history.delete_diagnostic_question"),
             false,
             body,
             close,

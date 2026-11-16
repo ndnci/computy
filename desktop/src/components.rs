@@ -61,11 +61,11 @@ pub struct StatusInfo {
 
 pub fn status_info(status: Status) -> StatusInfo {
     let (label, short, tone) = match status {
-        Status::Passed => ("Conforme au test", "Conforme", Tone::Good),
-        Status::Warning => ("À examiner", "À examiner", Tone::Warn),
-        Status::Failed => ("Anomalie détectée", "Anomalie", Tone::Bad),
-        Status::Cancelled => ("Interrompu", "Interrompu", Tone::Muted),
-        Status::Unavailable => ("Non vérifié", "Non vérifié", Tone::Muted),
+        Status::Passed => ("common.test_passed", "common.passed", Tone::Good),
+        Status::Warning => ("common.needs_review", "common.needs_review", Tone::Warn),
+        Status::Failed => ("common.issue_detected", "common.issue", Tone::Bad),
+        Status::Cancelled => ("common.interrupted", "common.interrupted", Tone::Muted),
+        Status::Unavailable => ("common.not_verified", "common.not_verified", Tone::Muted),
     };
     StatusInfo { label, short, tone }
 }
@@ -193,7 +193,7 @@ pub fn status_badge(
         _ => "minus",
     };
     let label = if outcome.is_some() && status == Status::Passed {
-        "Aucune erreur détectée"
+        "common.no_errors_detected"
     } else if compact {
         info.short
     } else {
@@ -209,7 +209,7 @@ pub fn status_badge(
             d.child(badge(
                 Tone::Muted,
                 None,
-                tp("Non vérifiés : {{count}}", &[("count", missing.into())]),
+                tp("common.unverified_count", &[("count", missing.into())]),
             ))
         })
 }
@@ -639,31 +639,31 @@ pub fn modal(
 
 fn metric_label(key: &str) -> &str {
     match key {
-        "allocated_bytes" => "Zone allouée (octets)",
-        "verified_bytes" => "Octets vérifiés",
-        "errors" => "Erreurs",
-        "patterns_completed" => "Motifs terminés",
-        "patterns_planned" => "Motifs prévus",
-        "passes_completed" => "Passes terminées",
-        "locked" => "Pages verrouillées en RAM",
-        "corrected" => "Erreurs ECC corrigées",
-        "uncorrected" => "Erreurs ECC non corrigées",
-        "smartctl_exit_status" => "Code SMART (masque de bits)",
-        "temperature_c" => "Température (°C)",
-        "power_on_hours" => "Heures de fonctionnement",
-        "device" => "Périphérique",
-        "model" => "Modèle",
-        "file_size_bytes" => "Taille du fichier (octets)",
-        "mismatched_bytes" => "Octets divergents",
-        "write_ms" => "Écriture + synchronisation (ms)",
-        "read_ms" => "Relecture + comparaison (ms)",
-        "directory" => "Volume de test",
-        "cache_eviction_advised" => "Éviction du cache demandée",
-        "workers" => "Threads de calcul",
-        "iterations" => "Calculs vérifiés",
-        "hashed_bytes" => "Octets hachés",
-        "algorithm" => "Algorithme",
-        "first_error" => "Première incohérence",
+        "allocated_bytes" => "common.area_allocated_bytes",
+        "verified_bytes" => "common.audited_bytes",
+        "errors" => "common.errors",
+        "patterns_completed" => "common.patterns_completed",
+        "patterns_planned" => "common.patterns_planned",
+        "passes_completed" => "common.passes_completed",
+        "locked" => "common.pages_locked_ram",
+        "corrected" => "common.corrected_ecc_errors",
+        "uncorrected" => "common.uncorrected_ecc_errors",
+        "smartctl_exit_status" => "common.smart_code_bit_mask",
+        "temperature_c" => "common.temperature_c",
+        "power_on_hours" => "common.operating_hours",
+        "device" => "common.device",
+        "model" => "common.model",
+        "file_size_bytes" => "common.file_size_bytes",
+        "mismatched_bytes" => "common.divergent_bytes",
+        "write_ms" => "common.writing_syncing_ms",
+        "read_ms" => "common.reading_comparison_ms",
+        "directory" => "common.test_volume",
+        "cache_eviction_advised" => "common.cache_eviction_requested",
+        "workers" => "common.calculation_threads",
+        "iterations" => "common.verified_calculations",
+        "hashed_bytes" => "common.hashed_bytes",
+        "algorithm" => "common.algorithm",
+        "first_error" => "common.first_inconsistency",
         other => other,
     }
 }
@@ -693,7 +693,7 @@ pub fn check_card(app: &Computy, check: &Check, cx: &mut Context<Computy>) -> im
         .filter(|(_, v)| !v.is_null() && !v.is_object() && !v.is_array())
         .map(|(k, v)| {
             let value = match v {
-                serde_json::Value::Bool(b) => tx(if *b { "Oui" } else { "Non" }),
+                serde_json::Value::Bool(b) => tx(if *b { "common.yes" } else { "common.no" }),
                 serde_json::Value::Number(n) => intl::plain(locale, n.as_f64().unwrap_or(0.)),
                 serde_json::Value::String(s) => tx(s),
                 other => other.to_string(),
@@ -797,7 +797,12 @@ pub fn check_card(app: &Computy, check: &Check, cx: &mut Context<Computy>) -> im
                                         .py(px(10.))
                                         .border_b_1()
                                         .border_color(c(theme::BORDER))
-                                        .child(text(tx("Durée mesurée"), 12., 400., hex(0x9dac8b)))
+                                        .child(text(
+                                            tx("common.measured_duration"),
+                                            12.,
+                                            400.,
+                                            hex(0x9dac8b),
+                                        ))
                                         .child(text(
                                             intl::duration(locale, check.duration_ms),
                                             12.,
@@ -812,7 +817,7 @@ pub fn check_card(app: &Computy, check: &Check, cx: &mut Context<Computy>) -> im
                             div()
                                 .mt(px(16.))
                                 .child(spaced(
-                                    tx("Portée du contrôle"),
+                                    tx("common.check_scope"),
                                     11.,
                                     600.,
                                     hex(0x91a37b),
@@ -831,7 +836,7 @@ pub fn check_card(app: &Computy, check: &Check, cx: &mut Context<Computy>) -> im
                             div()
                                 .mt(px(15.))
                                 .child(text(
-                                    tx("Données techniques complètes"),
+                                    tx("common.full_technical_data"),
                                     9.,
                                     400.,
                                     hex(0xa6b596),
@@ -906,7 +911,14 @@ pub fn report_details(
                             1.75,
                             16.5,
                         )))
-                        .child(spaced(&report.label, 20., 650., c(theme::HEADING), -0.5, 30.))
+                        .child(spaced(
+                            &report.label,
+                            20.,
+                            650.,
+                            c(theme::HEADING),
+                            -0.5,
+                            30.,
+                        ))
                         .child(
                             text(
                                 format!(
@@ -928,8 +940,16 @@ pub fn report_details(
                 .child(score(report.summary.score, report.summary.status, true)),
         )
         .when_some(memory, |d, memory| {
-            let allocated = memory.metrics.get("allocated_bytes").and_then(|v| v.as_f64()).unwrap_or(0.);
-            let passes = memory.metrics.get("passes_completed").and_then(|v| v.as_f64()).unwrap_or(0.);
+            let allocated = memory
+                .metrics
+                .get("allocated_bytes")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.);
+            let passes = memory
+                .metrics
+                .get("passes_completed")
+                .and_then(|v| v.as_f64())
+                .unwrap_or(0.);
             d.child(
                 div()
                     .flex()
@@ -940,13 +960,18 @@ pub fn report_details(
                     .border_1()
                     .border_color(c(theme::BORDER))
                     .rounded(px(12.))
-                    .child(text(tx("Mémoire réellement testée"), 13., 700., c(theme::TEXT)))
+                    .child(text(
+                        tx("common.memory_actually_tested"),
+                        13.,
+                        700.,
+                        c(theme::TEXT),
+                    ))
                     .child(text(
                         format!(
                             "{} / {} · {}",
                             intl::bytes(locale, Some(allocated), 1),
                             intl::bytes(locale, Some(report.inventory.memory.total_bytes), 1),
-                            tp("Passes terminées : {{count}}", &[("count", passes.into())])
+                            tp("common.passes_completed_count", &[("count", passes.into())])
                         ),
                         13.,
                         400.,
@@ -954,7 +979,7 @@ pub fn report_details(
                     ))
                     .child(
                         text(
-                            tx("Ce test s’exécute dans votre session, sans redémarrage. Il ne parcourt pas toute la RAM physique."),
+                            tx("common.test_runs_session_without_restarting"),
                             13.,
                             400.,
                             hex(0x6d7c70),
@@ -968,12 +993,17 @@ pub fn report_details(
                 notice(
                     NoticeTone::Info,
                     vec![
-                        text(tx("Informations indisponibles, pas erreurs détectées"), 10., 600., info_bold)
-                            .line_height(px(17.5))
-                            .into_any_element(),
+                        text(
+                            tx("common.missing_information_not_detected_errors"),
+                            10.,
+                            600.,
+                            info_bold,
+                        )
+                        .line_height(px(17.5))
+                        .into_any_element(),
                         div()
                             .line_height(px(16.5))
-                            .child(tx("Ces contrôles ne sont pas notés. Leur absence ne signifie pas que votre matériel est défectueux."))
+                            .child(tx("common.these_controls_not_noted_their"))
                             .into_any_element(),
                         div()
                             .mt(px(8.))
@@ -989,8 +1019,19 @@ pub fn report_details(
                                     .flex()
                                     .items_start()
                                     .gap(px(8.))
-                                    .child(div().flex_none().size(px(4.)).mt(px(7.)).ml(px(-12.)).rounded_full().bg(color))
-                                    .child(div().flex_1().child(rich(&[(&name, true), (&message, false)], info_bold)))
+                                    .child(
+                                        div()
+                                            .flex_none()
+                                            .size(px(4.))
+                                            .mt(px(7.))
+                                            .ml(px(-12.))
+                                            .rounded_full()
+                                            .bg(color),
+                                    )
+                                    .child(div().flex_1().child(rich(
+                                        &[(&name, true), (&message, false)],
+                                        info_bold,
+                                    )))
                             }))
                             .into_any_element(),
                     ],
@@ -1006,13 +1047,19 @@ pub fn report_details(
                 tn(report.summary.checked as f64),
                 tx("/"),
                 tn(report.summary.total as f64),
-                tx(" contrôles exploitables")
+                tx(" common.usable_checks")
             );
-            let lead = tx("La note résume les contrôles effectués. Couverture : ");
-            let tail = tx(". Elle n’est pas une probabilité de bon fonctionnement.");
+            let lead = tx("common.note_summarizes_controls_performed ");
+            let tail = tx("common.not_probability_proper_functioning");
             notice(
                 NoticeTone::Info,
-                vec![rich(&[(&lead, false), (&coverage, true), (&tail, false)], info_bold).into_any_element()],
+                vec![
+                    rich(
+                        &[(&lead, false), (&coverage, true), (&tail, false)],
+                        info_bold,
+                    )
+                    .into_any_element(),
+                ],
             )
             .text_size(px(10.))
             .line_height(px(17.5))
@@ -1025,38 +1072,66 @@ pub fn report_details(
                 .justify_between()
                 .gap(px(15.))
                 .mb(px(20.))
-                .child(status_badge(report.summary.status, false, Some(&report.checks), report.completed))
+                .child(status_badge(
+                    report.summary.status,
+                    false,
+                    Some(&report.checks),
+                    report.completed,
+                ))
                 .when(relaunch, |d| {
                     d.child(
-                        button("relaunch", ButtonKind::Primary, true, Some("rotate-ccw"), tx("Relancer"), relaunch_disabled)
-                            .on_click(cx.listener(move |this, _, window, cx| {
+                        button(
+                            "relaunch",
+                            ButtonKind::Primary,
+                            true,
+                            Some("rotate-ccw"),
+                            tx("common.run_again"),
+                            relaunch_disabled,
+                        )
+                        .on_click(cx.listener(
+                            move |this, _, window, cx| {
                                 if !relaunch_disabled {
                                     this.relaunch(report_for_relaunch.clone(), window, cx)
                                 }
-                            })),
+                            },
+                        )),
                     )
                 })
                 .child(
-                    button("export", ButtonKind::Secondary, true, Some("arrow-down-to-line"), tx("Exporter en JSON"), false)
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.export_report(&report_for_export, window, cx)
-                        })),
+                    button(
+                        "export",
+                        ButtonKind::Secondary,
+                        true,
+                        Some("arrow-down-to-line"),
+                        tx("common.export_json"),
+                        false,
+                    )
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.export_report(&report_for_export, window, cx)
+                    })),
                 ),
         )
         .child(
-            div()
-                .flex()
-                .flex_col()
-                .gap(px(12.))
-                .children(report.checks.iter().map(|check| check_card(app, check, cx).into_any_element())),
+            div().flex().flex_col().gap(px(12.)).children(
+                report
+                    .checks
+                    .iter()
+                    .map(|check| check_card(app, check, cx).into_any_element()),
+            ),
         )
         .child(
             div()
                 .mt(px(18.))
-                .child(text(tx("Détails du rapport"), 10., 400., hex(0xa6b596)))
+                .child(text(tx("common.report_details"), 10., 400., hex(0xa6b596)))
                 .when(app.pages.open_details.contains("report-footnote"), |d| {
                     d.child(text(
-                        format!("{}{}{}{}", tx("Moteur Rust · schéma v"), tn(report.schema_version as f64), tx(" · ID "), report.id),
+                        format!(
+                            "{}{}{}{}",
+                            tx("common.rust_engine_schema_version"),
+                            tn(report.schema_version as f64),
+                            tx(" common.id_separator "),
+                            report.id
+                        ),
                         10.,
                         400.,
                         hex(0xa6b596),
@@ -1084,7 +1159,7 @@ pub fn engine_error(error: String, cx: &mut Context<Computy>) -> impl IntoElemen
                 .flex()
                 .flex_col()
                 .child(text(
-                    tx("Connexion au moteur natif impossible"),
+                    tx("common.native_engine_connection_impossible"),
                     12.,
                     700.,
                     hex(0xae9167),
@@ -1097,7 +1172,7 @@ pub fn engine_error(error: String, cx: &mut Context<Computy>) -> impl IntoElemen
                 ButtonKind::Secondary,
                 true,
                 None,
-                tx("Réessayer"),
+                tx("common.try_again"),
                 false,
             )
             .on_click(cx.listener(|this, _, _, cx| this.refresh(true, cx))),

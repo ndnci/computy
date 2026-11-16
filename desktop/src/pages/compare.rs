@@ -29,9 +29,7 @@ pub fn warnings(reports: &[Report]) -> Vec<&'static str> {
         .map(|r| r.inventory.machine_id.as_str())
         .collect();
     if machines.len() > 1 {
-        warnings.push(
-            "Les rapports proviennent de machines différentes, ou leur identité système a changé.",
-        );
+        warnings.push("compare.reports_come_different_machines_their");
     }
     let protocols: BTreeSet<String> = reports
         .iter()
@@ -50,10 +48,10 @@ pub fn warnings(reports: &[Report]) -> Vec<&'static str> {
         })
         .collect();
     if protocols.len() > 1 {
-        warnings.push("Les paramètres de test diffèrent. Les performances ne sont pas directement comparables.");
+        warnings.push("compare.test_paracounters_differ_performance_not");
     }
     if reports.iter().any(|r| !r.completed) {
-        warnings.push("Un diagnostic a été interrompu : sa couverture est incomplète.");
+        warnings.push("compare.diagnostic_was_interrupted_coverage_incomplete");
     }
     warnings
 }
@@ -88,25 +86,25 @@ fn rows() -> Vec<Line> {
         })
     };
     vec![
-        Line::Section("Configuration du matériel"),
+        Line::Section("compare.hardware_configuration"),
         Line::Row(Row {
-            label: "RAM visible par l’OS",
+            label: "compare.ram_visible_os",
             get: Box::new(move |r| Value::Text(bytes(Some(r.inventory.memory.total_bytes)))),
             numeric: Some(|r| r.inventory.memory.total_bytes),
         }),
         row(
-            "Modules identifiés",
+            "compare.modules_identified",
             Box::new(|r| {
                 let n = r.inventory.memory.modules.len();
                 Value::Text(if n > 0 {
                     tn(n as f64)
                 } else {
-                    tx("Non communiqués")
+                    tx("common.not_reported_plural")
                 })
             }),
         ),
         row(
-            "Type de mémoire",
+            "compare.type_memory",
             Box::new(|r| {
                 let mut kinds: Vec<&str> = vec![];
                 for m in &r.inventory.memory.modules {
@@ -115,14 +113,14 @@ fn rows() -> Vec<Line> {
                     }
                 }
                 Value::Text(if kinds.is_empty() {
-                    tx("Non communiqué")
+                    tx("common.not_reported")
                 } else {
                     kinds.join(" / ")
                 })
             }),
         ),
         row(
-            "Débit mémoire configuré",
+            "compare.configured_memory_rate",
             Box::new(|r| {
                 let mut values: Vec<f64> = vec![];
                 for m in &r.inventory.memory.modules {
@@ -133,7 +131,7 @@ fn rows() -> Vec<Line> {
                     }
                 }
                 Value::Text(if values.is_empty() {
-                    tx("Non communiqué")
+                    tx("common.not_reported")
                 } else {
                     values
                         .iter()
@@ -144,7 +142,7 @@ fn rows() -> Vec<Line> {
             }),
         ),
         row(
-            "Références des modules",
+            "compare.module_references",
             Box::new(|r| {
                 let parts: Vec<String> = r
                     .inventory
@@ -153,31 +151,31 @@ fn rows() -> Vec<Line> {
                     .iter()
                     .map(|m| {
                         if m.part_number.is_empty() {
-                            tx("Non communiquée")
+                            tx("common.not_reported_feminine")
                         } else {
                             m.part_number.clone()
                         }
                     })
                     .collect();
                 Value::Text(if parts.is_empty() {
-                    tx("Non communiquées")
+                    tx("compare.not_reported_feminine_plural")
                 } else {
                     parts.join(" · ")
                 })
             }),
         ),
         row(
-            "Processeur",
+            "common.processor",
             Box::new(|r| {
                 Value::Text(if r.inventory.cpu.name.is_empty() {
-                    tx("Non communiqué")
+                    tx("common.not_reported")
                 } else {
                     r.inventory.cpu.name.clone()
                 })
             }),
         ),
         row(
-            "Système",
+            "common.system",
             Box::new(|r| {
                 Value::Text(format!(
                     "{} {} · {}",
@@ -185,113 +183,113 @@ fn rows() -> Vec<Line> {
                 ))
             }),
         ),
-        Line::Section("Ce qui a réellement été testé"),
+        Line::Section("compare.what_has_actually_been_tested"),
         row(
-            "Allocation mémoire vérifiée",
+            "compare.checked_memory_allocation",
             Box::new(move |r| {
                 Value::Text(if check(r, "memory-patterns").is_some() {
                     bytes(metric(r, "memory-patterns", "allocated_bytes"))
                 } else {
-                    tx("Non exécuté")
+                    tx("compare.not_implemented")
                 })
             }),
         ),
         row(
-            "Passes mémoire terminées",
+            "compare.memory_passes_completed",
             Box::new(move |r| {
                 Value::Text(text_or(
                     metric(r, "memory-patterns", "passes_completed"),
-                    "Non exécuté",
+                    "compare.not_implemented",
                 ))
             }),
         ),
         row(
-            "Incohérences mémoire",
+            "compare.memory_inconsistencies",
             Box::new(move |r| {
                 Value::Text(text_or(
                     metric(r, "memory-patterns", "errors"),
-                    "Non mesurées",
+                    "compare.not_measured",
                 ))
             }),
         ),
         row(
-            "Résultat mémoire",
+            "compare.memory_result",
             Box::new(|r| {
                 let s = component_summary(&r.checks, "memory");
                 Value::Score(s.score, s.status)
             }),
         ),
         row(
-            "Octets disque vérifiés",
+            "compare.disk_bytes_checked",
             Box::new(move |r| {
                 Value::Text(if check(r, "disk-roundtrip").is_some() {
                     bytes(metric(r, "disk-roundtrip", "verified_bytes"))
                 } else {
-                    tx("Non exécuté")
+                    tx("compare.not_implemented")
                 })
             }),
         ),
         row(
-            "Octets disque divergents",
+            "compare.disk_bytes_mismatched",
             Box::new(move |r| {
                 Value::Text(text_or(
                     metric(r, "disk-roundtrip", "mismatched_bytes"),
-                    "Non mesurés",
+                    "compare.not_measured_plural",
                 ))
             }),
         ),
         row(
-            "Résultat stockage",
+            "compare.storage_result",
             Box::new(|r| {
                 let s = component_summary(&r.checks, "storage");
                 Value::Score(s.score, s.status)
             }),
         ),
         row(
-            "Calculs CPU vérifiés",
+            "compare.cpu_calculations_verified",
             Box::new(|r| {
                 Value::Text(
                     metric(r, "cpu-known-answers", "iterations")
-                        .map_or_else(|| tx("Non exécuté"), |v| intl::plain("fr", v)),
+                        .map_or_else(|| tx("compare.not_implemented"), |v| intl::plain("fr", v)),
                 )
             }),
         ),
         row(
-            "Durée du contrôle CPU",
+            "compare.duration_cpu_control",
             Box::new(move |r| {
                 Value::Text(check(r, "cpu-known-answers").map_or_else(
-                    || tx("Non exécuté"),
+                    || tx("compare.not_implemented"),
                     |c| intl::duration(locale, c.duration_ms),
                 ))
             }),
         ),
         row(
-            "Erreurs de calcul",
+            "compare.calculation_errors",
             Box::new(move |r| {
                 Value::Text(text_or(
                     metric(r, "cpu-known-answers", "errors"),
-                    "Non mesurées",
+                    "compare.not_measured",
                 ))
             }),
         ),
         row(
-            "Résultat processeur",
+            "compare.processor_result",
             Box::new(|r| {
                 let s = component_summary(&r.checks, "cpu");
                 Value::Score(s.score, s.status)
             }),
         ),
-        Line::Section("Le bilan dans son contexte"),
+        Line::Section("compare.report_context"),
         row(
-            "Durée totale",
+            "compare.total_duration",
             Box::new(move |r| Value::Text(intl::duration(locale, r.duration_ms))),
         ),
         row(
-            "Contrôles exploitables",
+            "compare.usable_checks",
             Box::new(|r| Value::Text(format!("{} / {}", r.summary.checked, r.summary.total))),
         ),
         row(
-            "Note des contrôles",
+            "common.check_score",
             Box::new(|r| Value::Score(r.summary.score, r.summary.status)),
         ),
     ]
@@ -319,16 +317,16 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .filter_map(|id| app.reports.iter().find(|r| &r.id == id).cloned())
         .collect();
     let title = components::section_title(
-        Some("AVANT, APRÈS, ET PLUS ENCORE"),
-        "Les changements, côte à côte.",
-        Some("Comparez vos configurations et les résultats observés, sans perdre le contexte."),
+        Some("compare.before_after_eyebrow"),
+        "compare.changes_side_side",
+        Some("compare.compare_configurations_observed_results_without"),
         Some(
             button(
                 "choose-reports",
                 ButtonKind::Secondary,
                 false,
                 Some("plus"),
-                tx("Choisir des bilans"),
+                tx("compare.choose_reports"),
                 false,
             )
             .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)))
@@ -341,29 +339,32 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
             .flex_col()
             .child(title)
             .child(
-                panel().mb(px(20.)).child(
-                    empty_sized(
-                        "arrow-left-right",
-                        tx("Deux moments. Une vision plus claire."),
-                        Some(tx("Sélectionnez entre deux et quatre diagnostics dans votre historique. Idéal avant et après un changement de matériel.").into_any_element()),
-                        Some(
-                            button_with(
-                                "select-reports",
-                                ButtonKind::Primary,
-                                false,
-                                Some(icon("history", 16., "2", button_foreground(ButtonKind::Primary)).into_any_element()),
-                                tx("Sélectionner des diagnostics "),
-                                false,
-                            )
-                            .child(icon("arrow-right", 16., "2", hex(0xffffff)))
-                            .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)))
-                            .into_any_element(),
-                        ),
-                        (75., 30.),
-                        80.,
-                        23.,
+                panel().mb(px(20.)).child(empty_sized(
+                    "arrow-left-right",
+                    tx("compare.two_moments_clearer_vision"),
+                    Some(tx("compare.select_between_two_four_diagnostics").into_any_element()),
+                    Some(
+                        button_with(
+                            "select-reports",
+                            ButtonKind::Primary,
+                            false,
+                            Some(
+                                icon("history", 16., "2", button_foreground(ButtonKind::Primary))
+                                    .into_any_element(),
+                            ),
+                            tx("compare.select_diagnostics "),
+                            false,
+                        )
+                        .child(icon("arrow-right", 16., "2", hex(0xffffff)))
+                        .on_click(cx.listener(|this, _, window, cx| {
+                            this.navigate(Page::History, window, cx)
+                        }))
+                        .into_any_element(),
                     ),
-                ),
+                    (75., 30.),
+                    80.,
+                    23.,
+                )),
             )
             .into_any_element();
     }
@@ -382,10 +383,20 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .border_color(border)
                 .flex()
                 .flex_col()
-                .child(spaced(tx("VOS REPÈRES"), 10., 650., hex(0x899582), 1.75, 13.).mt(px(6.)))
                 .child(
                     spaced(
-                        format!("{}{}", tn(count as f64), tx(" diagnostics")),
+                        tx("compare.your_benchmarks_eyebrow"),
+                        10.,
+                        650.,
+                        hex(0x899582),
+                        1.75,
+                        13.,
+                    )
+                    .mt(px(6.)),
+                )
+                .child(
+                    spaced(
+                        format!("{}{}", tn(count as f64), tx(" app.diagnostics_lowercase")),
                         14.,
                         650.,
                         c(theme::HEADING),
@@ -400,8 +411,8 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .text_size(px(11.))
                         .line_height(px(18.15))
                         .text_color(hex(0xa5b596))
-                        .child(tx("Les mêmes questions,"))
-                        .child(tx("à différents moments.")),
+                        .child(tx("compare.same_questions"))
+                        .child(tx("compare.different_times")),
                 ),
         )
         .children(selected.iter().enumerate().map(|(index, report)| {
@@ -424,7 +435,8 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .justify_between()
                         .gap(px(20.))
                         .child(if index == 0 {
-                            badge(Tone::Good, Some("pin"), tx("Référence")).into_any_element()
+                            badge(Tone::Good, Some("pin"), tx("common.reference"))
+                                .into_any_element()
                         } else {
                             badge(Tone::Muted, None, tx(&format!("Bilan {}", index + 1)))
                                 .into_any_element()
@@ -475,7 +487,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                 .cursor_pointer()
                                 .child(
                                     text(
-                                        tx("Définir comme référence"),
+                                        tx("compare.define_reference"),
                                         9.,
                                         600.,
                                         c(theme::TEXT_BUTTON),
@@ -551,7 +563,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                         format!(
                                             "{}{}",
                                             intl::bytes(locale, Some(delta.abs()), 1),
-                                            tx(" par rapport à la référence")
+                                            tx(" compare.against_reference")
                                         ),
                                         10.,
                                         400.,
@@ -571,7 +583,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .px(px(21.))
                 .border_r_1()
                 .border_color(border)
-                .child(text(tx("Consulter les preuves"), 12., 450., hex(0xa0b38d))),
+                .child(text(tx("compare.view_evidence"), 12., 450., hex(0xa0b38d))),
         )
         .children(selected.iter().enumerate().map(|(index, report)| {
             let open = report.clone();
@@ -584,7 +596,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .child(
                     text_button(
                         SharedString::from(format!("open-{}", report.id)),
-                        tx("Ouvrir le rapport "),
+                        tx("compare.open_report "),
                         Some(("arrow-right", 14.)),
                     )
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -598,7 +610,11 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .flex_col()
         .child(title)
         .children(warnings(&selected).into_iter().map(|w| {
-            notice(NoticeTone::Warn, vec![tx(w).into_any_element()]).text_size(px(12.)).line_height(px(21.)).mb(px(18.)).into_any_element()
+            notice(NoticeTone::Warn, vec![tx(w).into_any_element()])
+                .text_size(px(12.))
+                .line_height(px(21.))
+                .mb(px(18.))
+                .into_any_element()
         }))
         .child(
             div()
@@ -613,15 +629,36 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .items_center()
                         .gap(px(7.))
                         .child(div().size(px(6.)).rounded_full().bg(hex(0xa0b981)))
-                        .child(text(tx("Le premier bilan est la référence."), 11., 400., hex(0xa0b18a))),
+                        .child(text(
+                            tx("compare.first_report_reference"),
+                            11.,
+                            400.,
+                            hex(0xa0b18a),
+                        )),
                 )
-                .child(text(tx("Un écart de capacité ou de performance n’est pas une preuve de meilleure santé."), 11., 400., hex(0xa0b18a)).line_height(px(18.15))),
+                .child(
+                    text(
+                        tx("compare.gap_capacity_performance_not_proof"),
+                        11.,
+                        400.,
+                        hex(0xa0b18a),
+                    )
+                    .line_height(px(18.15)),
+                ),
         )
-        .child(panel().mb(px(20.)).flex().flex_col().child(header).children(body).child(footer))
+        .child(
+            panel()
+                .mb(px(20.))
+                .flex()
+                .flex_col()
+                .child(header)
+                .children(body)
+                .child(footer),
+        )
         .child(
             notice(
                 NoticeTone::Info,
-                vec![tx("Pour comparer les performances, gardez les mêmes paramètres et des conditions proches : alimentation, charge du système, température et applications ouvertes. Les résultats d’intégrité et les indicateurs SMART restent à examiner séparément.").into_any_element()],
+                vec![tx("compare.compare_performance_keep_same_paracounters").into_any_element()],
             )
             .text_size(px(12.))
             .line_height(px(21.)),

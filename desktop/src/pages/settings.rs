@@ -319,7 +319,7 @@ fn theme_option(
         )
         .when(id == "system", |d| {
             d.child(div().pt(px(7.)).px(px(3.)).pb(px(2.)).child(text(
-                tx("S’adapte automatiquement"),
+                tx("settings.automatically_adapts"),
                 10.,
                 400.,
                 hex(0x96ac7d),
@@ -396,7 +396,7 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                         .px(px(8.))
                         .rounded(px(20.))
                         .bg(c(theme::PANEL))
-                        .child(text(tx("Par défaut"), 10., 400., hex(0x6d7c70))),
+                        .child(text(tx("settings.default"), 10., 400., hex(0x6d7c70))),
                 )
             })
             .on_click(cx.listener(move |this, _, _, cx| {
@@ -451,8 +451,8 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                         .child(text(tx(name), 13., 700., c(theme::TEXT))),
                 )
                 .child(note(value.map_or_else(
-                    || tx("Indisponible"),
-                    |v| tp("Utilisation : {{value}} %", &[("value", v.round().into())]),
+                    || tx("common.unavailable"),
+                    |v| tp("common.usage", &[("value", v.round().into())]),
                 )))
                 .on_click(cx.listener(move |this, _, _, cx| {
                     let d = &mut state(this).draft;
@@ -483,27 +483,35 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
         .mb(px(20.))
         .flex()
         .flex_col()
-        .child(components::panel_header("Moniteur dans la barre système", Some(tx("En direct dans votre barre système.")), None))
+        .child(components::panel_header(
+            "settings.system_tray_monitor",
+            Some(tx("settings.live_system_tray")),
+            None,
+        ))
         .child(setting_row(
             "activity",
-            "Afficher les indicateurs en temps réel",
-            "Activé par défaut : RAM, CPU et GPU. Les changements s’appliquent après l’enregistrement des préférences.",
-            toggle_switch("tray-enabled", enabled, false).on_click(cx.listener(|this, _, _, cx| {
-                let d = &mut state(this).draft;
-                d.tray_enabled = !d.tray_enabled;
-                cx.notify();
-            })),
+            "settings.show_live_system_indicators",
+            "settings.enabled_default_ram_cpu_gpu",
+            toggle_switch("tray-enabled", enabled, false).on_click(cx.listener(
+                |this, _, _, cx| {
+                    let d = &mut state(this).draft;
+                    d.tray_enabled = !d.tray_enabled;
+                    cx.notify();
+                },
+            )),
         ))
         .when(enabled, |d| {
             d.child(setting_row(
                 "app-window",
-                "Continuer en arrière-plan à la fermeture",
-                "Fermer la fenêtre laisse Computy et ses indicateurs actifs. Pour quitter, utilisez le menu de l’indicateur.",
-                toggle_switch("keep-running", draft.keep_running_on_close, false).on_click(cx.listener(|this, _, _, cx| {
-                    let d = &mut state(this).draft;
-                    d.keep_running_on_close = !d.keep_running_on_close;
-                    cx.notify();
-                })),
+                "settings.keep_running_on_close",
+                "settings.keep_running_on_close_hint",
+                toggle_switch("keep-running", draft.keep_running_on_close, false).on_click(
+                    cx.listener(|this, _, _, cx| {
+                        let d = &mut state(this).draft;
+                        d.keep_running_on_close = !d.keep_running_on_close;
+                        cx.notify();
+                    }),
+                ),
             ))
         })
         .when(enabled, |d| {
@@ -513,15 +521,23 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                     .pb(px(25.))
                     .flex()
                     .flex_col()
-                    .child(text(tx("Style de la barre système"), 14., 650., c(theme::HEADING)).px(px(2.)))
+                    .child(
+                        text(
+                            tx("settings.system_tray_style"),
+                            14.,
+                            650.,
+                            c(theme::HEADING),
+                        )
+                        .px(px(2.)),
+                    )
                     .child(
                         div()
                             .mt(px(14.))
                             .flex()
                             .gap(px(12.))
-                            .child(style_option("icon_text", "Icône + pourcentage", cx))
-                            .child(style_option("ring", "Anneau", cx))
-                            .child(style_option("fill", "Icône remplie", cx)),
+                            .child(style_option("icon_text", "settings.icon_percentage", cx))
+                            .child(style_option("ring", "settings.ring", cx))
+                            .child(style_option("fill", "settings.filled_icon", cx)),
                     )
                     .child(
                         div()
@@ -534,31 +550,100 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                             .text_size(px(12.))
                             .line_height(px(20.4))
                             .text_color(c(theme::TEXT))
-                            .child(div().ml(px(8.)).size(px(8.)).rounded_full().bg(hex(0x429feb)))
-                            .child(format!("{} < 65 %", tx("Bleu")))
-                            .child(div().ml(px(8.)).size(px(8.)).rounded_full().bg(hex(0xdca842)))
-                            .child(format!("{} 65–89 %", tx("Jaune")))
-                            .child(div().ml(px(8.)).size(px(8.)).rounded_full().bg(hex(0xe96565)))
-                            .child(format!("{} ≥ 90 %", tx("Rouge"))),
+                            .child(
+                                div()
+                                    .ml(px(8.))
+                                    .size(px(8.))
+                                    .rounded_full()
+                                    .bg(hex(0x429feb)),
+                            )
+                            .child(format!("{} < 65 %", tx("settings.blue")))
+                            .child(
+                                div()
+                                    .ml(px(8.))
+                                    .size(px(8.))
+                                    .rounded_full()
+                                    .bg(hex(0xdca842)),
+                            )
+                            .child(format!("{} 65–89 %", tx("settings.yellow")))
+                            .child(
+                                div()
+                                    .ml(px(8.))
+                                    .size(px(8.))
+                                    .rounded_full()
+                                    .bg(hex(0xe96565)),
+                            )
+                            .child(format!("{} ≥ 90 %", tx("settings.red"))),
                     )
                     .when(snapshot.is_none() && !s.problem, |d| {
-                        d.child(div().mt(px(12.)).flex().items_center().gap(px(6.)).child(spinner(16., c(theme::MUTED))).child(text(tx("Lecture des mesures en direct…"), 12., 400., c(theme::MUTED))))
+                        d.child(
+                            div()
+                                .mt(px(12.))
+                                .flex()
+                                .items_center()
+                                .gap(px(6.))
+                                .child(spinner(16., c(theme::MUTED)))
+                                .child(text(
+                                    tx("settings.reading_live_measurements"),
+                                    12.,
+                                    400.,
+                                    c(theme::MUTED),
+                                )),
+                        )
                     })
                     .when(s.problem, |d| {
-                        d.child(notice(NoticeTone::Warn, vec![tx("Les mesures en direct sont indisponibles. Computy réessaie automatiquement.").into_any_element()]).mt(px(12.)))
+                        d.child(
+                            notice(
+                                NoticeTone::Warn,
+                                vec![
+                                    tx("common.live_measurements_unavailable_computy_retries")
+                                        .into_any_element(),
+                                ],
+                            )
+                            .mt(px(12.)),
+                        )
                     })
                     .child(
                         div()
                             .mt(px(20.))
                             .flex()
                             .gap(px(14.))
-                            .child(metric_option("memory", "Mémoire vive", snapshot.as_ref().and_then(|s| s.memory_percent), cx))
-                            .child(metric_option("cpu", "Processeur", snapshot.as_ref().and_then(|s| s.cpu_percent), cx))
-                            .child(metric_option("gpu", "Processeur graphique", snapshot.as_ref().and_then(|s| s.gpu_percent), cx)),
+                            .child(metric_option(
+                                "memory",
+                                "common.memory",
+                                snapshot.as_ref().and_then(|s| s.memory_percent),
+                                cx,
+                            ))
+                            .child(metric_option(
+                                "cpu",
+                                "common.processor",
+                                snapshot.as_ref().and_then(|s| s.cpu_percent),
+                                cx,
+                            ))
+                            .child(metric_option(
+                                "gpu",
+                                "common.graphics_processor",
+                                snapshot.as_ref().and_then(|s| s.gpu_percent),
+                                cx,
+                            )),
                     )
-                    .child(note(tx("CPU et RAM : actualisation toutes les 2 secondes. GPU : jusqu’à 6 secondes selon le pilote. « — » signifie qu’aucune mesure n’est disponible, pas 0 %.")).mt(px(21.)))
-                    .child(div().flex().child(button("all-processes", ButtonKind::Secondary, true, None, tx("Voir tous les processus"), false).on_click(cx.listener(|this, _, window, cx| this.navigate(Page::Processes, window, cx)))))
-                    .child(note(tx("Le GPU dépend des compteurs exposés par votre pilote : AMD/NVIDIA sous Linux, compteurs Windows et certains pilotes IOAccelerator sous macOS. Les GPU non pris en charge restent indiqués comme indisponibles.")))
+                    .child(note(tx("settings.refresh_intervals")).mt(px(21.)))
+                    .child(
+                        div().flex().child(
+                            button(
+                                "all-processes",
+                                ButtonKind::Secondary,
+                                true,
+                                None,
+                                tx("settings.view_all_processes"),
+                                false,
+                            )
+                            .on_click(cx.listener(
+                                |this, _, window, cx| this.navigate(Page::Processes, window, cx),
+                            )),
+                        ),
+                    )
+                    .child(note(tx("settings.gpu_readings_depend_driver_amd")))
                     .child(
                         div()
                             .mt(px(24.))
@@ -566,11 +651,18 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                             .items_center()
                             .gap(px(9.))
                             .child(icon("hard-drive", 17., "2", c(theme::HEADING)))
-                            .child(spaced(tx("Disques à afficher"), 15., 650., c(theme::HEADING), -0.2, 20.)),
+                            .child(spaced(
+                                tx("settings.disks_display"),
+                                15.,
+                                650.,
+                                c(theme::HEADING),
+                                -0.2,
+                                20.,
+                            )),
                     )
-                    .child(note(tx("Un indicateur par volume sélectionné : l’anneau montre l’espace occupé ; le menu affiche aussi les débits de lecture et d’écriture. Ce ne sont pas des notes de santé.")).mt(px(6.)))
-                    .child(
-                        div().mt(px(15.)).flex().flex_col().gap(px(8.)).children(disks.into_iter().map(|(id, name, used)| {
+                    .child(note(tx("settings.one_indicator_per_selected_volume")).mt(px(6.)))
+                    .child(div().mt(px(15.)).flex().flex_col().gap(px(8.)).children(
+                        disks.into_iter().map(|(id, name, used)| {
                             let checked = draft.tray_disks.contains(&id);
                             let disabled = !checked && draft.tray_disks.len() >= 16;
                             let toggle = id.clone();
@@ -597,7 +689,15 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                                         .child(text(name, 10., 400., c(theme::TEXT)).opacity(0.82)),
                                 )
                                 .child(text(
-                                    used.map_or_else(|| tx("Indisponible"), |v| tp("Espace occupé : {{value}} %", &[("value", v.round().into())])),
+                                    used.map_or_else(
+                                        || tx("common.unavailable"),
+                                        |v| {
+                                            tp(
+                                                "settings.space_used",
+                                                &[("value", v.round().into())],
+                                            )
+                                        },
+                                    ),
                                     12.,
                                     400.,
                                     c(theme::TEXT),
@@ -607,7 +707,8 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                                         return;
                                     }
                                     let d = &mut state(this).draft;
-                                    if let Some(i) = d.tray_disks.iter().position(|v| *v == toggle) {
+                                    if let Some(i) = d.tray_disks.iter().position(|v| *v == toggle)
+                                    {
                                         d.tray_disks.remove(i);
                                     } else {
                                         d.tray_disks.push(toggle.clone());
@@ -615,13 +716,24 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                                     cx.notify();
                                 }))
                                 .into_any_element()
-                        })),
+                        }),
+                    ))
+                    .child(
+                        notice(
+                            NoticeTone::Info,
+                            vec![
+                                tx("settings.closing_window_keeps_indicators_running")
+                                    .into_any_element(),
+                            ],
+                        )
+                        .mt(px(18.)),
                     )
                     .child(
-                        notice(NoticeTone::Info, vec![tx("Fermer la fenêtre conserve les indicateurs en arrière-plan. Le menu de chaque indicateur permet de rouvrir Computy, d’accéder aux préférences ou de quitter complètement.").into_any_element()])
-                            .mt(px(18.)),
-                    )
-                    .child(note(tx("Linux : le bureau doit prendre en charge les indicateurs AppIndicator/StatusNotifier. Sous GNOME, une extension de prise en charge peut être nécessaire. Windows peut ranger les icônes dans le menu des icônes masquées.")).mt(px(14.))),
+                        note(tx(
+                            "settings.linux_desktops_need_appindicator_statusnotifier",
+                        ))
+                        .mt(px(14.)),
+                    ),
             )
         })
 }
@@ -636,7 +748,13 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
     let (startup, startup_busy, kind) = (s.startup, s.startup_busy, s.kind.clone());
     let running = app.job.as_ref().is_some_and(|j| j.running);
     let locale = crate::i18n::locale();
-    let mib = |v: u64| format!("{}{}", crate::intl::plain(locale, v as f64), tx(" Mio"));
+    let mib = |v: u64| {
+        format!(
+            "{}{}",
+            crate::intl::plain(locale, v as f64),
+            tx(" common.unit_mio")
+        )
+    };
     let edit = |key: &'static str| {
         move |this: &mut Computy, value: String, _: &mut Window, _: &mut Context<Computy>| {
             let v: u64 = value.parse().unwrap_or(0);
@@ -649,7 +767,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
             }
         }
     };
-    let mut languages = vec![option("system", tx("Suivre le système"))];
+    let mut languages = vec![option("system", tx("settings.follow_system"))];
     languages.extend(LANGUAGES.iter().map(|l| option(l.code, l.name)));
     let secondary = button_foreground(ButtonKind::Secondary);
     let primary = button_foreground(ButtonKind::Primary);
@@ -657,29 +775,59 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .max_w(px(1000.))
         .flex()
         .flex_col()
-        .child(components::section_title(Some("À VOTRE FAÇON"), "Un espace qui vous ressemble.", Some("Personnalisez l’apparence et les paramètres de vos prochains diagnostics."), None))
+        .child(components::section_title(
+            Some("settings.your_way_eyebrow"),
+            "settings.space_like_you",
+            Some("settings.customize_appearance_settings_next_diagnostics"),
+            None,
+        ))
         .child(
             panel()
                 .mb(px(20.))
                 .flex()
                 .flex_col()
-                .child(components::panel_header("Langue de l’interface", Some(tx("Les traductions sont incluses dans l’application. Aucun service de traduction n’est appelé.")), None))
+                .child(components::panel_header(
+                    "settings.interface_language",
+                    Some(tx("settings.translations_included_app_no_translation")),
+                    None,
+                ))
                 .child(
                     div()
                         .px(px(23.))
                         .pb(px(25.))
                         .flex()
                         .flex_col()
-                        .child(text(tx("Langue préférée"), 12., 400., hex(0x7c9168)))
+                        .child(text(
+                            tx("settings.preferred_language"),
+                            12.,
+                            400.,
+                            hex(0x7c9168),
+                        ))
                         .child(
                             div().mt(px(10.)).w(px(260.)).child(
-                                select("interface-language", &draft.language, languages, app, cx, |this, value, _, _| state(this).draft.language = value)
-                                    .h(px(43.))
-                                    .px(px(13.))
-                                    .border_color(c((0xe8ece7, 0x425435))),
+                                select(
+                                    "interface-language",
+                                    &draft.language,
+                                    languages,
+                                    app,
+                                    cx,
+                                    |this, value, _, _| state(this).draft.language = value,
+                                )
+                                .h(px(43.))
+                                .px(px(13.))
+                                .border_color(c((0xe8ece7, 0x425435))),
                             ),
                         )
-                        .child(text(tx("25 langues · dates et nombres localisés · langues de droite à gauche prises en charge"), 11., 400., hex(0x8ba375)).line_height(px(18.15)).mt(px(12.))),
+                        .child(
+                            text(
+                                tx("settings.25_languages_local_dates_numbers"),
+                                11.,
+                                400.,
+                                hex(0x8ba375),
+                            )
+                            .line_height(px(18.15))
+                            .mt(px(12.)),
+                        ),
                 ),
         )
         .child(
@@ -687,16 +835,20 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .mb(px(20.))
                 .flex()
                 .flex_col()
-                .child(components::panel_header("Apparence", Some(tx("Le même espace, selon votre préférence.")), None))
+                .child(components::panel_header(
+                    "settings.appearance",
+                    Some(tx("settings.same_space_according_preference")),
+                    None,
+                ))
                 .child(
                     div()
                         .flex()
                         .gap(px(18.))
                         .px(px(23.))
                         .pb(px(25.))
-                        .child(theme_option(app, "system", "Système", "laptop", cx))
-                        .child(theme_option(app, "light", "Clair", "sun", cx))
-                        .child(theme_option(app, "dark", "Sombre", "moon", cx)),
+                        .child(theme_option(app, "system", "common.system", "laptop", cx))
+                        .child(theme_option(app, "light", "settings.light", "sun", cx))
+                        .child(theme_option(app, "dark", "settings.dark", "moon", cx)),
                 ),
         )
         .child(
@@ -704,7 +856,11 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .mb(px(20.))
                 .flex()
                 .flex_col()
-                .child(components::panel_header("Votre profil « L’essentiel »", Some(tx("Ces valeurs seront proposées lors d’un nouveau diagnostic.")), None))
+                .child(components::panel_header(
+                    "settings.profile_essentials",
+                    Some(tx("settings.these_values_proposed_new_diagnostic")),
+                    None,
+                ))
                 .child(
                     div()
                         .px(px(23.))
@@ -716,20 +872,71 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             div()
                                 .flex()
                                 .gap(px(20.))
-                                .child(field("Mémoire à allouer", select("pref-memory", &draft.memory_mib.to_string(), [16, 32, 64, 128, 256, 512, 1024, 2048].map(|v| option(v, mib(v))).into_iter().collect(), app, cx, edit("memory_mib"))))
-                                .child(field("Passes mémoire", select("pref-passes", &draft.passes.to_string(), [1, 2, 3, 4, 6, 8].map(|v| option(v, crate::i18n::tn(v as f64))).into_iter().collect(), app, cx, edit("passes")))),
+                                .child(field(
+                                    "common.memory_to_allocate",
+                                    select(
+                                        "pref-memory",
+                                        &draft.memory_mib.to_string(),
+                                        [16, 32, 64, 128, 256, 512, 1024, 2048]
+                                            .map(|v| option(v, mib(v)))
+                                            .into_iter()
+                                            .collect(),
+                                        app,
+                                        cx,
+                                        edit("memory_mib"),
+                                    ),
+                                ))
+                                .child(field(
+                                    "common.memory_passes",
+                                    select(
+                                        "pref-passes",
+                                        &draft.passes.to_string(),
+                                        [1, 2, 3, 4, 6, 8]
+                                            .map(|v| option(v, crate::i18n::tn(v as f64)))
+                                            .into_iter()
+                                            .collect(),
+                                        app,
+                                        cx,
+                                        edit("passes"),
+                                    ),
+                                )),
                         )
                         .child(
                             div()
                                 .flex()
                                 .gap(px(20.))
-                                .child(field("Fichier temporaire", select("pref-disk", &draft.disk_mib.to_string(), [16, 32, 64, 128, 256, 512].map(|v| option(v, mib(v))).into_iter().collect(), app, cx, edit("disk_mib"))))
                                 .child(field(
-                                    "Calculs processeur",
+                                    "common.temporary_file",
+                                    select(
+                                        "pref-disk",
+                                        &draft.disk_mib.to_string(),
+                                        [16, 32, 64, 128, 256, 512]
+                                            .map(|v| option(v, mib(v)))
+                                            .into_iter()
+                                            .collect(),
+                                        app,
+                                        cx,
+                                        edit("disk_mib"),
+                                    ),
+                                ))
+                                .child(field(
+                                    "settings.processor_calculations",
                                     select(
                                         "pref-cpu",
                                         &draft.cpu_seconds.to_string(),
-                                        [1, 2, 5, 10, 15, 30, 60].map(|v| option(v, format!("{}{}", crate::i18n::tn(v as f64), tx(" secondes")))).into_iter().collect(),
+                                        [1, 2, 5, 10, 15, 30, 60]
+                                            .map(|v| {
+                                                option(
+                                                    v,
+                                                    format!(
+                                                        "{}{}",
+                                                        crate::i18n::tn(v as f64),
+                                                        tx(" common.seconds")
+                                                    ),
+                                                )
+                                            })
+                                            .into_iter()
+                                            .collect(),
                                         app,
                                         cx,
                                         edit("cpu_seconds"),
@@ -737,41 +944,62 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                 )),
                         ),
                 )
-                .child(div().px(px(23.)).pb(px(23.)).child(notice(NoticeTone::Info, vec![tx("Le moteur garde une réserve de mémoire et d’espace disque. Si l’allocation est trop élevée pour les ressources disponibles, le contrôle est refusé plutôt que de saturer votre PC.").into_any_element()]))),
+                .child(div().px(px(23.)).pb(px(23.)).child(notice(
+                    NoticeTone::Info,
+                    vec![tx("settings.engine_keeps_memory_disk_space").into_any_element()],
+                ))),
         )
         .child(
             panel()
                 .mb(px(20.))
                 .flex()
                 .flex_col()
-                .child(components::panel_header("Démarrage automatique", None, None))
+                .child(components::panel_header(
+                    "settings.login_startup",
+                    None,
+                    None,
+                ))
                 .child(setting_row(
                     "laptop",
-                    "Afficher les indicateurs à la connexion",
-                    "Démarre le moniteur en arrière-plan, sans ouvrir la fenêtre principale.",
-                    toggle_switch("startup", startup, startup_busy).on_click(cx.listener(move |this, _, _, cx| {
-                        if startup_busy {
-                            return;
-                        }
-                        let Some(service) = this.backend.service().cloned() else { return };
-                        state(this).startup_busy = true;
-                        let task = cx.background_executor().spawn(async move { platform::set_startup(&service, !startup) });
-                        cx.spawn(async move |this, cx| {
-                            let result = task.await;
-                            let _ = this.update(cx, |this, cx| {
-                                state(this).startup_busy = false;
-                                match result {
-                                    Ok(()) => {
-                                        state(this).startup = !startup;
-                                        this.notify(tx(if !startup { "Le moniteur démarrera à la connexion." } else { "Démarrage automatique désactivé." }), false, cx);
+                    "settings.show_indicators_login",
+                    "settings.starts_monitoring_background_without_opening",
+                    toggle_switch("startup", startup, startup_busy).on_click(cx.listener(
+                        move |this, _, _, cx| {
+                            if startup_busy {
+                                return;
+                            }
+                            let Some(service) = this.backend.service().cloned() else {
+                                return;
+                            };
+                            state(this).startup_busy = true;
+                            let task = cx
+                                .background_executor()
+                                .spawn(async move { platform::set_startup(&service, !startup) });
+                            cx.spawn(async move |this, cx| {
+                                let result = task.await;
+                                let _ = this.update(cx, |this, cx| {
+                                    state(this).startup_busy = false;
+                                    match result {
+                                        Ok(()) => {
+                                            state(this).startup = !startup;
+                                            this.notify(
+                                                tx(if !startup {
+                                                    "settings.monitoring_start_login"
+                                                } else {
+                                                    "settings.automatic_start_disabled"
+                                                }),
+                                                false,
+                                                cx,
+                                            );
+                                        }
+                                        Err(error) => this.notify(error, true, cx),
                                     }
-                                    Err(error) => this.notify(error, true, cx),
-                                }
-                            });
-                        })
-                        .detach();
-                        cx.notify();
-                    })),
+                                });
+                            })
+                            .detach();
+                            cx.notify();
+                        },
+                    )),
                 )),
         )
         .child(monitor_settings(app, cx))
@@ -782,13 +1010,29 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .gap(px(12.))
                 .mb(px(24.))
                 .child(
-                    button_with("defaults", ButtonKind::Secondary, false, Some(icon("rotate-ccw", 16., "2", secondary).into_any_element()), tx("Valeurs par défaut"), false).on_click(cx.listener(|this, _, _, cx| {
+                    button_with(
+                        "defaults",
+                        ButtonKind::Secondary,
+                        false,
+                        Some(icon("rotate-ccw", 16., "2", secondary).into_any_element()),
+                        tx("settings.default_values"),
+                        false,
+                    )
+                    .on_click(cx.listener(|this, _, _, cx| {
                         state(this).draft = Preferences::default();
                         cx.notify();
                     })),
                 )
                 .child(
-                    button_with("save-preferences", ButtonKind::Primary, false, Some(icon("save", 16., "2", primary).into_any_element()), tx("Enregistrer les préférences"), false).on_click(cx.listener(|this, _, window, cx| {
+                    button_with(
+                        "save-preferences",
+                        ButtonKind::Primary,
+                        false,
+                        Some(icon("save", 16., "2", primary).into_any_element()),
+                        tx("settings.save_preferences"),
+                        false,
+                    )
+                    .on_click(cx.listener(|this, _, window, cx| {
                         let draft = state(this).draft.clone();
                         this.save_preferences(draft, window, cx);
                     })),
@@ -798,12 +1042,28 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
             panel()
                 .flex()
                 .flex_col()
-                .child(components::panel_header("Installation et données", None, None))
+                .child(components::panel_header(
+                    "settings.installation_data",
+                    None,
+                    None,
+                ))
                 .child(setting_row(
                     "package-minus",
-                    "Désinstaller Computy",
-                    if kind == "portable" { "Version portable : supprimez le fichier ou le dossier de l’application." } else { "Le système demandera votre autorisation. Les données sont conservées." },
-                    button_with("uninstall", ButtonKind::Secondary, true, Some(icon("package-minus", 16., "2", secondary).into_any_element()), tx("Désinstaller Computy"), kind == "portable" || running).on_click(cx.listener(move |this, _, _, cx| {
+                    "settings.uninstall_computy",
+                    if kind == "portable" {
+                        "settings.portable_version_delete_application_file"
+                    } else {
+                        "settings.system_ask_permission_data_kept"
+                    },
+                    button_with(
+                        "uninstall",
+                        ButtonKind::Secondary,
+                        true,
+                        Some(icon("package-minus", 16., "2", secondary).into_any_element()),
+                        tx("settings.uninstall_computy"),
+                        kind == "portable" || running,
+                    )
+                    .on_click(cx.listener(move |this, _, _, cx| {
                         if kind != "portable" && !running {
                             state(this).action = Some(Maintenance::Uninstall);
                             cx.notify();
@@ -812,9 +1072,17 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 ))
                 .child(setting_row(
                     "trash-2",
-                    "Supprimer toutes les données",
-                    "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.",
-                    button_with("erase", ButtonKind::Danger, true, Some(icon("trash-2", 16., "2", hex(0xffffff)).into_any_element()), tx("Supprimer toutes les données"), running).on_click(cx.listener(move |this, _, _, cx| {
+                    "settings.erase_all_data",
+                    "settings.history_preferences_pending_imports_deleted",
+                    button_with(
+                        "erase",
+                        ButtonKind::Danger,
+                        true,
+                        Some(icon("trash-2", 16., "2", hex(0xffffff)).into_any_element()),
+                        tx("settings.erase_all_data"),
+                        running,
+                    )
+                    .on_click(cx.listener(move |this, _, _, cx| {
                         if !running {
                             state(this).action = Some(Maintenance::Erase);
                             cx.notify();
@@ -834,11 +1102,11 @@ pub fn modal(
     let action = s.action?;
     let (confirmed, busy) = (s.confirmed, s.busy);
     let title = if action == Maintenance::Erase {
-        "Supprimer toutes les données"
+        "settings.erase_all_data"
     } else {
-        "Désinstaller Computy"
+        "settings.uninstall_computy"
     };
-    let explain = "L’historique, les préférences et les imports en attente seront supprimés. Les exports personnels sont conservés.";
+    let explain = "settings.history_preferences_pending_imports_deleted";
     let close = std::rc::Rc::new(cx.listener(move |this, _: &ClickEvent, _, cx| {
         if !busy {
             let s = state(this);
@@ -856,7 +1124,7 @@ pub fn modal(
                 tx(if action == Maintenance::Erase {
                     explain
                 } else {
-                    "Le système demandera votre autorisation. Les données sont conservées."
+                    "settings.system_ask_permission_data_kept"
                 }),
                 12.,
                 400.,
@@ -868,7 +1136,7 @@ pub fn modal(
         .when(action == Maintenance::Erase, |d| {
             d.child(
                 text(
-                    tx("Cette action est irréversible."),
+                    tx("settings.action_cannot_undone"),
                     12.,
                     700.,
                     c(theme::TEXT),
@@ -909,7 +1177,7 @@ pub fn modal(
                         ButtonKind::Secondary,
                         false,
                         None,
-                        tx("Annuler"),
+                        tx("common.cancel"),
                         busy,
                     )
                     .on_click({

@@ -27,7 +27,7 @@ pub struct ProcessesState {
 impl ProcessesState {
     pub fn new(metric: Option<String>, window: &mut Window, cx: &mut Context<Computy>) -> Self {
         let query =
-            cx.new(|cx| InputState::new(window, cx).placeholder(tx("Nom du processus ou PID…")));
+            cx.new(|cx| InputState::new(window, cx).placeholder(tx("processes.process_name_pid")));
         let subscription = cx.subscribe(&query, |_, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 cx.notify();
@@ -116,14 +116,14 @@ pub fn avatar(icon_image: Option<&Arc<RenderImage>>) -> impl IntoElement {
 
 const COLUMNS: [(&str, f32); 9] = [
     ("PID", 75.),
-    ("Processus", 324.),
+    ("common.processes", 324.),
     ("RAM", 106.),
-    ("RAM %", 79.),
-    ("CPU %", 77.),
-    ("Lecture / s", 117.),
-    ("Écriture / s", 122.),
-    ("Part E/S", 94.),
-    ("Mémoire GPU", 137.),
+    ("processes.ram_percent", 79.),
+    ("processes.cpu_percent", 77.),
+    ("processes.read_per_second", 117.),
+    ("processes.write_per_second", 122.),
+    ("processes.i_o_share", 94.),
+    ("processes.gpu_memory", 137.),
 ];
 
 fn cell(index: usize) -> Div {
@@ -175,7 +175,7 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
     let percent = |n: Option<f64>| {
         n.map_or("—".to_owned(), |v| {
             tp(
-                "{{value}} %",
+                "common.percent_value",
                 &[("value", ((v * 10.).round() / 10.).into())],
             )
         })
@@ -223,7 +223,7 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .child(
                             one_line(
                                 if p.name.is_empty() {
-                                    tx("Nom indisponible")
+                                    tx("common.name_unavailable")
                                 } else {
                                     p.name.clone()
                                 },
@@ -248,14 +248,34 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("EN DIRECT"),
-            "Ce qui utilise votre ordinateur.",
-            Some("Tous les processus accessibles, sans limite de nombre. Recherchez un nom ou un PID pour les retrouver."),
+            Some("common.live_eyebrow"),
+            "processes.what_using_computer",
+            Some("processes.all_accessible_processes_without_limit"),
             None,
         ))
-        .child(notice(NoticeTone::Info, vec![tx("CPU : part de la capacité totale du processeur. RAM : mémoire résidente et part de la RAM physique ; les pages partagées peuvent être comptées plusieurs fois. Les processus protégés peuvent masquer leurs mesures.").into_any_element()]).mb(px(18.)))
-        .child(notice(NoticeTone::Info, vec![tx("Disques : les débits par processus concernent tous les volumes ; le pourcentage est la part des entrées/sorties observables, pas le taux d’occupation d’un disque. GPU : la mémoire des processus de calcul NVIDIA est affichée quand le pilote la fournit ; cette liste ne couvre pas tous les processus graphiques et ne mesure pas leur charge GPU.").into_any_element()]).mb(px(18.)))
-        .when(!state.problem.is_empty(), |d| d.child(notice(NoticeTone::Warn, vec![state.problem.clone().into_any_element()]).mb(px(18.))))
+        .child(
+            notice(
+                NoticeTone::Info,
+                vec![tx("processes.cpu_share_total_processor_capacity").into_any_element()],
+            )
+            .mb(px(18.)),
+        )
+        .child(
+            notice(
+                NoticeTone::Info,
+                vec![tx("processes.disk_per_process_rates_cover").into_any_element()],
+            )
+            .mb(px(18.)),
+        )
+        .when(!state.problem.is_empty(), |d| {
+            d.child(
+                notice(
+                    NoticeTone::Warn,
+                    vec![state.problem.clone().into_any_element()],
+                )
+                .mb(px(18.)),
+            )
+        })
         .when(state.snapshot.is_none() && state.problem.is_empty(), |d| {
             d.child(
                 div()
@@ -264,7 +284,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                     .gap(px(6.))
                     .mb(px(18.))
                     .child(spinner(18., c(theme::MUTED)))
-                    .child(text(tx("Lecture des processus…"), 12., 400., c(theme::MUTED))),
+                    .child(text(
+                        tx("processes.reading_processes"),
+                        12.,
+                        400.,
+                        c(theme::MUTED),
+                    )),
             )
         })
         .child(
@@ -294,7 +319,11 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 .rounded(px(7.))
                                 .text_size(px(13.))
                                 .child(icon("search", 17., "2", c((0xb0bd9f, 0xb1c699))))
-                                .child(div().flex_1().child(Input::new(&query_entity).appearance(false))),
+                                .child(
+                                    div()
+                                        .flex_1()
+                                        .child(Input::new(&query_entity).appearance(false)),
+                                ),
                         )
                         .child(
                             div().w(px(154.)).child(
@@ -302,10 +331,10 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                     "process-metric",
                                     &metric,
                                     vec![
-                                        option("memory", tx("Mémoire vive")),
+                                        option("memory", tx("common.memory")),
                                         option("cpu", "CPU"),
-                                        option("gpu", tx("Mémoire GPU")),
-                                        option("storage", tx("Activité disque")),
+                                        option("gpu", tx("processes.gpu_memory")),
+                                        option("storage", tx("processes.disk_activity")),
                                     ],
                                     app,
                                     cx,
@@ -321,7 +350,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                             ),
                         )
                         .child(div().flex_1())
-                        .child(text(tp("Processus affichés : {{count}}", &[("count", count.into())]), 10., 400., hex(0xa5b097))),
+                        .child(text(
+                            tp("processes.processes_shown", &[("count", count.into())]),
+                            10.,
+                            400.,
+                            hex(0xa5b097),
+                        )),
                 )
                 .child(
                     div()
@@ -332,14 +366,30 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .border_b_1()
                         .border_color(c(theme::BORDER))
                         .children(COLUMNS.iter().enumerate().map(|(i, (label, _))| {
-                            cell(i).child(spaced(tx(label).to_uppercase(), 10., 500., hex(0xa6b299), 0.5, 13.))
+                            cell(i).child(spaced(
+                                tx(label).to_uppercase(),
+                                10.,
+                                500.,
+                                hex(0xa6b299),
+                                0.5,
+                                13.,
+                            ))
                         })),
                 )
-                .when(first > 0, |d| d.child(div().flex_none().h(px(ROW * first as f32))))
+                .when(first > 0, |d| {
+                    d.child(div().flex_none().h(px(ROW * first as f32)))
+                })
                 .children(rows)
-                .when(last < count, |d| d.child(div().flex_none().h(px(ROW * (count - last) as f32))))
+                .when(last < count, |d| {
+                    d.child(div().flex_none().h(px(ROW * (count - last) as f32)))
+                })
                 .when(state.snapshot.is_some() && count == 0, |d| {
-                    d.child(div().p(px(22.)).child(text(tx("Aucun processus ne correspond à la recherche."), 12., 400., c(theme::MUTED))))
+                    d.child(div().p(px(22.)).child(text(
+                        tx("processes.no_processes_match_search"),
+                        12.,
+                        400.,
+                        c(theme::MUTED),
+                    )))
                 }),
         )
         .into_any_element()

@@ -326,7 +326,7 @@ The integrated preboot component in a UEFI VM (its display environment depends o
 ```text
 native/             Domain, diagnostics, OS inventory, history, CLI, MCP
 desktop/            Native GPUI interface, tray indicators and OS integration
-locales/            French source messages and the 24 embedded translation catalogs
+locales/            25 language catalogs keyed by English identifiers (fr.json is the source)
 packaging/          Linux package metadata, GRUB entry, icons
 scripts/            Packaging, benchmark, visual regression and offline localization
 tests/              Presentation contracts and CLI/MCP integration with the official SDK

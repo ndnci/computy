@@ -38,7 +38,7 @@ pub fn main_window_options(size: Size<Pixels>, cx: &App) -> WindowOptions {
             px(680. + if client { TITLE_BAR_HEIGHT } else { 0. }),
         )),
         titlebar: Some(TitlebarOptions {
-            title: Some(format!("Computy — {}", t("Votre matériel, en clair.")).into()),
+            title: Some(format!("Computy — {}", t("common.hardware_clearly")).into()),
             ..Default::default()
         }),
         window_decorations: Some(if client {
@@ -108,7 +108,7 @@ pub fn export_report(
             .and_then(|value| serde_json::to_vec_pretty(&value).map_err(|e| e.to_string()))
             .and_then(|bytes| std::fs::write(&path, bytes).map_err(|e| e.to_string()));
         let _ = this.update(cx, |this, cx| match result {
-            Ok(()) => this.notify(t("Rapport exporté."), false, cx),
+            Ok(()) => this.notify(t("platform.report_exported"), false, cx),
             Err(error) => this.notify(error, true, cx),
         });
     })
@@ -207,7 +207,7 @@ pub fn boot_action(action: &str) -> Result<serde_json::Value, String> {
         match action {
             "verify" | "cancel" => computy_engine::linux_boot::request(action),
             "reboot" => computy_engine::linux_boot::reboot().map(|_| serde_json::json!(true)),
-            _ => Err("Commande non autorisée.".into()),
+            _ => Err("platform.command_not_allowed".into()),
         }
     }
     #[cfg(not(target_os = "linux"))]

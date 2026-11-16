@@ -93,17 +93,17 @@ pub struct CleanState {
 }
 
 const FIELDS: [(&str, &str); 11] = [
-    ("older_days", "Ancienneté (jours)"),
-    ("name", "Nom exact"),
-    ("extension", "Extension"),
-    ("path_regex", "Chemin (regex)"),
-    ("mime", "Type MIME"),
-    ("min_size", "Taille minimum (octets)"),
-    ("max_size", "Taille maximum (octets)"),
-    ("modified_before", "Modifié avant"),
-    ("modified_after", "Modifié après"),
-    ("created_before", "Créé avant"),
-    ("created_after", "Créé après"),
+    ("older_days", "clean.age_days"),
+    ("name", "clean.exact_name"),
+    ("extension", "clean.extension"),
+    ("path_regex", "clean.path_regex"),
+    ("mime", "clean.mime_type"),
+    ("min_size", "clean.minimum_size_bytes"),
+    ("max_size", "clean.maximum_size_bytes"),
+    ("modified_before", "clean.modified_before"),
+    ("modified_after", "clean.modified_after"),
+    ("created_before", "clean.created_before"),
+    ("created_after", "clean.created_after"),
 ];
 
 fn state(app: &mut Computy) -> &mut CleanState {
@@ -420,7 +420,7 @@ fn rule_view(
                             select(
                                 Box::leak(format!("rule-op-{p}").into_boxed_str()),
                                 &op,
-                                vec![option("all", tx("Toutes les conditions (ET)")), option("any", tx("Une condition au moins (OU)"))],
+                                vec![option("all", tx("clean.all_conditions")), option("any", tx("clean.any_condition"))],
                                 app,
                                 cx,
                                 move |this, value, _, _| update_rule(this, &p, false, |rule| rule["op"] = json!(value)),
@@ -431,7 +431,7 @@ fn rule_view(
                     )
                     .child(div().flex_1())
                     .child(
-                        button_with(SharedString::from(format!("add-condition-{add_condition}")), ButtonKind::Secondary, true, Some(icon("plus", 14., "2", secondary).into_any_element()), tx("Condition"), count >= 16)
+                        button_with(SharedString::from(format!("add-condition-{add_condition}")), ButtonKind::Secondary, true, Some(icon("plus", 14., "2", secondary).into_any_element()), tx("clean.condition"), count >= 16)
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 if count < 16 {
                                     update_rule(this, &add_condition, true, |rule| {
@@ -445,7 +445,7 @@ fn rule_view(
                     )
                     .when(depth < 6, |d| {
                         d.child(
-                            button_with(SharedString::from(format!("add-group-{add_group}")), ButtonKind::Secondary, true, Some(icon("plus", 14., "2", secondary).into_any_element()), tx("Groupe"), false)
+                            button_with(SharedString::from(format!("add-group-{add_group}")), ButtonKind::Secondary, true, Some(icon("plus", 14., "2", secondary).into_any_element()), tx("clean.group"), false)
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     update_rule(this, &add_group, true, |rule| {
                                         if let Some(list) = rule["rules"].as_array_mut() {
@@ -471,7 +471,7 @@ fn rule_view(
             .flex()
             .items_center()
             .gap(px(8.))
-            .child(text(tx("Exclure si"), 12., 700., c(theme::TEXT)))
+            .child(text(tx("clean.exclude_if"), 12., 700., c(theme::TEXT)))
             .child(div().flex_1().min_w_0().child(rule_view(
                 app,
                 inner,
@@ -481,15 +481,14 @@ fn rule_view(
                 cx,
             )))
             .child(
-                text_small_button(SharedString::from(format!("unnegate-{p}")), "Annuler").on_click(
-                    cx.listener(move |this, _, _, cx| {
+                text_small_button(SharedString::from(format!("unnegate-{p}")), "common.cancel")
+                    .on_click(cx.listener(move |this, _, _, cx| {
                         update_rule(this, &p, true, |rule| {
                             let inner = rule["rule"].take();
                             *rule = inner;
                         });
                         cx.notify();
-                    }),
-                ),
+                    })),
             )
             .into_any_element();
     }
@@ -521,7 +520,7 @@ fn rule_view(
             ),
         )
         .child(field_box(Input::new(&input).appearance(false)).flex_1().min_w_0())
-        .child(text_small_button(SharedString::from(format!("negate-{negate}")), "Exclure si").on_click(cx.listener(move |this, _, _, cx| {
+        .child(text_small_button(SharedString::from(format!("negate-{negate}")), "clean.exclude_if").on_click(cx.listener(move |this, _, _, cx| {
             update_rule(this, &negate, true, |rule| {
                 let inner = rule.take();
                 *rule = json!({"op": "not", "rule": inner});
@@ -649,18 +648,36 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .p(px(26.))
         .flex()
         .flex_col()
-        .child(heading("folder", 22., "Périmètre du nettoyage", tx("Un chemin absolu par ligne. Les liens symboliques sont ignorés.")))
-        .child(div().mt(px(22.)).flex().gap(px(18.)).child(column("Dossiers inclus", &s.roots)).child(column("Dossiers exclus", &s.exclude)))
+        .child(heading(
+            "folder",
+            22.,
+            "clean.cleanup_scope",
+            tx("clean.one_absolute_path_per_line"),
+        ))
+        .child(
+            div()
+                .mt(px(22.))
+                .flex()
+                .gap(px(18.))
+                .child(column("clean.included_folders", &s.roots))
+                .child(column("clean.excluded_folders", &s.exclude)),
+        )
         .child(
             div().mt(px(18.)).child(
-                utility_check("node-modules", node_modules, !busy.is_empty(), "Uniquement les fichiers dans node_modules", tx("Indiquez vos dossiers de projets. Le code source est conservé."))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        if busy.is_empty() {
-                            state(this).node_modules = !node_modules;
-                            invalidate(this);
-                            cx.notify();
-                        }
-                    })),
+                utility_check(
+                    "node-modules",
+                    node_modules,
+                    !busy.is_empty(),
+                    "clean.only_files_inside_node_modules",
+                    tx("clean.enter_project_folders_source_code"),
+                )
+                .on_click(cx.listener(move |this, _, _, cx| {
+                    if busy.is_empty() {
+                        state(this).node_modules = !node_modules;
+                        invalidate(this);
+                        cx.notify();
+                    }
+                })),
             ),
         )
         .child(
@@ -668,8 +685,27 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .mt(px(24.))
                 .flex()
                 .flex_col()
-                .child(spaced(tx("Conditions"), 17., 650., c(theme::HEADING), -0.2, 21.).family("Sora"))
-                .child(text(tx("Une date de création inconnue ne satisfait pas un critère de date."), 12., 400., hex(0x6d7c70)).line_height(px(20.4)).mt(px(10.))),
+                .child(
+                    spaced(
+                        tx("clean.conditions"),
+                        17.,
+                        650.,
+                        c(theme::HEADING),
+                        -0.2,
+                        21.,
+                    )
+                    .family("Sora"),
+                )
+                .child(
+                    text(
+                        tx("clean.unknown_creation_date_does_not"),
+                        12.,
+                        400.,
+                        hex(0x6d7c70),
+                    )
+                    .line_height(px(20.4))
+                    .mt(px(10.)),
+                ),
         )
         .child(div().mt(px(12.)).child(rules))
         .child(
@@ -679,7 +715,11 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                     docker,
                     !busy.is_empty() || !docker_available,
                     "Docker",
-                    tx(if docker_available { "Images inutilisées et conteneurs arrêtés. Sélection séparée après analyse." } else { "Docker local indisponible." }),
+                    tx(if docker_available {
+                        "clean.unused_images_stopped_containers_select"
+                    } else {
+                        "clean.local_docker_unavailable"
+                    }),
                 )
                 .on_click(cx.listener(move |this, _, _, cx| {
                     if busy.is_empty() && docker_available {
@@ -695,14 +735,20 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .when(docker, |d| {
             d.child(
                 div().mt(px(12.)).child(
-                    utility_check("docker-volumes", docker_volumes, !busy.is_empty(), "Inclure les volumes Docker inutilisés", tx("Ils peuvent contenir des bases de données. Aucune sélection automatique."))
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            if busy.is_empty() {
-                                state(this).docker_volumes = !docker_volumes;
-                                invalidate(this);
-                                cx.notify();
-                            }
-                        })),
+                    utility_check(
+                        "docker-volumes",
+                        docker_volumes,
+                        !busy.is_empty(),
+                        "clean.include_unused_docker_volumes",
+                        tx("clean.they_may_contain_databases_nothing"),
+                    )
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if busy.is_empty() {
+                            state(this).docker_volumes = !docker_volumes;
+                            invalidate(this);
+                            cx.notify();
+                        }
+                    })),
                 ),
             )
         })
@@ -713,14 +759,34 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .items_center()
                 .justify_between()
                 .gap(px(14.))
-                .child(div().flex().items_center().gap(px(7.)).child(icon("shield-check", 16., "2", hex(0x6d7c70))).child(text(tx("Aperçu obligatoire avant toute suppression"), 11., 400., hex(0x6d7c70))))
+                .child(
+                    div()
+                        .flex()
+                        .items_center()
+                        .gap(px(7.))
+                        .child(icon("shield-check", 16., "2", hex(0x6d7c70)))
+                        .child(text(
+                            tx("clean.preview_required_before_deletion"),
+                            11.,
+                            400.,
+                            hex(0x6d7c70),
+                        )),
+                )
                 .child(
                     button_with(
                         "clean-preview",
                         ButtonKind::Primary,
                         false,
-                        Some(if busy == "preview" { spinner(17., primary) } else { icon("search", 17., "2", primary).into_any_element() }),
-                        tx(if busy == "preview" { "Analyse en cours…" } else { "Analyser sans supprimer" }),
+                        Some(if busy == "preview" {
+                            spinner(17., primary)
+                        } else {
+                            icon("search", 17., "2", primary).into_any_element()
+                        }),
+                        tx(if busy == "preview" {
+                            "clean.scanning"
+                        } else {
+                            "clean.preview_without_deleting"
+                        }),
                         !can_preview,
                     )
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -732,13 +798,25 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         );
     let plan_panel = s.plan.clone().map(|plan| {
         let excluded = s.excluded.clone();
-        let selected_bytes: f64 = plan.files.iter().enumerate().filter(|(i, _)| !excluded.contains(i)).map(|(_, f)| f.bytes).sum();
+        let selected_bytes: f64 = plan
+            .files
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| !excluded.contains(i))
+            .map(|(_, f)| f.bytes)
+            .sum();
         let selected_count = plan.files.len() + plan.docker.len() - excluded.len();
-        let all_files = !plan.files.is_empty() && (0..plan.files.len()).all(|i| !excluded.contains(&i));
+        let all_files =
+            !plan.files.is_empty() && (0..plan.files.len()).all(|i| !excluded.contains(&i));
         let file_count = plan.files.len();
         let docker_count = plan.docker.len();
         let visible = s.visible.min(file_count);
-        let row = |index: usize, label: String, kind: String, size: String, checked: bool, cx: &mut Context<Computy>| {
+        let row = |index: usize,
+                   label: String,
+                   kind: String,
+                   size: String,
+                   checked: bool,
+                   cx: &mut Context<Computy>| {
             div()
                 .id(SharedString::from(format!("plan-row-{index}")))
                 .flex()
@@ -763,8 +841,32 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .child(table_check(checked))
                         .child(one_line(label, 12., 400., c(theme::TEXT)).flex_1()),
                 )
-                .child(div().flex_grow().flex_basis(relative(0.)).map(|mut d| { d.style().flex_grow = Some(237.); d }).min_w_0().py(px(11.)).px(px(13.)).child(one_line(kind, 11., 400., c(theme::TEXT))))
-                .child(div().flex_grow().flex_basis(relative(0.)).map(|mut d| { d.style().flex_grow = Some(87.); d }).min_w_0().py(px(11.)).px(px(13.)).child(one_line(size, 11., 400., c(theme::TEXT))))
+                .child(
+                    div()
+                        .flex_grow()
+                        .flex_basis(relative(0.))
+                        .map(|mut d| {
+                            d.style().flex_grow = Some(237.);
+                            d
+                        })
+                        .min_w_0()
+                        .py(px(11.))
+                        .px(px(13.))
+                        .child(one_line(kind, 11., 400., c(theme::TEXT))),
+                )
+                .child(
+                    div()
+                        .flex_grow()
+                        .flex_basis(relative(0.))
+                        .map(|mut d| {
+                            d.style().flex_grow = Some(87.);
+                            d
+                        })
+                        .min_w_0()
+                        .py(px(11.))
+                        .px(px(13.))
+                        .child(one_line(size, 11., 400., c(theme::TEXT))),
+                )
                 .on_click(cx.listener(move |this, _, _, cx| {
                     let s = state(this);
                     if let Some(position) = s.excluded.iter().position(|i| *i == index) {
@@ -779,7 +881,16 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         let mut rows: Vec<AnyElement> = plan.files[..visible]
             .iter()
             .enumerate()
-            .map(|(i, f)| row(i, f.path.clone(), f.mime.clone(), bytes(f.bytes), !excluded.contains(&i), cx))
+            .map(|(i, f)| {
+                row(
+                    i,
+                    f.path.clone(),
+                    f.mime.clone(),
+                    bytes(f.bytes),
+                    !excluded.contains(&i),
+                    cx,
+                )
+            })
             .collect();
         rows.extend(plan.docker.iter().enumerate().map(|(i, item)| {
             let index = file_count + i;
@@ -787,7 +898,11 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 index,
                 item.label.clone(),
                 format!("Docker · {}", item.kind),
-                if item.bytes > 0. { format!("≈ {}", bytes(item.bytes)) } else { tx("Inconnue") },
+                if item.bytes > 0. {
+                    format!("≈ {}", bytes(item.bytes))
+                } else {
+                    tx("common.unknown")
+                },
                 !excluded.contains(&index),
                 cx,
             )
@@ -818,15 +933,67 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         div()
                             .flex()
                             .flex_col()
-                            .child(spaced(tx("APERÇU · AUCUNE SUPPRESSION"), 10., 650., hex(0x899582), 1.75, 13.).mt(px(6.)))
-                            .child(spaced(bytes(selected_bytes), 42., 650., c(theme::HEADING), -2., 53.).family("Sora").mt(px(14.)))
-                            .child(text(tp("{{count}} éléments sélectionnés", &[("count", selected_count.into())]), 12., 400., hex(0x6d7c70)).line_height(px(19.8)).mt(px(8.))),
+                            .child(
+                                spaced(
+                                    tx("clean.preview_nothing_deleted_eyebrow"),
+                                    10.,
+                                    650.,
+                                    hex(0x899582),
+                                    1.75,
+                                    13.,
+                                )
+                                .mt(px(6.)),
+                            )
+                            .child(
+                                spaced(
+                                    bytes(selected_bytes),
+                                    42.,
+                                    650.,
+                                    c(theme::HEADING),
+                                    -2.,
+                                    53.,
+                                )
+                                .family("Sora")
+                                .mt(px(14.)),
+                            )
+                            .child(
+                                text(
+                                    tp("clean.items_selected", &[("count", selected_count.into())]),
+                                    12.,
+                                    400.,
+                                    hex(0x6d7c70),
+                                )
+                                .line_height(px(19.8))
+                                .mt(px(8.)),
+                            ),
                     )
                     .child(icon("check", 34., "2", c(theme::GREEN))),
             )
-            .child(text(tx("Taille logique des fichiers. L’espace réellement disponible dépend du système de fichiers. Les couches Docker partagées ne sont pas additionnées."), 11., 400., hex(0x6d7c70)).line_height(px(18.7)))
-            .when(truncated, |d| d.child(text(tx("Analyse limitée. Réduisez le périmètre avant de continuer."), 12., 400., c(theme::WARN)).mt(px(12.))))
-            .children(plan.warnings.iter().map(|w| text(w.clone(), 12., 400., c(theme::WARN)).mt(px(12.)).into_any_element()))
+            .child(
+                text(
+                    tx("clean.logical_file_size_actual_free"),
+                    11.,
+                    400.,
+                    hex(0x6d7c70),
+                )
+                .line_height(px(18.7)),
+            )
+            .when(truncated, |d| {
+                d.child(
+                    text(
+                        tx("clean.scan_limit_reached_narrow_scope"),
+                        12.,
+                        400.,
+                        c(theme::WARN),
+                    )
+                    .mt(px(12.)),
+                )
+            })
+            .children(plan.warnings.iter().map(|w| {
+                text(w.clone(), 12., 400., c(theme::WARN))
+                    .mt(px(12.))
+                    .into_any_element()
+            }))
             .child(
                 div()
                     .mt(px(25.))
@@ -841,7 +1008,7 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                             .gap(px(1.))
                             .cursor_pointer()
                             .child(native_check(all_files, false))
-                            .child(text(tx("Sélectionner les fichiers"), 12., 600., c(theme::TEXT)))
+                            .child(text(tx("clean.select_files"), 12., 600., c(theme::TEXT)))
                             .on_click(cx.listener(move |this, _, _, cx| {
                                 state(this).excluded = if all_files {
                                     (0..file_count + docker_count).collect()
@@ -851,7 +1018,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 cx.notify();
                             })),
                     )
-                    .child(text(tx("Docker nécessite une sélection explicite."), 11., 400., hex(0x6d7c70))),
+                    .child(text(
+                        tx("clean.docker_requires_explicit_selection"),
+                        11.,
+                        400.,
+                        hex(0x6d7c70),
+                    )),
             )
             .child(
                 div()
@@ -864,18 +1036,28 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         div()
                             .flex()
                             .bg(c((0xf6f8f6, 0x17221b)))
-                            .child(header_cell("Fichier / ressource", 755.))
-                            .child(header_cell("Type", 237.))
-                            .child(header_cell("Taille", 87.)),
+                            .child(header_cell("clean.file_resource", 755.))
+                            .child(header_cell("clean.type", 237.))
+                            .child(header_cell("clean.size", 87.)),
                     )
                     .children(rows),
             )
             .when(visible < file_count, |d| {
                 d.child(
-                    div().mt(px(14.)).flex().child(button("plan-more", ButtonKind::Secondary, true, None, tx("Voir plus"), false).on_click(cx.listener(|this, _, _, cx| {
-                        state(this).visible += 100;
-                        cx.notify();
-                    }))),
+                    div().mt(px(14.)).flex().child(
+                        button(
+                            "plan-more",
+                            ButtonKind::Secondary,
+                            true,
+                            None,
+                            tx("common.show_more"),
+                            false,
+                        )
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            state(this).visible += 100;
+                            cx.notify();
+                        })),
+                    ),
                 )
             })
             .child(
@@ -886,25 +1068,49 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                     .justify_between()
                     .gap(px(14.))
                     .child(
-                        button_with("automate", ButtonKind::Secondary, false, Some(icon("calendar-clock", 17., "2", secondary).into_any_element()), tx("Automatiser cette règle"), !busy.is_empty() || truncated || docker)
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                if busy.is_empty() && !truncated && !docker {
-                                    state(this).modal = Some(CleanModal::Schedule);
-                                    cx.notify();
-                                }
-                            })),
+                        button_with(
+                            "automate",
+                            ButtonKind::Secondary,
+                            false,
+                            Some(icon("calendar-clock", 17., "2", secondary).into_any_element()),
+                            tx("clean.automate_rule"),
+                            !busy.is_empty() || truncated || docker,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if busy.is_empty() && !truncated && !docker {
+                                state(this).modal = Some(CleanModal::Schedule);
+                                cx.notify();
+                            }
+                        })),
                     )
                     .child(
-                        button_with("verify-clean", ButtonKind::Primary, false, Some(icon("trash-2", 17., "2", primary).into_any_element()), tx("Vérifier et nettoyer"), !busy.is_empty() || selected_count == 0 || truncated)
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                if busy.is_empty() && selected_count > 0 && !truncated {
-                                    state(this).modal = Some(CleanModal::Delete);
-                                    cx.notify();
-                                }
-                            })),
+                        button_with(
+                            "verify-clean",
+                            ButtonKind::Primary,
+                            false,
+                            Some(icon("trash-2", 17., "2", primary).into_any_element()),
+                            tx("clean.review_clean"),
+                            !busy.is_empty() || selected_count == 0 || truncated,
+                        )
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if busy.is_empty() && selected_count > 0 && !truncated {
+                                state(this).modal = Some(CleanModal::Delete);
+                                cx.notify();
+                            }
+                        })),
                     ),
             )
-            .when(docker, |d| d.child(text(tx("Les ressources Docker restent en nettoyage manuel."), 11., 400., hex(0x6d7c70)).mt(px(12.))))
+            .when(docker, |d| {
+                d.child(
+                    text(
+                        tx("clean.docker_resources_require_manual_cleanup"),
+                        11.,
+                        400.,
+                        hex(0x6d7c70),
+                    )
+                    .mt(px(12.)),
+                )
+            })
             .into_any_element()
     });
     let outcome_panel = s.outcome.clone().map(|outcome| {
@@ -916,16 +1122,16 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
             .child(heading(
                 "check",
                 25.,
-                "Nettoyage terminé.",
+                "clean.cleanup_completed",
                 format!(
                     "{} · {} · {}",
                     bytes(outcome.deleted_bytes),
                     tp(
-                        "{{count}} éléments supprimés",
+                        "clean.items_deleted",
                         &[("count", (outcome.deleted as f64).into())]
                     ),
                     tp(
-                        "{{count}} ignorés",
+                        "clean.skipped",
                         &[("count", (outcome.skipped as f64).into())]
                     )
                 ),
@@ -941,7 +1147,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
     div()
         .flex()
         .flex_col()
-        .child(components::section_title(Some("ENTRETIEN"), "Faire de la place. Garder le contrôle.", Some("Analysez, vérifiez la sélection, puis confirmez le nettoyage."), None))
+        .child(components::section_title(
+            Some("clean.maintenance_eyebrow"),
+            "clean.make_room_stay_control",
+            Some("clean.scan_review_selection_confirm_cleanup"),
+            None,
+        ))
         .child(
             div()
                 .mt(px(24.))
@@ -949,11 +1160,23 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .flex()
                 .items_center()
                 .gap(px(20.))
-                .child(step("search", format!("01 · {}", tx("Analyser")), !has_plan))
+                .child(step(
+                    "search",
+                    format!("01 · {}", tx("clean.scan")),
+                    !has_plan,
+                ))
                 .child(icon("arrow-right", 15., "2", hex(0x6d7c70)))
-                .child(step("shield-check", format!("02 · {}", tx("Vérifier")), has_plan))
+                .child(step(
+                    "shield-check",
+                    format!("02 · {}", tx("clean.review")),
+                    has_plan,
+                ))
                 .child(icon("arrow-right", 15., "2", hex(0x6d7c70)))
-                .child(step("brush-cleaning", format!("03 · {}", tx("Nettoyer")), false)),
+                .child(step(
+                    "brush-cleaning",
+                    format!("03 · {}", tx("clean.clean")),
+                    false,
+                )),
         )
         .child(scope)
         .children(plan_panel)
@@ -964,13 +1187,32 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .p(px(26.))
                 .flex()
                 .flex_col()
-                .child(heading("calendar-clock", 23., "Automatisations", tx("Exécutées quand Computy fonctionne, y compris en arrière-plan. Les échéances manquées sont reprises à la prochaine connexion.")))
+                .child(heading(
+                    "calendar-clock",
+                    23.,
+                    "clean.automations",
+                    tx("clean.runs_while_computy_running_including"),
+                ))
                 .when(schedules.is_empty(), |d| {
-                    d.child(text(tx("Créez une automatisation à partir d’un aperçu vérifié."), 11., 400., hex(0x6d7c70)).line_height(px(18.7)).mt(px(22.)))
+                    d.child(
+                        text(
+                            tx("clean.create_automation_reviewed_preview"),
+                            11.,
+                            400.,
+                            hex(0x6d7c70),
+                        )
+                        .line_height(px(18.7))
+                        .mt(px(22.)),
+                    )
                 })
                 .children(schedules.into_iter().map(|task| {
                     let id = task.id.clone();
-                    let roots: Vec<String> = task.policy["roots"].as_array().into_iter().flatten().filter_map(|v| v.as_str().map(str::to_owned)).collect();
+                    let roots: Vec<String> = task.policy["roots"]
+                        .as_array()
+                        .into_iter()
+                        .flatten()
+                        .filter_map(|v| v.as_str().map(str::to_owned))
+                        .collect();
                     div()
                         .mt(px(16.))
                         .flex()
@@ -986,16 +1228,38 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 .flex()
                                 .flex_col()
                                 .gap(px(4.))
-                                .child(text(tp("Toutes les {{hours}} heures", &[("hours", (task.interval_hours as f64).into())]), 12., 700., c(theme::TEXT)))
+                                .child(text(
+                                    tp(
+                                        "clean.every_hours",
+                                        &[("hours", (task.interval_hours as f64).into())],
+                                    ),
+                                    12.,
+                                    700.,
+                                    c(theme::TEXT),
+                                ))
                                 .child(text(roots.join(" · "), 11., 400., hex(0x6d7c70)))
                                 .child(text(
-                                    format!("{} · {} · {}", tx("Prochaine exécution"), intl::date(locale, task.next_run as i64, false), bytes(task.max_bytes)),
+                                    format!(
+                                        "{} · {} · {}",
+                                        tx("clean.next_run"),
+                                        intl::date(locale, task.next_run as i64, false),
+                                        bytes(task.max_bytes)
+                                    ),
                                     10.,
                                     400.,
                                     hex(0x6d7c70),
                                 ))
                                 .when_some(task.last_result.clone(), |d, last| {
-                                    d.child(text(format!("{} · {}", bytes(last.deleted_bytes), last.errors.join(" · ")), 11., 400., hex(0x6d7c70)))
+                                    d.child(text(
+                                        format!(
+                                            "{} · {}",
+                                            bytes(last.deleted_bytes),
+                                            last.errors.join(" · ")
+                                        ),
+                                        11.,
+                                        400.,
+                                        hex(0x6d7c70),
+                                    ))
                                 }),
                         )
                         .child(
@@ -1009,10 +1273,15 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 .cursor_pointer()
                                 .child(icon("trash-2", 17., "2", hex(0x6d7c70)))
                                 .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.call("clean_unschedule", json!({"id": id}), cx, |this, result: Result<Value, String>, cx| match result {
-                                        Ok(_) => reload_schedules(this, cx),
-                                        Err(error) => this.notify(error, true, cx),
-                                    });
+                                    this.call(
+                                        "clean_unschedule",
+                                        json!({"id": id}),
+                                        cx,
+                                        |this, result: Result<Value, String>, cx| match result {
+                                            Ok(_) => reload_schedules(this, cx),
+                                            Err(error) => this.notify(error, true, cx),
+                                        },
+                                    );
                                 })),
                         )
                         .into_any_element()
@@ -1039,7 +1308,7 @@ fn preview(app: &mut Computy, cx: &mut Context<Computy>) {
                     s.excluded = (plan.files.len()..plan.files.len() + plan.docker.len()).collect();
                     s.visible = 100;
                     s.plan = Some(plan);
-                    this.notify(tx("Aperçu prêt. Aucun fichier supprimé."), false, cx);
+                    this.notify(tx("clean.preview_ready_no_files_deleted"), false, cx);
                 }
                 Err(error) => this.notify(error, true, cx),
             }
@@ -1089,17 +1358,41 @@ pub fn modal(
                 .flex()
                 .flex_col()
                 .gap(px(12.))
-                .child(spaced(intl::bytes(locale, Some(selected_bytes), 1), 28., 650., c(theme::HEADING), -1., 36.).family("Sora"))
-                .child(text(tp("{{count}} éléments sélectionnés", &[("count", selected_count.into())]), 12., 400., hex(0x6d7c70)))
-                .child(text(tx("Suppression définitive. Les fichiers modifiés depuis l’aperçu seront ignorés."), 12., 400., hex(0x6d7c70)))
+                .child(
+                    spaced(
+                        intl::bytes(locale, Some(selected_bytes), 1),
+                        28.,
+                        650.,
+                        c(theme::HEADING),
+                        -1.,
+                        36.,
+                    )
+                    .family("Sora"),
+                )
+                .child(text(
+                    tp("clean.items_selected", &[("count", selected_count.into())]),
+                    12.,
+                    400.,
+                    hex(0x6d7c70),
+                ))
+                .child(text(
+                    tx("clean.permanent_deletion_files_changed_since"),
+                    12.,
+                    400.,
+                    hex(0x6d7c70),
+                ))
                 .child(
                     div().flex().child(
                         button_with(
                             "confirm-clean",
                             ButtonKind::Primary,
                             false,
-                            Some(if busy.is_empty() { icon("trash-2", 16., "2", primary).into_any_element() } else { spinner(16., primary) }),
-                            tx("Confirmer la suppression"),
+                            Some(if busy.is_empty() {
+                                icon("trash-2", 16., "2", primary).into_any_element()
+                            } else {
+                                spinner(16., primary)
+                            }),
+                            tx("clean.confirm_deletion"),
                             !busy.is_empty(),
                         )
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -1120,7 +1413,7 @@ pub fn modal(
                                     match result {
                                         Ok(outcome) => {
                                             state(this).outcome = Some(outcome);
-                                            this.notify(tx("Nettoyage terminé."), false, cx);
+                                            this.notify(tx("clean.cleanup_completed"), false, cx);
                                         }
                                         Err(error) => this.notify(error, true, cx),
                                     }
@@ -1146,13 +1439,13 @@ pub fn modal(
                 .flex()
                 .flex_col()
                 .gap(px(14.))
-                .child(text(tx("Autoriser les prochains nettoyages de ces dossiers avec les mêmes conditions. Chaque passage refait une analyse et respecte la limite ci-dessous. La sélection de fichiers de cet aperçu ne limite pas les passages futurs."), 12., 400., hex(0x6d7c70)).line_height(px(20.4)))
+                .child(text(tx("clean.allow_future_cleanup_these_folders"), 12., 400., hex(0x6d7c70)).line_height(px(20.4)))
                 .child(text(roots.join("\n"), 11., 400., hex(0x6d7c70)))
-                .child(field("Intervalle (heures)", &s.hours))
-                .child(field("Limite par passage (Mio)", &s.limit))
+                .child(field("clean.interval_hours", &s.hours))
+                .child(field("clean.limit_per_run_mib", &s.limit))
                 .child(
                     div().flex().child(
-                        button_with("confirm-schedule", ButtonKind::Primary, false, (!busy.is_empty()).then(|| spinner(16., primary)), tx("Autoriser cette automatisation"), !valid).on_click(cx.listener(move |this, _, _, cx| {
+                        button_with("confirm-schedule", ButtonKind::Primary, false, (!busy.is_empty()).then(|| spinner(16., primary)), tx("clean.authorize_automation"), !valid).on_click(cx.listener(move |this, _, _, cx| {
                             if !valid {
                                 return;
                             }
@@ -1167,7 +1460,7 @@ pub fn modal(
                                         Ok(_) => {
                                             state(this).modal = None;
                                             reload_schedules(this, cx);
-                                            this.notify(tx("Automatisation enregistrée."), false, cx);
+                                            this.notify(tx("clean.automation_saved"), false, cx);
                                         }
                                         Err(error) => this.notify(error, true, cx),
                                     }
@@ -1182,9 +1475,9 @@ pub fn modal(
     Some(components::modal(
         "clean-modal",
         tx(if kind == CleanModal::Delete {
-            "Confirmer le nettoyage"
+            "clean.confirm_cleanup"
         } else {
-            "Automatiser cette règle"
+            "clean.automate_rule"
         }),
         false,
         body,

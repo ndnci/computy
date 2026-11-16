@@ -71,21 +71,21 @@ const fn nav(page: Page, label: &'static str, icon: &'static str) -> NavItem {
 
 const NAVIGATION: [&[NavItem]; 3] = [
     &[
-        nav(Page::Overview, "Vue d’ensemble", "layout-dashboard"),
-        nav(Page::Diagnostics, "Diagnostics", "activity"),
+        nav(Page::Overview, "common.overview", "layout-dashboard"),
+        nav(Page::Diagnostics, "app.diagnostics", "activity"),
     ],
     &[
-        nav(Page::Memory, "Mémoire vive", "memory-stick"),
-        nav(Page::Storage, "Stockage", "hard-drive"),
-        nav(Page::Cpu, "Processeur", "cpu"),
-        nav(Page::Fans, "Ventilateurs", "fan"),
-        nav(Page::Processes, "Processus", "activity"),
+        nav(Page::Memory, "common.memory", "memory-stick"),
+        nav(Page::Storage, "common.storage", "hard-drive"),
+        nav(Page::Cpu, "common.processor", "cpu"),
+        nav(Page::Fans, "common.fans", "fan"),
+        nav(Page::Processes, "common.processes", "activity"),
     ],
     &[
-        nav(Page::History, "Historique", "history"),
-        nav(Page::Applications, "Applications", "app-window"),
-        nav(Page::Clean, "Nettoyage", "brush-cleaning"),
-        nav(Page::Compare, "Comparaison", "arrow-left-right"),
+        nav(Page::History, "app.history", "history"),
+        nav(Page::Applications, "app.applications", "app-window"),
+        nav(Page::Clean, "app.cleanup", "brush-cleaning"),
+        nav(Page::Compare, "app.comparison", "arrow-left-right"),
     ],
 ];
 
@@ -270,17 +270,13 @@ impl Computy {
                         this.inventory = Some(inventory);
                         this.error = None;
                         if announce {
-                            this.notify(t("Informations matérielles actualisées."), false, cx);
+                            this.notify(t("app.hardware_information_refreshed"), false, cx);
                         }
                     }
                     Err(error) => {
                         this.error = Some(error);
                         if announce {
-                            this.notify(
-                                t("Impossible d’actualiser les informations matérielles."),
-                                true,
-                                cx,
-                            );
+                            this.notify(t("app.could_not_refresh_hardware_information"), true, cx);
                         }
                     }
                 }
@@ -315,7 +311,7 @@ impl Computy {
                                         if let Ok(report) = report {
                                             this.report = Some(report);
                                             this.notify(
-                                                t("Votre résultat mémoire Windows a été récupéré."),
+                                                t("app.windows_memory_result_has_been"),
                                                 false,
                                                 cx,
                                             );
@@ -349,13 +345,18 @@ impl Computy {
         }
         let id = job.id.clone();
         cx.spawn(async move |this, cx| {
-            cx.background_executor().timer(Duration::from_millis(350)).await;
+            cx.background_executor()
+                .timer(Duration::from_millis(350))
+                .await;
             let _ = this.update(cx, |this, cx| {
                 if this.job.as_ref().is_none_or(|j| j.id != id || !j.running) {
                     return;
                 }
-                this.call("job", json!({"id": id}), cx, |this, result: Result<Job, String>, cx| {
-                    match result {
+                this.call(
+                    "job",
+                    json!({"id": id}),
+                    cx,
+                    |this, result: Result<Job, String>, cx| match result {
                         Ok(next) => {
                             let finished = !next.running;
                             let error = next.error.clone();
@@ -367,9 +368,9 @@ impl Computy {
                                     Some(error) => this.notify(error, true, cx),
                                     None => this.notify(
                                         t(if completed {
-                                            "Diagnostic terminé et enregistré."
+                                            "app.diagnostic_completed_recorded"
                                         } else {
-                                            "Diagnostic interrompu. Le résultat partiel a été conservé."
+                                            "app.diagnostic_interrupted_partial_result_was"
                                         }),
                                         false,
                                         cx,
@@ -383,8 +384,8 @@ impl Computy {
                             this.notify(error, true, cx);
                             this.poll_job(cx);
                         }
-                    }
-                });
+                    },
+                );
             });
         })
         .detach();
@@ -440,11 +441,7 @@ impl Computy {
         {
             self.diagnostic_mode = DiagnosticMode::Boot;
             self.navigate(Page::Diagnostics, window, cx);
-            self.notify(
-                t("Choisissez et confirmez le prochain test avant démarrage dans l’assistant."),
-                false,
-                cx,
-            );
+            self.notify(t("app.choose_confirm_next_pre_boot"), false, cx);
             return;
         }
         self.diagnostic_mode = DiagnosticMode::Session;
@@ -485,11 +482,7 @@ impl Computy {
         if let Some(index) = self.selected_ids.iter().position(|v| v == id) {
             self.selected_ids.remove(index);
         } else if self.selected_ids.len() >= 4 {
-            self.notify(
-                t("Vous pouvez comparer jusqu’à quatre diagnostics."),
-                false,
-                cx,
-            );
+            self.notify(t("app.compare_up_four_diagnostics"), false, cx);
         } else {
             self.selected_ids.push(id.to_owned());
         }
@@ -516,10 +509,10 @@ impl Computy {
                     this.preferences = saved;
                     crate::i18n::set_language(&this.preferences.language);
                     crate::tray::preferences_changed(cx);
-                    this.notify(t("Préférences enregistrées sur cet appareil."), false, cx);
+                    this.notify(t("app.preferences_recorded_device"), false, cx);
                     cx.refresh_windows();
                 }
-                Err(_) => this.notify(t("Impossible d’enregistrer les préférences."), true, cx),
+                Err(_) => this.notify(t("app.could_not_save_preferences"), true, cx),
             },
         );
         let _ = window;
@@ -527,8 +520,8 @@ impl Computy {
 
     fn page_label(&self) -> &'static str {
         match self.page {
-            Page::Settings => "Préférences",
-            Page::About => "À propos",
+            Page::Settings => "common.preferences",
+            Page::About => "app.about",
             page => NAVIGATION
                 .iter()
                 .flat_map(|g| g.iter())
@@ -660,9 +653,9 @@ impl Computy {
                     .when(index > 0, |d| {
                         d.child(div().px(px(13.)).mb(px(8.)).child(spaced(
                             tx(if index == 1 {
-                                "VOTRE MATÉRIEL"
+                                "common.your_hardware_eyebrow"
                             } else {
-                                "DANS LE TEMPS"
+                                "app.over_time_eyebrow"
                             }),
                             10.,
                             600.,
@@ -679,8 +672,8 @@ impl Computy {
                     .into_any_element()
             })
             .collect();
-        let settings = nav(Page::Settings, "Préférences", "settings-2");
-        let about = nav(Page::About, "À propos de Computy", "circle-help");
+        let settings = nav(Page::Settings, "common.preferences", "settings-2");
+        let about = nav(Page::About, "app.about_computy", "circle-help");
         use crate::layout::pick;
         let (brand_gap, logo, word, word_lh, small, small_ls, small_lh, small_mt) = pick((
             (5., 36., 22., 24.2, 5., 1.2, 5.5, 8.),
@@ -727,7 +720,7 @@ impl Computy {
                                     .child(spaced_word(&tx("."), -1.7, hex(0x91ac69))),
                             )
                             .child(div().mt(px(small_mt)).child(spaced(
-                                tx("VOTRE MATÉRIEL, EN CLAIR"),
+                                tx("app.hardware_clearly_eyebrow"),
                                 small,
                                 500.,
                                 hex(0x6d7c70),
@@ -764,7 +757,7 @@ impl Computy {
                                 .cursor_pointer()
                                 .hover(|s| s.bg(c(NAV_HOVER_BG)))
                                 .child(icon("power", 18., "2", hex(NAV_TEXT)))
-                                .child(text(tx("Quitter Computy"), 12., 500., hex(NAV_TEXT)))
+                                .child(text(tx("common.quit_computy"), 12., 500., hex(NAV_TEXT)))
                                 .on_click(cx.listener(|_, _, _, cx| crate::quit(cx))),
                         )
                     }),
@@ -801,7 +794,7 @@ impl Computy {
                     .items_center()
                     .gap(px(12.))
                     .child(icon("monitor", 16., "2", hex(0x869386)))
-                    .child(text(tx("Mon ordinateur"), 12., 400., hex(0xa0a8a2)))
+                    .child(text(tx("common.my_computer"), 12., 400., hex(0xa0a8a2)))
                     .child(icon("chevron-right", 14., "2", hex(0xa0a8a2)))
                     .child(text(tx(self.page_label()), 12., 500., hex(0x657466))),
             )
@@ -813,9 +806,9 @@ impl Computy {
                     .when(self.loading || self.error.is_some(), |d| {
                         d.child(text(
                             tx(if self.loading {
-                                "Connexion au moteur"
+                                "app.engine_connection"
                             } else {
-                                "Moteur indisponible"
+                                "app.engine_not_available"
                             }),
                             11.,
                             400.,
@@ -843,7 +836,7 @@ impl Computy {
                             ))
                             .when(!crate::layout::narrow(), |d| {
                                 d.child(text(
-                                    tx("Actualiser les informations"),
+                                    tx("app.refresh_hardware_info"),
                                     11.,
                                     400.,
                                     hex(0x6d7c70),
@@ -889,7 +882,7 @@ impl Computy {
                     .child(text(tx("Computy"), 10., 400., hex(0xa4ad9b)))
                     .child(text(env!("CARGO_PKG_VERSION"), 10., 500., hex(0x929d87)))
                     .child(div().size(px(3.)).rounded_full().bg(hex(0xb9c2af)))
-                    .child(text(tx("Fait avec soin par"), 10., 400., hex(0xa4ad9b)))
+                    .child(text(tx("app.carefully_done"), 10., 400., hex(0xa4ad9b)))
                     .child(
                         div()
                             .id("ndnci")
@@ -935,7 +928,12 @@ impl Computy {
                         .flex_1()
                         .flex()
                         .flex_col()
-                        .child(text(tx("Diagnostic en cours"), 11., 550., hex(0xeef6e7)))
+                        .child(text(
+                            tx("app.diagnostics_progress"),
+                            11.,
+                            550.,
+                            hex(0xeef6e7),
+                        ))
                         .child(text(tx(&job.phase), 9., 400., hex(0xc0d4a7)).mt(px(5.)))
                         .child(div().mt(px(9.)).child(progress_bar(
                             job.progress,
@@ -1038,7 +1036,7 @@ impl Computy {
         let details = components::report_details(self, &report, true, disabled, window, cx);
         Some(components::modal(
             "report",
-            tx("Rapport de diagnostic"),
+            tx("app.diagnostic_report"),
             true,
             details,
             std::rc::Rc::new(cx.listener(|this, _, _, cx| {

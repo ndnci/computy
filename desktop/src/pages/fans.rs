@@ -124,9 +124,9 @@ fn card(fan: &Fan) -> impl IntoElement {
             text(
                 format!(
                     "{} · {}",
-                    tx("Commande PWM"),
+                    tx("fans.pwm_duty_cycle"),
                     fan.pwm_percent
-                        .map_or_else(|| tx("Indisponible"), |v| format!("{} %", v.round()))
+                        .map_or_else(|| tx("common.unavailable"), |v| format!("{} %", v.round()))
                 ),
                 12.,
                 400.,
@@ -136,7 +136,7 @@ fn card(fan: &Fan) -> impl IntoElement {
             .mt(px(16.)),
         )
         .child(
-            text(tx("Lecture seule"), 11., 400., hex(0x6d7c70))
+            text(tx("fans.read_only"), 11., 400., hex(0x6d7c70))
                 .line_height(px(18.7))
                 .mt(px(13.)),
         )
@@ -148,7 +148,12 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
     }
     let fans = app.pages.fans.as_ref().and_then(|s| s.fans.clone());
     let body = match fans {
-        None => div().flex().justify_center().py(px(40.)).child(spinner(18., c(theme::MUTED))).into_any_element(),
+        None => div()
+            .flex()
+            .justify_center()
+            .py(px(40.))
+            .child(spinner(18., c(theme::MUTED)))
+            .into_any_element(),
         Some(fans) if fans.is_empty() => panel()
             .mt(px(24.))
             .p(px(26.))
@@ -157,11 +162,24 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
             .items_center()
             .gap(px(10.))
             .child(icon("fan", 38., "2", c(theme::MUTED)))
-            .child(text(tx("Aucun capteur de ventilation disponible"), 14., 650., c(theme::HEADING)))
-            .child(text(tx("Le firmware ou le système ne fournit pas de mesure exploitable. Cela ne signifie pas une panne."), 12., 400., c(theme::MUTED)))
+            .child(text(
+                tx("fans.no_fan_sensors_available"),
+                14.,
+                650.,
+                c(theme::HEADING),
+            ))
+            .child(text(
+                tx("fans.firmware_operating_system_provides_no"),
+                12.,
+                400.,
+                c(theme::MUTED),
+            ))
             .into_any_element(),
         Some(fans) => {
-            let cards: Vec<AnyElement> = fans.iter().map(|fan| card(fan).into_any_element()).collect();
+            let cards: Vec<AnyElement> = fans
+                .iter()
+                .map(|fan| card(fan).into_any_element())
+                .collect();
             let mut rows = vec![];
             let mut iter = cards.into_iter().peekable();
             while iter.peek().is_some() {
@@ -171,23 +189,37 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                     div()
                         .flex()
                         .gap(px(12.))
-                        .children(row.into_iter().map(|c| div().flex_1().min_w_0().flex().child(c)))
+                        .children(
+                            row.into_iter()
+                                .map(|c| div().flex_1().min_w_0().flex().child(c)),
+                        )
                         .children((0..missing).map(|_| div().flex_1()))
                         .into_any_element(),
                 );
             }
-            div().mt(px(24.)).flex().flex_col().gap(px(12.)).children(rows).into_any_element()
+            div()
+                .mt(px(24.))
+                .flex()
+                .flex_col()
+                .gap(px(12.))
+                .children(rows)
+                .into_any_element()
         }
     };
     div()
         .flex()
         .flex_col()
-        .child(components::section_title(Some("REFROIDISSEMENT"), "Ventilateurs", Some("Vitesse mesurée et capacités exposées par le matériel."), None))
+        .child(components::section_title(
+            Some("fans.cooling_eyebrow"),
+            "common.fans",
+            Some("fans.measured_speed_hardware_capabilities"),
+            None,
+        ))
         .child(panel().mt(px(24.)).p(px(26.)).child(utility_heading(
             "shield-check",
             24.,
-            "Contrôle automatique conservé",
-            "Le réglage manuel nécessite un adaptateur validé pour votre matériel et un retour automatique fiable. Aucun réglage de vitesse n’est exposé ici.",
+            "fans.automatic_control_preserved",
+            "fans.manual_control_requires_validated_hardware",
         )))
         .child(body)
         .when(false, |d| d)

@@ -1,23 +1,34 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-const source = JSON.parse(
-  await readFile(new URL('../locales/source.json', import.meta.url), 'utf8'),
+import { readFile, readdir } from 'node:fs/promises';
+
+const directory = new URL('../locales/', import.meta.url);
+const files = (await readdir(directory)).filter((name) => name.endsWith('.json'));
+const catalogs = Object.fromEntries(
+  await Promise.all(
+    files.map(async (name) => [
+      name.slice(0, -5),
+      JSON.parse(await readFile(new URL(name, directory), 'utf8')),
+    ]),
+  ),
 );
-const catalogs = JSON.parse(
-  await readFile(new URL('../locales/catalogs.json', import.meta.url), 'utf8'),
-);
+const source = catalogs.fr;
 const markers = (value) =>
   [...value.matchAll(/\{\{[^{}]+\}\}|\{[A-Za-z_]\w*\}/g)].map((match) => match[0]).sort();
-test('25 locales are shipped as embedded catalogs', async () => {
-  assert.equal(Object.keys(catalogs).length, 24);
-  for (const language of Object.keys(catalogs))
-    JSON.parse(
-      await readFile(new URL(`../locales/messages/${language}.json`, import.meta.url), 'utf8'),
-    );
+
+test('25 locales are shipped as embedded catalogs', () => {
+  assert.equal(Object.keys(catalogs).length, 25);
+  assert.ok(catalogs.en && catalogs.fr);
 });
-test('every locale contains every extracted message with intact interpolation variables', () => {
-  for (const [language, catalog] of Object.entries(catalogs))
+
+test('keys are semantic English identifiers', () => {
+  for (const key of Object.keys(source))
+    assert.match(key, /^[a-z][a-z0-9_]*(\.[a-z0-9_]+)+$/, `invalid key ${key}`);
+});
+
+test('every locale contains every message with intact interpolation variables', () => {
+  for (const [language, catalog] of Object.entries(catalogs)) {
+    assert.deepEqual(Object.keys(catalog).sort(), Object.keys(source).sort(), `${language} keys`);
     for (const [key, original] of Object.entries(source)) {
       assert.ok(
         typeof catalog[key] === 'string' && catalog[key].trim(),
@@ -26,26 +37,30 @@ test('every locale contains every extracted message with intact interpolation va
       assert.deepEqual(markers(catalog[key]), markers(original), `${language} variables in ${key}`);
       assert.ok(!catalog[key].includes('▁'), `${language} undecoded text in ${key}`);
     }
+  }
 });
+
+test('French messages are unique so engine text maps back to one key', () => {
+  const values = Object.values(source);
+  assert.equal(new Set(values).size, values.length);
+});
+
 test('critical result labels remain distinct in all languages', () => {
   for (const [language, catalog] of Object.entries(catalogs)) {
     const labels = [
-      'Conforme au test',
-      'Anomalie détectée',
-      'Non vérifié',
-      'À examiner',
-      'Interrompu',
+      'common.test_passed',
+      'common.issue_detected',
+      'common.not_verified',
+      'common.needs_review',
+      'common.interrupted',
     ].map((key) => catalog[key]);
     assert.equal(new Set(labels).size, labels.length, `${language} conflates results`);
   }
 });
+
 test('Computy remains a product name in every translated paragraph', () => {
-  for (const [language, catalog] of Object.entries(catalogs)) {
-    for (const key of Object.keys(source).filter((key) => key.includes('Computy'))) {
-      assert.ok(
-        catalog[key]?.includes('Computy'),
-        `${language} translated the Computy brand in: ${key}`,
-      );
-    }
-  }
+  for (const [language, catalog] of Object.entries(catalogs))
+    for (const [key, text] of Object.entries(source))
+      if (text.includes('Computy'))
+        assert.ok(catalog[key]?.includes('Computy'), `${language} translated the brand in ${key}`);
 });

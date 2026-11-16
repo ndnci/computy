@@ -54,8 +54,9 @@ fn load(app: &mut Computy, cx: &mut Context<Computy>) {
 
 impl ApplicationsState {
     pub fn new(window: &mut Window, cx: &mut Context<Computy>) -> Self {
-        let query =
-            cx.new(|cx| InputState::new(window, cx).placeholder(tx("Rechercher une application…")));
+        let query = cx.new(|cx| {
+            InputState::new(window, cx).placeholder(tx("applications.search_applications"))
+        });
         let subscription = cx.subscribe(&query, |this, _, event: &InputEvent, cx| {
             if matches!(event, InputEvent::Change) {
                 if let Some(s) = this.pages.applications.as_mut() {
@@ -195,7 +196,7 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
     let mut managers: Vec<String> = s.apps.iter().map(|a| a.manager.clone()).collect();
     managers.sort();
     managers.dedup();
-    let mut options = vec![option("all", tx("Tous les gestionnaires"))];
+    let mut options = vec![option("all", tx("applications.all_package_managers"))];
     options.extend(managers.into_iter().map(|m| option(m.clone(), m)));
     let loading = s.loading;
     let visible = s.visible.min(filtered.len());
@@ -230,9 +231,9 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("LOGICIELS"),
-            "Vos applications, au même endroit.",
-            Some("Retrouvez une installation, ouvrez une application ou utilisez son gestionnaire pour la désinstaller."),
+            Some("applications.software_eyebrow"),
+            "applications.applications_one_place",
+            Some("applications.find_installation_launch_application_use"),
             None,
         ))
         .child(
@@ -259,15 +260,27 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 .rounded(px(9.))
                                 .text_size(px(13.))
                                 .child(icon("search", 17., "2", hex(0x6d7c70)))
-                                .child(div().flex_1().px(px(12.)).child(Input::new(&query_entity).appearance(false))),
+                                .child(
+                                    div()
+                                        .flex_1()
+                                        .px(px(12.))
+                                        .child(Input::new(&query_entity).appearance(false)),
+                                ),
                         )
                         .child(
                             div().w(px(168.)).child(
-                                select("app-manager", &manager, options, app, cx, |this, value, _, _| {
-                                    let s = state(this);
-                                    s.manager = value;
-                                    s.visible = 60;
-                                })
+                                select(
+                                    "app-manager",
+                                    &manager,
+                                    options,
+                                    app,
+                                    cx,
+                                    |this, value, _, _| {
+                                        let s = state(this);
+                                        s.manager = value;
+                                        s.visible = 60;
+                                    },
+                                )
                                 .rounded(px(9.))
                                 .border_color(c((0xe8ece7, 0x425435))),
                             ),
@@ -277,15 +290,21 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                 "apps-refresh",
                                 ButtonKind::Secondary,
                                 true,
-                                Some(if loading { spinner(15., secondary) } else { icon("refresh-cw", 15., "2", secondary).into_any_element() }),
-                                tx("Actualiser"),
+                                Some(if loading {
+                                    spinner(15., secondary)
+                                } else {
+                                    icon("refresh-cw", 15., "2", secondary).into_any_element()
+                                }),
+                                tx("common.refresh"),
                                 loading,
                             )
-                            .on_click(cx.listener(move |this, _, _, cx| {
-                                if !loading {
-                                    load(this, cx);
-                                }
-                            })),
+                            .on_click(cx.listener(
+                                move |this, _, _, cx| {
+                                    if !loading {
+                                        load(this, cx);
+                                    }
+                                },
+                            )),
                         ),
                 )
                 .child(
@@ -298,7 +317,15 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .h(px(55.))
                         .child(
                             utility_check("show-packages", show_packages, false)
-                                .child(text(tx("Afficher aussi les paquets système"), 12., 600., c(theme::TEXT)).line_height(px(19.2)))
+                                .child(
+                                    text(
+                                        tx("applications.include_system_packages"),
+                                        12.,
+                                        600.,
+                                        c(theme::TEXT),
+                                    )
+                                    .line_height(px(19.2)),
+                                )
                                 .on_click(cx.listener(|this, _, _, cx| {
                                     let s = state(this);
                                     s.show_packages = !s.show_packages;
@@ -306,9 +333,18 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                                     cx.notify();
                                 })),
                         )
-                        .child(text(tp("{{count}} applications", &[("count", filtered.len().into())]), 11., 400., hex(0x6d7c70))),
+                        .child(text(
+                            tp("applications.count", &[("count", filtered.len().into())]),
+                            11.,
+                            400.,
+                            hex(0x6d7c70),
+                        )),
                 )
-                .children(warnings.into_iter().map(|w| text(w, 12., 400., c(theme::WARN)).mb(px(12.)).into_any_element()))
+                .children(warnings.into_iter().map(|w| {
+                    text(w, 12., 400., c(theme::WARN))
+                        .mb(px(12.))
+                        .into_any_element()
+                }))
                 .child(if loading {
                     div()
                         .flex()
@@ -317,7 +353,12 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .gap(px(10.))
                         .py(px(40.))
                         .child(spinner(18., c(theme::MUTED)))
-                        .child(text(tx("Inventaire en cours…"), 12., 400., c(theme::MUTED)))
+                        .child(text(
+                            tx("applications.reading_installed_applications"),
+                            12.,
+                            400.,
+                            c(theme::MUTED),
+                        ))
                         .into_any_element()
                 } else if filtered.is_empty() {
                     div()
@@ -327,15 +368,33 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                         .gap(px(10.))
                         .py(px(40.))
                         .child(icon("package", 32., "2", c(theme::MUTED)))
-                        .child(text(tx("Aucune application trouvée."), 12., 400., c(theme::MUTED)))
+                        .child(text(
+                            tx("applications.no_applications_found"),
+                            12.,
+                            400.,
+                            c(theme::MUTED),
+                        ))
                         .into_any_element()
                 } else {
-                    div().flex().flex_col().gap(px(12.)).children(rows).into_any_element()
+                    div()
+                        .flex()
+                        .flex_col()
+                        .gap(px(12.))
+                        .children(rows)
+                        .into_any_element()
                 })
                 .when(more, |d| {
                     d.child(
                         div().mt(px(18.)).flex().child(
-                            components::button("apps-more", ButtonKind::Secondary, false, None, tx("Voir plus"), false).on_click(cx.listener(|this, _, _, cx| {
+                            components::button(
+                                "apps-more",
+                                ButtonKind::Secondary,
+                                false,
+                                None,
+                                tx("common.show_more"),
+                                false,
+                            )
+                            .on_click(cx.listener(|this, _, _, cx| {
                                 state(this).visible += 60;
                                 cx.notify();
                             })),
@@ -360,7 +419,7 @@ fn act(
         |this, result: Result<Value, String>, cx| {
             state(this).busy.clear();
             match result {
-                Ok(_) => this.notify(tx("Action terminée."), false, cx),
+                Ok(_) => this.notify(tx("applications.action_completed"), false, cx),
                 Err(error) => this.notify(error, true, cx),
             }
         },
@@ -441,9 +500,9 @@ pub fn modal(
             div()
                 .flex()
                 .flex_col()
-                .child(fact("Identifiant", selected.package.clone().filter(|p| !p.is_empty()).unwrap_or_else(|| selected.id.clone())))
-                .child(fact("Installation", selected.location.clone().unwrap_or_else(|| tx("Inconnue"))))
-                .child(fact("Lanceur", selected.launcher.clone().or(selected.launch_target.clone()).unwrap_or_else(|| tx("Indisponible")))),
+                .child(fact("applications.identifier", selected.package.clone().filter(|p| !p.is_empty()).unwrap_or_else(|| selected.id.clone())))
+                .child(fact("applications.installation", selected.location.clone().unwrap_or_else(|| tx("common.unknown"))))
+                .child(fact("applications.launcher", selected.launcher.clone().or(selected.launch_target.clone()).unwrap_or_else(|| tx("common.unavailable")))),
         )
         .child(if s.removal {
             let remove_data = s.remove_data;
@@ -452,7 +511,7 @@ pub fn modal(
                 .flex()
                 .flex_col()
                 .gap(px(12.))
-                .child(text(tx("Vérifier la désinstallation"), 14., 650., c(theme::HEADING)))
+                .child(text(tx("applications.review_uninstall"), 14., 650., c(theme::HEADING)))
                 .child(
                     div()
                         .p(px(12.))
@@ -465,19 +524,19 @@ pub fn modal(
                         .font_family("monospace")
                         .child(s.details.clone()),
                 )
-                .child(text(tx("Le gestionnaire peut retirer des dépendances. Vérifiez la liste avant de confirmer. Une autorisation du système peut être demandée."), 12., 400., c(theme::MUTED)))
+                .child(text(tx("applications.package_manager_may_remove_dependencies"), 12., 400., c(theme::MUTED)))
                 .child(
                     utility_check("remove-data", remove_data, !can_remove || busy)
                         .child(
                             div()
                                 .flex()
                                 .flex_col()
-                                .child(text(tx("Supprimer aussi les données gérées par le paquet"), 12., 600., c(theme::TEXT)))
+                                .child(text(tx("applications.also_remove_data_managed_package"), 12., 600., c(theme::TEXT)))
                                 .child(text(
                                     tx(if can_remove {
-                                        "Les documents enregistrés ailleurs restent conservés."
+                                        "applications.documents_saved_elsewhere_kept"
                                     } else {
-                                        "Le gestionnaire ne permet pas de repérer et supprimer toutes les données avec certitude."
+                                        "applications.package_manager_cannot_reliably_identify"
                                     }),
                                     11.,
                                     400.,
@@ -496,7 +555,7 @@ pub fn modal(
                     div()
                         .flex()
                         .justify_between()
-                        .child(components::button("removal-cancel", ButtonKind::Secondary, false, None, tx("Annuler"), busy).on_click(cx.listener(move |this, _, _, cx| {
+                        .child(components::button("removal-cancel", ButtonKind::Secondary, false, None, tx("common.cancel"), busy).on_click(cx.listener(move |this, _, _, cx| {
                             if !busy {
                                 state(this).removal = false;
                                 cx.notify();
@@ -509,7 +568,7 @@ pub fn modal(
                                 ButtonKind::Primary,
                                 false,
                                 Some(if busy { spinner(16., primary) } else { icon("trash-2", 16., "2", primary).into_any_element() }),
-                                tx("Confirmer la désinstallation"),
+                                tx("applications.confirm_uninstall"),
                                 busy,
                             )
                             .on_click(cx.listener(move |this, _, _, cx| {
@@ -529,7 +588,7 @@ pub fn modal(
                                                 let s = state(this);
                                                 s.selected = None;
                                                 s.removal = false;
-                                                this.notify(tx("Désinstallation terminée."), false, cx);
+                                                this.notify(tx("applications.uninstall_completed"), false, cx);
                                                 load(this, cx);
                                             }
                                             Err(error) => this.notify(error, true, cx),
@@ -546,7 +605,7 @@ pub fn modal(
                 .flex()
                 .gap(px(10.))
                 .child(
-                    button_with("app-launch", ButtonKind::Primary, false, Some(icon("play", 16., "2", primary).into_any_element()), tx("Lancer"), busy || !launchable)
+                    button_with("app-launch", ButtonKind::Primary, false, Some(icon("play", 16., "2", primary).into_any_element()), tx("applications.launch"), busy || !launchable)
                         .on_click(cx.listener(move |this, _, _, cx| {
                             if !busy && launchable {
                                 act(this, launch.clone(), "launch", cx);
@@ -554,7 +613,7 @@ pub fn modal(
                         })),
                 )
                 .child(
-                    button_with("app-reveal", ButtonKind::Secondary, false, Some(icon("folder-open", 16., "2", secondary).into_any_element()), tx("Ouvrir le dossier"), busy || reveal.location.is_none())
+                    button_with("app-reveal", ButtonKind::Secondary, false, Some(icon("folder-open", 16., "2", secondary).into_any_element()), tx("applications.open_folder"), busy || reveal.location.is_none())
                         .on_click(cx.listener(move |this, _, _, cx| {
                             if !busy && reveal.location.is_some() {
                                 act(this, reveal.clone(), "reveal", cx);
@@ -567,7 +626,7 @@ pub fn modal(
                         ButtonKind::Secondary,
                         false,
                         Some(if busy { spinner(16., secondary) } else { icon("trash-2", 16., "2", secondary).into_any_element() }),
-                        tx("Désinstaller"),
+                        tx("applications.uninstall"),
                         busy || !preview.can_uninstall,
                     )
                     .on_click(cx.listener(move |this, _, _, cx| {

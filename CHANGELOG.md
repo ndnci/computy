@@ -16,6 +16,14 @@ commits and locally built packages, not from previously published store releases
   (`settings set --keep-running-on-close`) and MCP preferences accept the same
   setting.
 
+### Changed
+
+- Translation catalogs are now one file per language in `locales/`, keyed by
+  semantic English identifiers (`settings.save_preferences`) instead of the
+  French sentences. Engine messages and reports saved by earlier versions are
+  still translated through the French catalog. 79 unused messages and 33
+  entries identical in every language (product names, units) were removed.
+
 ### Fixed
 
 - On Linux, closing the main window (or the tray popover while the window was

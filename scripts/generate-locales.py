@@ -125,38 +125,29 @@ def main():
             print("Model ready:",language,flush=True)
     lock = {language:{"package":packages[language],"sha256":paths[language][2]} for language in LANGUAGES}
     (ROOT/"scripts/locales-models.lock.json").write_text(json.dumps(lock,ensure_ascii=False,indent=2)+"\n")
-    source = json.loads((ROOT/"locales/source.json").read_text())
-    output_file = ROOT/"locales/catalogs.json"
-    catalogs = json.loads(output_file.read_text()) if output_file.exists() else {}
-    overrides_file=ROOT/"locales/overrides.json"
-    overrides=json.loads(overrides_file.read_text()) if overrides_file.exists() else {}
-    def degenerate(key,value):
-        words=value.split();grams=[" ".join(words[i:i+3]) for i in range(max(0,len(words)-2))]
-        return len(value)>max(150,len(key)*5) or any(grams.count(gram)>3 for gram in set(grams)) or bool(re.search(r"(.{1,6})\1{5,}",value)) or "▁" in value
-    invariants = {key for key in source if re.fullmatch(r"[\d\W]+|NDNCI|Computy|computy|CPU|RAM|SSD|HDD|NVMe|SMART|SMBIOS|DDR\d|DIMM|SODIMM|MT/s|Mio|Gio|Kio|Tio|ms|s|EXT4",key)}
+    # locales/fr.json is the source: semantic English keys -> French text.
+    source = json.loads((ROOT/"locales/fr.json").read_text())
+    def write(language, catalog):
+        ordered = {key: catalog[key] for key in sorted(catalog) if key in source}
+        (ROOT/f"locales/{language}.json").write_text(json.dumps(ordered,ensure_ascii=False,indent=2)+"\n")
+    catalogs = {}
+    # English first: other languages are translated from the English text.
     for language in LANGUAGES:
-        catalog = catalogs.setdefault(language,{})
-        catalog.update({key:key for key in invariants})
-        catalog.update(overrides.get(language,{}))
-        if language == "zh-TW":
+        path = ROOT/f"locales/{language}.json"
+        catalog = catalogs[language] = json.loads(path.read_text()) if path.exists() else {}
+        # Existing entries are reviewed translations: only missing keys are generated.
+        missing = [key for key in source if not catalog.get(key)]
+        if missing and language == "zh-TW":
             from opencc import OpenCC
             converter=OpenCC('s2twp')
-            catalog.update({key:converter.convert(value) for key,value in catalogs['zh-CN'].items()})
-            catalog.update(overrides.get(language,{}))
-            output_file.write_text(json.dumps(catalogs,ensure_ascii=False,indent=2)+"\n")
-            print("Traditional Chinese: converted from reviewed Simplified Chinese catalog.",flush=True)
-            continue
-        missing = [key for key in source if key not in catalog or (key not in overrides.get(language,{}) and (degenerate(key,catalog[key]) or ("Computy" in key and "Computy" not in catalog[key])))]
-        texts = [key if language == "en" else catalogs["en"][key] for key in missing]
-        if missing:
+            catalog.update({key:converter.convert(catalogs['zh-CN'][key]) for key in missing})
+            print(f"Traditional Chinese: {len(missing)} messages converted from Simplified Chinese.",flush=True)
+        elif missing:
+            texts = [source[key] if language == "en" else catalogs["en"][key] for key in missing]
             started=time.monotonic()
-            values=translate_texts(paths[language][1],texts)
-            catalog.update(zip(missing,values))
-            output_file.write_text(json.dumps(catalogs,ensure_ascii=False,indent=2)+"\n")
+            catalog.update(zip(missing,translate_texts(paths[language][1],texts)))
             print(f"Translated {language}: {len(missing)} messages in {time.monotonic()-started:.1f}s",flush=True)
-    if overrides_file.exists():
-        for language,overrides in json.loads(overrides_file.read_text()).items(): catalogs.setdefault(language,{}).update(overrides)
-    output_file.write_text(json.dumps(catalogs,ensure_ascii=False,indent=2)+"\n")
+        write(language, catalog)
     print("Catalogs complete.",flush=True)
 
 if __name__ == "__main__": main()

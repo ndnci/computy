@@ -114,7 +114,7 @@ fn amount(p: &ProcessSample, metric: &str, locale: &str) -> String {
         "gpu" => intl::bytes(locale, p.gpu_memory_bytes, 1),
         "storage" => format!("{}/s", intl::bytes(locale, p.value("storage"), 1)),
         _ => tp(
-            "{{value}} %",
+            "common.percent_value",
             &[(
                 "value",
                 ((p.cpu_percent.unwrap_or(0.) * 10.).round() / 10.).into(),
@@ -131,7 +131,7 @@ fn share(p: &ProcessSample, metric: &str, locale: &str) -> String {
     };
     match value {
         Some(v) => tp(
-            "{{value}} %",
+            "common.percent_value",
             &[("value", ((v * 10.).round() / 10.).into())],
         ),
         None if metric == "cpu" => intl::bytes(locale, p.memory_bytes, 1),
@@ -219,10 +219,10 @@ impl Render for Popover {
         .take(10)
         .collect();
         let name = match metric {
-            "memory" => "Mémoire vive",
-            "cpu" => "Processeur",
-            "gpu" => "Processeur graphique",
-            _ => "Stockage",
+            "memory" => "common.memory",
+            "cpu" => "common.processor",
+            "gpu" => "common.graphics_processor",
+            _ => "common.storage",
         };
         let device = match metric {
             "memory" => "RAM".to_owned(),
@@ -244,7 +244,7 @@ impl Render for Popover {
                 .p(px(20.))
                 .child(icon("circle-help", 20., "2", c(theme::MUTED)))
                 .child(text(
-                    tx("Aucune mesure par processus disponible."),
+                    tx("common.no_per_process_measurement_available"),
                     11.,
                     400.,
                     c(theme::MUTED),
@@ -272,7 +272,7 @@ impl Render for Popover {
                                 .child(
                                     one_line(
                                         if p.name.is_empty() {
-                                            tx("Nom indisponible")
+                                            tx("common.name_unavailable")
                                         } else {
                                             p.name.clone()
                                         },
@@ -336,7 +336,14 @@ impl Render for Popover {
                                     .items_center()
                                     .gap(px(8.))
                                     .child(div().size(px(6.)).rounded_full().bg(hex(0x87a66e)))
-                                    .child(spaced(tx("EN DIRECT"), 9., 650., hex(0x6d7c70), 1.3, 16.))
+                                    .child(spaced(
+                                        tx("common.live_eyebrow"),
+                                        9.,
+                                        650.,
+                                        hex(0x6d7c70),
+                                        1.3,
+                                        16.,
+                                    ))
                                     .child(text("Computy", 12., 900., c(theme::TEXT)).ml(px(4.))),
                             )
                             .child(
@@ -349,7 +356,9 @@ impl Render for Popover {
                                     .rounded(px(7.))
                                     .cursor_pointer()
                                     .child(icon("x", 17., "2", hex(0x6d7c70)))
-                                    .on_click(cx.listener(|this, _, window, cx| this.action("hide", window, cx))),
+                                    .on_click(cx.listener(|this, _, window, cx| {
+                                        this.action("hide", window, cx)
+                                    })),
                             ),
                     )
                     .child(
@@ -369,12 +378,56 @@ impl Render for Popover {
                                     .min_w_0()
                                     .flex()
                                     .flex_col()
-                                    .child(div().flex().items_center().gap(px(8.)).child(icon(metric_icon(metric), 22., "2", hex(0x6d7c70))).child(spaced(device, 11., 650., hex(0x6d7c70), 1., 22.)))
-                                    .child(spaced(tx(name), 19., 650., c(theme::HEADING), -0.6, 28.5).family("Sora").mt(px(4.)))
-                                    .child(text(if self.volume.is_empty() { tx("Mon ordinateur") } else { self.volume.clone() }, 11., 400., hex(0x6d7c70)).line_height(px(18.15)).mt(px(4.)))
+                                    .child(
+                                        div()
+                                            .flex()
+                                            .items_center()
+                                            .gap(px(8.))
+                                            .child(icon(
+                                                metric_icon(metric),
+                                                22.,
+                                                "2",
+                                                hex(0x6d7c70),
+                                            ))
+                                            .child(spaced(
+                                                device,
+                                                11.,
+                                                650.,
+                                                hex(0x6d7c70),
+                                                1.,
+                                                22.,
+                                            )),
+                                    )
+                                    .child(
+                                        spaced(tx(name), 19., 650., c(theme::HEADING), -0.6, 28.5)
+                                            .family("Sora")
+                                            .mt(px(4.)),
+                                    )
                                     .child(
                                         text(
-                                            value.map_or_else(|| tx("Indisponible"), |v| tp("Utilisation : {{value}} %", &[("value", v.round().into())])),
+                                            if self.volume.is_empty() {
+                                                tx("common.my_computer")
+                                            } else {
+                                                self.volume.clone()
+                                            },
+                                            11.,
+                                            400.,
+                                            hex(0x6d7c70),
+                                        )
+                                        .line_height(px(18.15))
+                                        .mt(px(4.)),
+                                    )
+                                    .child(
+                                        text(
+                                            value.map_or_else(
+                                                || tx("common.unavailable"),
+                                                |v| {
+                                                    tp(
+                                                        "common.usage",
+                                                        &[("value", v.round().into())],
+                                                    )
+                                                },
+                                            ),
                                             11.,
                                             600.,
                                             usage_color(value),
@@ -400,15 +453,81 @@ impl Render for Popover {
                                     .gap(px(10.))
                                     .px(px(5.))
                                     .pb(px(10.))
-                                    .child(spaced(tx("Processus les plus consommateurs"), 12., 600., c(theme::HEADING), -0.4, 19.2))
-                                    .child(div().py(px(3.)).px(px(7.)).rounded(px(8.)).bg(c((0xeaf1e7, 0x2a3e24))).child(text(top.len().to_string(), 9., 400., c(theme::TEXT)))),
+                                    .child(spaced(
+                                        tx("common.top_resource_consumers"),
+                                        12.,
+                                        600.,
+                                        c(theme::HEADING),
+                                        -0.4,
+                                        19.2,
+                                    ))
+                                    .child(
+                                        div()
+                                            .py(px(3.))
+                                            .px(px(7.))
+                                            .rounded(px(8.))
+                                            .bg(c((0xeaf1e7, 0x2a3e24)))
+                                            .child(text(
+                                                top.len().to_string(),
+                                                9.,
+                                                400.,
+                                                c(theme::TEXT),
+                                            )),
+                                    ),
                             )
-                            .child(div().id("popover-list").flex_1().min_h_0().overflow_y_scroll().child(list))
-                            .when(metric == "gpu", |d| d.child(text(tx("Mémoire GPU des processus de calcul NVIDIA uniquement"), 10., 400., hex(0x6d7c70)).px(px(5.)).pt(px(8.))))
-                            .when(metric == "storage", |d| d.child(text(tx("Activité par processus : tous les volumes"), 10., 400., hex(0x6d7c70)).px(px(5.)).pt(px(8.))))
-                            .child(div().mt(px(9.)).mb(px(12.)).child(action_row("popover-all", "external-link", "Voir tout", Some(16.), true, cx))),
+                            .child(
+                                div()
+                                    .id("popover-list")
+                                    .flex_1()
+                                    .min_h_0()
+                                    .overflow_y_scroll()
+                                    .child(list),
+                            )
+                            .when(metric == "gpu", |d| {
+                                d.child(
+                                    text(
+                                        tx("popover.nvidia_compute_process_gpu_memory"),
+                                        10.,
+                                        400.,
+                                        hex(0x6d7c70),
+                                    )
+                                    .px(px(5.))
+                                    .pt(px(8.)),
+                                )
+                            })
+                            .when(metric == "storage", |d| {
+                                d.child(
+                                    text(
+                                        tx("popover.per_process_activity_all_volumes"),
+                                        10.,
+                                        400.,
+                                        hex(0x6d7c70),
+                                    )
+                                    .px(px(5.))
+                                    .pt(px(8.)),
+                                )
+                            })
+                            .child(div().mt(px(9.)).mb(px(12.)).child(action_row(
+                                "popover-all",
+                                "external-link",
+                                "common.view_all",
+                                Some(16.),
+                                true,
+                                cx,
+                            ))),
                     )
-                    .when(self.problem, |d| d.child(text(tx("Les mesures en direct sont indisponibles. Computy réessaie automatiquement."), 10., 400., hex(0x6d7c70)).px(px(20.)).pb(px(8.))))
+                    .when(self.problem, |d| {
+                        d.child(
+                            text(
+                                tx("common.live_measurements_unavailable_computy_retries"),
+                                10.,
+                                400.,
+                                hex(0x6d7c70),
+                            )
+                            .px(px(20.))
+                            .pb(px(8.)),
+                        )
+                    })
                     .child(
                         div()
                             .pt(px(6.))
@@ -416,9 +535,30 @@ impl Render for Popover {
                             .pb(px(12.))
                             .border_t_1()
                             .border_color(c(theme::BORDER))
-                            .child(action_row("popover-open", "external-link", "Ouvrir Computy", Some(15.), false, cx))
-                            .child(action_row("popover-settings", "settings-2", "Préférences", Some(15.), false, cx))
-                            .child(action_row("popover-quit", "power", "Quitter Computy", None, false, cx)),
+                            .child(action_row(
+                                "popover-open",
+                                "external-link",
+                                "common.open_computy",
+                                Some(15.),
+                                false,
+                                cx,
+                            ))
+                            .child(action_row(
+                                "popover-settings",
+                                "settings-2",
+                                "common.preferences",
+                                Some(15.),
+                                false,
+                                cx,
+                            ))
+                            .child(action_row(
+                                "popover-quit",
+                                "power",
+                                "common.quit_computy",
+                                None,
+                                false,
+                                cx,
+                            )),
                     ),
             )
             .on_key_down(cx.listener(|this, event: &KeyDownEvent, window, cx| {

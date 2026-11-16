@@ -116,7 +116,7 @@ fn refresh_button(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
         } else {
             icon("refresh-cw", 14., "2", color).into_any_element()
         })
-        .child(text(tx("Actualiser"), 11., 600., color).line_height(px(13.2)))
+        .child(text(tx("common.refresh"), 11., 600., color).line_height(px(13.2)))
         .on_click(cx.listener(move |this, _, _, cx| {
             if !refreshing {
                 this.refresh(true, cx)
@@ -187,8 +187,8 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
     let modules = if memory.modules.is_empty() {
         empty(
             "memory-stick",
-            tx("Le système garde ces détails pour lui."),
-            Some(tx("L’OS expose la quantité de RAM, mais les informations sur les barrettes nécessitent un accès firmware. Elles ne sont pas déduites ni inventées.").into_any_element()),
+            tx("hardware.system_keeps_details_private"),
+            Some(tx("hardware.amount_ram_exposed_os_but").into_any_element()),
             None,
         )
         .into_any_element()
@@ -202,7 +202,7 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
             .children(memory.modules.iter().enumerate().map(|(index, module)| {
                 let speed = |value: Option<f64>| {
                     value.map_or_else(
-                        || tx("Non communiqué"),
+                        || tx("common.not_reported"),
                         |v| format!("{} MT/s", intl::plain(locale, v)),
                     )
                 };
@@ -213,10 +213,10 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
                         .gap(px(5.))
                         .text_color(c(theme::GOOD))
                         .child(icon("wrench", 13., "2", c(theme::GOOD)))
-                        .child(tx("Format généralement remplaçable"))
+                        .child(tx("hardware.generally_replaceable_format"))
                         .into_any_element(),
-                    Some(false) => tx("Composant intégré / soudé").into_any_element(),
-                    None => tx("À confirmer avec le fabricant").into_any_element(),
+                    Some(false) => tx("hardware.integrated_soldered_component").into_any_element(),
+                    None => tx("hardware.confirmed_manufacturer").into_any_element(),
                 };
                 div()
                     .w(px(350.))
@@ -260,7 +260,7 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
                     )
                     .child(text(
                         if module.manufacturer.is_empty() {
-                            tx("Fabricant non communiqué")
+                            tx("hardware.manufacturer_not_communicated")
                         } else {
                             tx(&module.manufacturer)
                         },
@@ -274,55 +274,68 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
                             .flex()
                             .flex_col()
                             .child(spec_row(
-                                tx("Référence"),
+                                tx("common.reference"),
                                 (if module.part_number.is_empty() {
-                                    tx("Non communiquée")
+                                    tx("common.not_reported_feminine")
                                 } else {
                                     tx(&module.part_number)
                                 })
                                 .into_any_element(),
                             ))
                             .child(spec_row(
-                                tx("Format"),
+                                tx("hardware.format"),
                                 (if module.form_factor.is_empty() {
-                                    tx("Non communiqué")
+                                    tx("common.not_reported")
                                 } else {
                                     tx(&module.form_factor)
                                 })
                                 .into_any_element(),
                             ))
                             .child(spec_row(
-                                tx("Débit nominal de la barrette"),
+                                tx("hardware.module_rated_speed"),
                                 speed(module.speed_mts).into_any_element(),
                             ))
                             .child(spec_row(
-                                tx("Débit configuré"),
+                                tx("hardware.configured_speed"),
                                 speed(module.configured_speed_mts).into_any_element(),
                             ))
-                            .child(spec_row(tx("Remplacement"), replace)),
+                            .child(spec_row(tx("hardware.replacement"), replace)),
                     )
             }))
             .into_any_element()
     };
-    let none = tx("Aucun");
+    let none = tx("hardware.none");
     let apple = inventory.os.to_lowercase().contains("mac") && inventory.arch == "aarch64";
     vec![
         div()
             .flex()
             .gap(px(16.))
             .mb(px(20.))
-            .child(stat("Mémoire visible par l’OS", bytes(memory.total_bytes), "La mémoire réservée au matériel est exclue.".into()))
-            .child(stat("Actuellement disponible", bytes(memory.available_bytes), "Varie selon les applications ouvertes.".into()))
             .child(stat(
-                "Capacité maximale déclarée",
-                memory.max_capacity_bytes.map_or_else(|| not_given("Non communiquée"), bytes),
-                "Déclaration SMBIOS, à confirmer par le fabricant.".into(),
+                "hardware.memory_visible_os",
+                bytes(memory.total_bytes),
+                "hardware.hardware_reserved_memory_excluded".into(),
             ))
             .child(stat(
-                "Emplacements déclarés",
-                memory.slots.map_or_else(|| not_given("Non communiqués"), |s| s.to_string()),
+                "hardware.currently_available",
+                bytes(memory.available_bytes),
+                "hardware.varies_according_open_applications".into(),
+            ))
+            .child(stat(
+                "hardware.maximum_declared_capacity",
+                memory
+                    .max_capacity_bytes
+                    .map_or_else(|| not_given("common.not_reported_feminine"), bytes),
+                "hardware.declaration_smbios_confirmed_manufacturer".into(),
+            ))
+            .child(stat(
+                "hardware.reported_locations",
+                memory.slots.map_or_else(
+                    || not_given("common.not_reported_plural"),
+                    |s| s.to_string(),
+                ),
                 tp(
-                    "{{v0}} module(s) identifié(s) par le firmware.",
+                    "hardware.module_identified_firmware",
                     &[(
                         "v0",
                         if memory.modules.is_empty() {
@@ -339,10 +352,14 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
             .flex()
             .flex_col()
             .child(components::panel_header(
-                "Vos modules de mémoire",
+                "hardware.memory_modules",
                 Some(tx(&format!(
                     "Source : {}",
-                    if memory.source.is_empty() { "système d’exploitation" } else { &memory.source }
+                    if memory.source.is_empty() {
+                        "hardware.operating_system"
+                    } else {
+                        &memory.source
+                    }
                 ))),
                 None,
             ))
@@ -351,8 +368,8 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
         two_col(
             half_panel()
                 .child(components::panel_header(
-                    "Une mise à niveau en tête ?",
-                    Some(tx("Vérifiez les trois points essentiels.")),
+                    "hardware.upgrade_in_mind",
+                    Some(tx("hardware.check_three_key_points")),
                     None,
                 ))
                 .child(
@@ -361,16 +378,24 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
                         .flex()
                         .flex_col()
                         .child(spec_row(
-                            tx("Capacité maximale de la plateforme"),
+                            tx("hardware.maximum_platform_capacity"),
                             memory
                                 .max_capacity_bytes
-                                .map_or_else(|| tx("À consulter dans le manuel"), bytes)
+                                .map_or_else(|| tx("hardware.see_manual"), bytes)
                                 .into_any_element(),
                         ))
-                        .child(spec_row(tx("Débit maximal de la plateforme"), tx("Non communiqué par ces interfaces").into_any_element()))
                         .child(spec_row(
-                            tx("Possibilité de remplacement"),
-                            tx(if apple { "Apple Silicon : mémoire intégrée" } else { "À confirmer dans le manuel du modèle" }).into_any_element(),
+                            tx("hardware.maximum_platform_speed"),
+                            tx("hardware.not_communicated_these_interfaces").into_any_element(),
+                        ))
+                        .child(spec_row(
+                            tx("hardware.possible_replacement"),
+                            tx(if apple {
+                                "hardware.apple_silicon_integrated_memory"
+                            } else {
+                                "hardware.confirmed_model_manual"
+                            })
+                            .into_any_element(),
                         )),
                 )
                 .child(
@@ -388,10 +413,19 @@ fn memory(app: &Computy) -> Vec<AnyElement> {
                         .line_height(px(19.8))
                         .text_color(c((0x7d9169, 0xadc29a)))
                         .child(icon("book-open", 17., "2", c((0x7d9169, 0xadc29a))).mt(px(2.)))
-                        .child(div().flex_1().min_w_0().child(tx("La carte mère, le processeur et le firmware fixent ensemble la compatibilité. La vitesse d’une barrette ne suffit pas à la déterminer."))),
+                        .child(
+                            div()
+                                .flex_1()
+                                .min_w_0()
+                                .child(tx("hardware.motherboard_processor_firmware_together_set")),
+                        ),
                 ),
             half_panel()
-                .child(components::panel_header("Ce que ces données signifient", None, None))
+                .child(components::panel_header(
+                    "hardware.what_these_data_mean",
+                    None,
+                    None,
+                ))
                 .children(memory.notes.iter().map(|n| note(tx(n)).into_any_element())),
         )
         .into_any_element(),
@@ -410,25 +444,20 @@ fn storage(app: &Computy) -> Vec<AnyElement> {
     let bold = notice_bold(tone);
     let (lead, rest) = if inventory.smart_available {
         (
-            tx("smartctl est disponible."),
-            tx(" Lancez un diagnostic pour lire la télémétrie des disques physiques accessibles."),
+            tx("hardware.smartctl_available"),
+            tx(" hardware.launch_diagnostic_read_telemetry_accessible"),
         )
     } else {
         (
-            tx("La télémétrie SMART n’est pas encore accessible."),
-            tx(
-                " Installez smartmontools sur votre système puis actualisez l’inventaire. Selon l’OS, des droits administrateur peuvent être nécessaires.",
-            ),
+            tx("hardware.smart_telemetry_not_yet_accessible"),
+            tx(" hardware.install_smartmontools_system_update_inventory"),
         )
     };
     let disks = if inventory.disks.is_empty() {
         empty(
             "hard-drive",
-            tx("Aucun volume exposé"),
-            Some(
-                tx("Le système ou le conteneur ne fournit pas d’inventaire des volumes.")
-                    .into_any_element(),
-            ),
+            tx("hardware.no_volume_exposed"),
+            Some(tx("hardware.system_container_does_not_provide").into_any_element()),
             None,
         )
         .into_any_element()
@@ -486,7 +515,7 @@ fn storage(app: &Computy) -> Vec<AnyElement> {
                                     .child(neutral_badge(tx(match disk.kind.as_str() {
                                         "SSD" => "SSD",
                                         "HDD" => "HDD",
-                                        _ => "Type non exposé",
+                                        _ => "hardware.type_not_exposed",
                                     }))),
                             )
                             .child(
@@ -527,7 +556,11 @@ fn storage(app: &Computy) -> Vec<AnyElement> {
                                     .flex()
                                     .justify_between()
                                     .child(text(
-                                        format!("{}{}", bytes(disk.available_bytes), tx(" libres")),
+                                        format!(
+                                            "{}{}",
+                                            bytes(disk.available_bytes),
+                                            tx(" hardware.free_suffix")
+                                        ),
                                         11.,
                                         400.,
                                         hex(0xa2ad94),
@@ -601,25 +634,32 @@ fn storage(app: &Computy) -> Vec<AnyElement> {
             )
     };
     vec![
-        notice(tone, vec![rich(&[(&lead, true), (&rest, false)], bold).into_any_element()])
-            .text_size(px(12.))
-            .line_height(px(21.))
-            .mb(px(18.))
-            .into_any_element(),
+        notice(
+            tone,
+            vec![rich(&[(&lead, true), (&rest, false)], bold).into_any_element()],
+        )
+        .text_size(px(12.))
+        .line_height(px(21.))
+        .mb(px(18.))
+        .into_any_element(),
         panel()
             .mb(px(20.))
             .flex()
             .flex_col()
             .child(components::panel_header(
-                "Volumes montés",
-                Some(tx("Un même disque physique peut contenir plusieurs volumes.")),
+                "common.mounted_volumes",
+                Some(tx("hardware.same_physical_disk_may_contain")),
                 None,
             ))
             .child(disks)
             .into_any_element(),
         two_col(
             half_panel()
-                .child(components::panel_header("Deux contrôles complémentaires", None, None))
+                .child(components::panel_header(
+                    "hardware.two_additional_checks",
+                    None,
+                    None,
+                ))
                 .child(
                     div()
                         .px(px(23.))
@@ -627,14 +667,26 @@ fn storage(app: &Computy) -> Vec<AnyElement> {
                         .flex()
                         .flex_col()
                         .gap(px(18.))
-                        .child(step("01", "Les indicateurs SMART / NVMe", "État déclaré, erreurs de média, secteurs en attente, usure et journaux disponibles. Chaque disque physique accessible reçoit son propre résultat."))
-                        .child(step("02", "L’intégrité d’un fichier temporaire", "Écriture de motifs, synchronisation sur le volume des données de Computy, puis relecture et comparaison de chaque octet. Le fichier est ensuite supprimé.")),
+                        .child(step(
+                            "01",
+                            "hardware.smart_nvme_indicators",
+                            "hardware.reported_state_media_errors_pending",
+                        ))
+                        .child(step(
+                            "02",
+                            "hardware.integrity_temporary_file",
+                            "hardware.writing_patterns_synchronizing_volume_computy",
+                        )),
                 ),
             half_panel()
-                .child(components::panel_header("Comprendre la portée", None, None))
-                .child(note(tx("Un contrôle de fichier ne couvre pas tous les secteurs du disque. Une alerte SMART doit être examinée même si le fichier a été relu sans erreur.")))
-                .child(note(tx("Les caches, ponts USB et contrôleurs RAID peuvent limiter ce qui est visible. Un état inaccessible reste « non vérifié ».")))
-                .child(note(tx("Aucun formatage, aucune écriture directe sur le périphérique et aucune modification de vos fichiers."))),
+                .child(components::panel_header(
+                    "hardware.understanding_scope",
+                    None,
+                    None,
+                ))
+                .child(note(tx("hardware.file_control_does_not_cover")))
+                .child(note(tx("hardware.caches_usb_bridges_raid_controllers")))
+                .child(note(tx("hardware.no_formatting_no_direct_writing"))),
         )
         .into_any_element(),
     ]
@@ -675,7 +727,7 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
                                 format!(
                                     "{}{}",
                                     intl::number("fr", sensor.celsius.unwrap_or(0.), 1),
-                                    tx(" °C")
+                                    tx(" hardware.celsius")
                                 ),
                                 25.,
                                 550.,
@@ -690,9 +742,9 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
                                     text(
                                         format!(
                                             "{}{}{}",
-                                            tx("Seuil critique déclaré : "),
+                                            tx("hardware.critical_threshold_stated "),
                                             intl::plain(locale, critical),
-                                            tx(" °C")
+                                            tx(" hardware.celsius")
                                         ),
                                         10.,
                                         400.,
@@ -726,7 +778,7 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
     let frequency = if cpu.frequency_mhz > 0. {
         format!("{} GHz", intl::number(locale, cpu.frequency_mhz / 1000., 2))
     } else {
-        tx("Non communiquée")
+        tx("common.not_reported_feminine")
     };
     vec![
         panel()
@@ -755,7 +807,11 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
                     .flex_col()
                     .min_w_0()
                     .child(spaced(
-                        tx(if cpu.vendor.is_empty() { "PROCESSEUR DÉTECTÉ" } else { &cpu.vendor }),
+                        tx(if cpu.vendor.is_empty() {
+                            "hardware.detected_processor_eyebrow"
+                        } else {
+                            &cpu.vendor
+                        }),
                         10.,
                         650.,
                         hex(0x899582),
@@ -764,7 +820,11 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
                     ))
                     .child(
                         spaced(
-                            tx(if cpu.name.is_empty() { "Modèle non communiqué" } else { &cpu.name }),
+                            tx(if cpu.name.is_empty() {
+                                "hardware.model_not_communicated"
+                            } else {
+                                &cpu.name
+                            }),
                             23.,
                             650.,
                             c(theme::HEADING),
@@ -780,9 +840,9 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
                                 tx(&inventory.arch),
                                 tx(" · "),
                                 cpu.physical_cores.map_or("—".to_owned(), |v| tn(v as f64)),
-                                tx(" cœurs physiques · "),
+                                tx(" hardware.physical_cores_separator "),
                                 tn(cpu.logical_cores as f64),
-                                tx(" threads")
+                                tx(" hardware.threads")
                             ),
                             11.,
                             400.,
@@ -798,37 +858,53 @@ fn cpu(app: &Computy) -> Vec<AnyElement> {
             .gap(px(16.))
             .mb(px(20.))
             .child(stat(
-                "Cœurs physiques",
-                cpu.physical_cores.map_or_else(|| tx("Non communiqué"), |v| v.to_string()),
-                "Valeur exposée par le système.".into(),
+                "hardware.physical_cores",
+                cpu.physical_cores
+                    .map_or_else(|| tx("common.not_reported"), |v| v.to_string()),
+                "hardware.value_exposed_system".into(),
             ))
-            .child(stat("Processeurs logiques", cpu.logical_cores.to_string(), "Threads visibles par l’OS.".into()))
-            .child(stat("Fréquence déclarée", frequency, "Mesure système ; ce n’est pas la fréquence maximale garantie.".into()))
+            .child(stat(
+                "hardware.logic_processors",
+                cpu.logical_cores.to_string(),
+                "hardware.threads_visible_os".into(),
+            ))
+            .child(stat(
+                "hardware.frequency_reported",
+                frequency,
+                "hardware.system_measurement_not_maximum_guaranteed".into(),
+            ))
             .into_any_element(),
         panel()
             .mb(px(20.))
             .flex()
             .flex_col()
             .child(components::panel_header(
-                "Capteurs de température",
-                Some(tx("Relevé ponctuel au moment de l’actualisation, tous capteurs système confondus.")),
+                "hardware.temperature_sensors",
+                Some(tx("hardware.one_off_survey_time_updating")),
                 None,
             ))
             .child(if rows.is_empty() {
                 empty(
                     "thermometer",
-                    tx("Les températures ne sont pas exposées."),
-                    Some(tx("L’accès dépend de l’OS, des pilotes et du matériel. Aucune température ne sera estimée.").into_any_element()),
+                    tx("hardware.temperatures_not_exposed"),
+                    Some(tx("hardware.access_depends_os_drivers_hardware").into_any_element()),
                     None,
                 )
                 .into_any_element()
             } else {
-                div().flex().flex_col().gap(px(16.)).px(px(23.)).pb(px(23.)).children(rows).into_any_element()
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap(px(16.))
+                    .px(px(23.))
+                    .pb(px(23.))
+                    .children(rows)
+                    .into_any_element()
             })
             .into_any_element(),
         notice(
             NoticeTone::Info,
-            vec![tx("Le test CPU compare des calculs parallèles à des réponses connues. Il ne certifie ni la stabilité thermique prolongée, ni toutes les instructions du processeur.").into_any_element()],
+            vec![tx("hardware.cpu_test_compares_calculations_parallel").into_any_element()],
         )
         .text_size(px(12.))
         .line_height(px(21.))
@@ -841,18 +917,18 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
     let component = app.page.component();
     let (name, description, icon_name) = match app.page {
         Page::Memory => (
-            "Mémoire vive",
-            "Vos barrettes, leur capacité et les possibilités d’évolution.",
+            "common.memory",
+            "hardware.modules_their_capacity_possibilities_evolution",
             "memory-stick",
         ),
         Page::Storage => (
-            "Stockage",
-            "Vos volumes, l’espace disponible et les indicateurs des disques.",
+            "common.storage",
+            "hardware.volumes_available_space_disk_indicators",
             "hard-drive",
         ),
         _ => (
-            "Processeur",
-            "Le cœur de vos calculs, ses caractéristiques et ses capteurs.",
+            "common.processor",
+            "hardware.core_calculations_characteristics_sensors",
             "cpu",
         ),
     };
@@ -870,19 +946,25 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         component,
     );
     let body: Vec<AnyElement> = if app.inventory.is_none() {
-        vec![panel()
-            .mb(px(20.))
-            .child(empty(
-                icon_name,
-                tx(if app.loading { "Identification du matériel…" } else { "Le matériel n’est pas accessible" }),
-                Some(if app.loading {
-                    spinner(18., c(theme::MUTED))
-                } else {
-                    tx("Connectez le moteur Rust pour lire les informations réelles de cet ordinateur.").into_any_element()
-                }),
-                None,
-            ))
-            .into_any_element()]
+        vec![
+            panel()
+                .mb(px(20.))
+                .child(empty(
+                    icon_name,
+                    tx(if app.loading {
+                        "hardware.identification_hardware"
+                    } else {
+                        "hardware.hardware_not_accessible"
+                    }),
+                    Some(if app.loading {
+                        spinner(18., c(theme::MUTED))
+                    } else {
+                        tx("hardware.connect_rust_engine_read_real").into_any_element()
+                    }),
+                    None,
+                ))
+                .into_any_element(),
+        ]
     } else {
         let mut items = vec![banner(app, icon_name, cx).into_any_element()];
         items.extend(match app.page {
@@ -906,7 +988,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("VOTRE MATÉRIEL"),
+            Some("common.your_hardware_eyebrow"),
             name,
             Some(description),
             Some(
@@ -915,7 +997,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                     ButtonKind::Primary,
                     false,
                     Some("activity"),
-                    tx("Tester ce composant"),
+                    tx("hardware.test_component"),
                     false,
                 )
                 .on_click(
@@ -930,14 +1012,14 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .flex()
                 .flex_col()
                 .child(components::panel_header(
-                    "Derniers contrôles enregistrés",
+                    "hardware.latest_controls_recorded",
                     Some(match &latest {
                         Some(l) => tx(&format!(
                             "{} · {}",
                             l.label,
                             intl::date(locale, l.created_at as i64, false)
                         )),
-                        None => tx("Les résultats apparaîtront après votre premier diagnostic."),
+                        None => tx("hardware.results_appear_after_first_diagnostic"),
                     }),
                     latest
                         .as_ref()
@@ -961,7 +1043,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .pb(px(23.))
                         .child(icon("activity", 19., "2", c(theme::MUTED)))
                         .child(text(
-                            tx("Ce composant n’a pas encore été testé."),
+                            tx("hardware.component_has_not_yet_been"),
                             12.,
                             400.,
                             c(theme::MUTED),
@@ -969,7 +1051,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .child(
                             text_button(
                                 "configure",
-                                tx("Configurer un diagnostic "),
+                                tx("hardware.configure_diagnostic "),
                                 Some(("arrow-right", 15.)),
                             )
                             .on_click(cx.listener(

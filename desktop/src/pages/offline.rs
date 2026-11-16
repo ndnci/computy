@@ -57,49 +57,23 @@ pub struct OfflineState {
 
 fn reason(code: &str) -> Option<&'static str> {
     Some(match code {
-        "secure_boot" => {
-            "Secure Boot protège le démarrage en autorisant uniquement les programmes approuvés par votre PC. Le moteur de test fourni avec Computy n’a pas une signature reconnue par votre firmware : ce test avant démarrage est donc bloqué, avec ou sans clé USB. Cela ne signale pas une panne de RAM."
-        }
-        "secure_boot_unknown" => {
-            "Computy ne peut pas déterminer l’état de Secure Boot. La préparation automatique est bloquée pour éviter un démarrage incompatible."
-        }
-        "helper_missing" => {
-            "Installez le paquet Computy pour activer l’assistant système et le moteur de test intégré. Le binaire portable seul ne modifie pas le démarrage."
-        }
-        "payload_missing" => {
-            "Le composant de test intégré est absent. Réinstallez le paquet Computy ; aucun téléchargement séparé de Memtest86+ n’est nécessaire."
-        }
-        "container" => "Ce parcours nécessite le PC réel. Il est désactivé dans un conteneur.",
-        "architecture" => {
-            "Le démarrage automatique du composant intégré est actuellement disponible sur Linux x86-64 avec GRUB."
-        }
-        "unsupported_boot_storage" => {
-            "Le stockage de démarrage ne permet pas de garantir le retour automatique. Computy refuse les configurations Btrfs, RAID, LVM ou chiffrées pour ce parcours."
-        }
-        "unsupported_grub_header" => {
-            "Cette configuration GRUB ne garantit pas une sélection pour un seul démarrage. Aucun changement n’a été effectué."
-        }
-        "entry_missing" => {
-            "L’entrée Computy est absente du menu GRUB. L’installation du paquet doit créer cette entrée sans changer le système lancé par défaut."
-        }
-        "another_boot_pending" => {
-            "Un autre démarrage ponctuel est déjà programmé. Computy le conserve et refuse de l’écraser."
-        }
-        "request_already_pending" => {
-            "Une demande est déjà enregistrée. Consultez-la ou annulez-la avant de recommencer."
-        }
+        "secure_boot" => "offline.secure_boot_protects_startup_allowing",
+        "secure_boot_unknown" => "offline.computy_cannot_determine_state_secure",
+        "helper_missing" => "offline.install_computy_package_enable_system",
+        "payload_missing" => "offline.built_test_component_missing_reinstall",
+        "container" => "offline.route_requires_real_pc_disabled",
+        "architecture" => "offline.automatic_start_integrated_component_currently",
+        "unsupported_boot_storage" => "offline.boot_storage_does_not_guarantee",
+        "unsupported_grub_header" => "offline.grub_configuration_does_not_guarantee",
+        "entry_missing" => "offline.computy_entry_missing_grub_menu",
+        "another_boot_pending" => "offline.another_one_time_start_already",
+        "request_already_pending" => "offline.application_already_registered_consult_cancel",
         "authorization_or_helper_failed" => {
-            "L’autorisation administrateur a été refusée ou l’assistant système n’a pas pu démarrer."
+            "offline.administrator_authorization_was_refused_system"
         }
-        "usb_existing_loader" => {
-            "Cette clé contient déjà un chargeur de démarrage. Computy refuse de l’écraser. Choisissez une autre clé."
-        }
-        "usb_not_found" => {
-            "La clé sélectionnée n’est plus disponible. Recherchez les clés à nouveau."
-        }
-        "usb_invalid_directory" => {
-            "La structure de cette clé ne permet pas une préparation sûre. Aucun fichier existant n’a été remplacé."
-        }
+        "usb_existing_loader" => "offline.key_already_contains_boot_charger",
+        "usb_not_found" => "offline.selected_key_no_longer_available",
+        "usb_invalid_directory" => "offline.structure_key_does_not_allow",
         _ => return None,
     })
 }
@@ -293,12 +267,12 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .gap(px(12.))
                 .child(route(
                     "route-internal",
-                    "Sans clé USB",
+                    "offline.without_usb_drive",
                     "monitor-up",
                     !usb,
                     cx,
                 ))
-                .child(route("route-usb", "Avec clé USB", "usb", usb, cx))
+                .child(route("route-usb", "offline.usb_drive", "usb", usb, cx))
                 .into_any_element(),
         );
     }
@@ -307,9 +281,9 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         let mut children = vec![
             text(
                 tx(if code == "secure_boot" {
-                    "Test avant démarrage bloqué par Secure Boot"
+                    "offline.pre_boot_test_blocked_secure"
                 } else {
-                    "Vérification de compatibilité"
+                    "offline.compatibility_check"
                 }),
                 12.,
                 600.,
@@ -334,7 +308,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             ButtonKind::Secondary,
                             true,
                             Some(icon("arrow-right", 15., "2", secondary).into_any_element()),
-                            tx("Continuer avec un test dans ma session"),
+                            tx("offline.continue_session_test"),
                             false,
                         )
                         .on_click(cx.listener(|this, _, _, cx| {
@@ -342,13 +316,24 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             cx.notify();
                         })),
                     )
-                    .child(text(tx("Le test en session reste disponible sans changer le firmware. Il vérifie une partie de la RAM, pas toute la mémoire physique."), 12., 400., warn_text).line_height(px(19.8)))
+                    .child(
+                        text(
+                            tx("offline.session_test_remains_available_without"),
+                            12.,
+                            400.,
+                            warn_text,
+                        )
+                        .line_height(px(19.8)),
+                    )
                     .child(
                         div()
                             .id("secure-boot-help")
                             .mt(px(12.))
                             .cursor_pointer()
-                            .child(text(tx("Comment débloquer le test avant démarrage ?"), 12., 600., warn_text).line_height(px(21.)))
+                            .child(
+                                text(tx("offline.how_to_unblock_preboot"), 12., 600., warn_text)
+                                    .line_height(px(21.)),
+                            )
                             .on_click(cx.listener(|this, _, _, cx| {
                                 let s = state(this);
                                 s.help_open = !s.help_open;
@@ -363,24 +348,40 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                 .flex()
                                 .flex_col()
                                 .gap(px(10.))
-                                .children([
-                                    "Consultez le guide de votre modèle de PC pour ouvrir les réglages UEFI et vérifier si Secure Boot peut être désactivé temporairement. Computy ne change pas ce réglage.",
-                                    "Avant toute modification, conservez votre clé de récupération si votre disque est chiffré, notamment avec BitLocker ou un déverrouillage TPM. Un changement de Secure Boot peut la demander. Sur un PC géré, contactez votre administrateur.",
-                                    "Si vous choisissez cette option, revenez dans Computy après le redémarrage, puis cliquez sur « Revérifier la compatibilité ». Vous devrez encore confirmer la préparation du test.",
-                                    "Après le test, réactivez Secure Boot dans les réglages UEFI. N’effacez pas les clés du firmware et ne remettez pas les réglages du PC à zéro.",
-                                ]
-                                .iter()
-                                .enumerate()
-                                .map(|(i, item)| {
-                                    div()
-                                        .relative()
-                                        .text_size(px(12.))
-                                        .line_height(px(19.8))
-                                        .text_color(warn_text)
-                                        .child(div().absolute().left(px(-18.)).child(format!("{}.", i + 1)))
-                                        .child(tx(item))
-                                }))
-                                .child(text(tx("Une clé USB utilise le même moteur et ne supprime pas cette exigence. Les certificats du moteur original ne valident pas le binaire modifié de Computy."), 12., 400., warn_text).line_height(px(19.8)).ml(px(-40.))),
+                                .children(
+                                    [
+                                        "offline.check_pc_models_guide_open",
+                                        "offline.before_changing_anything_keep_recovery",
+                                        "offline.if_choose_option_return_computy",
+                                        "offline.after_test_re_enable_secure",
+                                    ]
+                                    .iter()
+                                    .enumerate()
+                                    .map(|(i, item)| {
+                                        div()
+                                            .relative()
+                                            .text_size(px(12.))
+                                            .line_height(px(19.8))
+                                            .text_color(warn_text)
+                                            .child(
+                                                div()
+                                                    .absolute()
+                                                    .left(px(-18.))
+                                                    .child(format!("{}.", i + 1)),
+                                            )
+                                            .child(tx(item))
+                                    }),
+                                )
+                                .child(
+                                    text(
+                                        tx("offline.usb_drive_uses_same_engine"),
+                                        12.,
+                                        400.,
+                                        warn_text,
+                                    )
+                                    .line_height(px(19.8))
+                                    .ml(px(-40.)),
+                                ),
                         )
                     })
                     .into_any_element(),
@@ -395,8 +396,13 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         "verify-boot",
                         ButtonKind::Secondary,
                         true,
-                        Some(small_icon(action == Some("verify"), "refresh-cw", 15., secondary)),
-                        tx("Revérifier la compatibilité"),
+                        Some(small_icon(
+                            action == Some("verify"),
+                            "refresh-cw",
+                            15.,
+                            secondary,
+                        )),
+                        tx("offline.check_compatibility_again"),
                         busy,
                     )
                     .on_click(cx.listener(move |this, _, _, cx| {
@@ -404,19 +410,24 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             return;
                         }
                         state(this).action = Some("verify");
-                        refresh(this, cx, Some(|this, status, cx| {
-                            state(this).action = None;
-                            let ready = status.linux.as_ref().is_some_and(|l| l.code == "ready");
-                            this.notify(
-                                tx(if ready {
-                                    "Compatibilité vérifiée : la préparation est disponible."
-                                } else {
-                                    "Vérification terminée : consultez les conditions affichées ci-dessus."
-                                }),
-                                false,
-                                cx,
-                            );
-                        }));
+                        refresh(
+                            this,
+                            cx,
+                            Some(|this, status, cx| {
+                                state(this).action = None;
+                                let ready =
+                                    status.linux.as_ref().is_some_and(|l| l.code == "ready");
+                                this.notify(
+                                    tx(if ready {
+                                        "offline.compatibility_checked_preparation_available"
+                                    } else {
+                                        "offline.check_complete_review_requirements_above"
+                                    }),
+                                    false,
+                                    cx,
+                                );
+                            }),
+                        );
                         cx.notify();
                     })),
                 )
@@ -439,7 +450,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .gap(px(6.))
                 .child(spinner(16., c(theme::MUTED)))
                 .child(text(
-                    tx("Vérification de compatibilité…"),
+                    tx("offline.checking_compatibility"),
                     12.,
                     400.,
                     c(theme::MUTED),
@@ -457,18 +468,21 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
     if let Some(status) = status.clone() {
         let linux_status = status.linux.clone().unwrap_or_default();
         if windows {
-            body.push(steps(&[
-                "Computy ouvre le diagnostic mémoire de Windows. Vous choisissez le prochain redémarrage dans le dialogue système.",
-                "Le test s’exécute avant le retour sur le bureau, puis Windows redémarre.",
-                "À l’ouverture de Computy, un nouvel événement de résultat est récupéré et ajouté à l’historique.",
-            ]).into_any_element());
+            body.push(
+                steps(&[
+                    "offline.computy_opens_windows_memory_diagnostic",
+                    "offline.test_runs_before_returning_desktop",
+                    "offline.opening_computy_new_result_event",
+                ])
+                .into_any_element(),
+            );
             if status.pending {
                 body.push(
                     div()
                         .mt(px(18.))
                         .flex()
                         .child(
-                            button_with("collect", ButtonKind::Secondary, false, Some(icon("refresh-cw", 16., "2", secondary).into_any_element()), tx("Rechercher le résultat"), busy)
+                            button_with("collect", ButtonKind::Secondary, false, Some(icon("refresh-cw", 16., "2", secondary).into_any_element()), tx("offline.find_result"), busy)
                                 .on_click(cx.listener(move |this, _, _, cx| {
                                     if busy {
                                         return;
@@ -480,9 +494,9 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                             let imported = value["imported"] == true;
                                             this.notify(
                                                 if imported {
-                                                    tx("Le résultat Windows a été ajouté à l’historique.")
+                                                    tx("offline.windows_result_was_added_history")
                                                 } else {
-                                                    tx(value["reason"].as_str().unwrap_or("Le résultat du diagnostic n’est pas encore disponible."))
+                                                    tx(value["reason"].as_str().unwrap_or("offline.diagnostic_results_not_yet_available"))
                                                 },
                                                 false,
                                                 cx,
@@ -500,7 +514,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         "reopen",
                         reopen,
                         false,
-                        "Rouvrir Computy à la connexion pour retrouver le résultat",
+                        "offline.reopen_computy_connection_find_result",
                         cx,
                         |s| s.reopen = !s.reopen,
                     )
@@ -509,7 +523,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 body.push(
                     launch_button(
                         app,
-                        "Ouvrir le diagnostic Windows",
+                        "offline.open_windows_diagnostic",
                         "monitor-up",
                         busy || !desktop,
                         cx,
@@ -518,22 +532,27 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 );
             }
         } else if linux && !usb {
-            body.push(steps(&[
-                "Computy vérifie le moteur intégré, Secure Boot, GRUB et la possibilité de revenir au système habituel.",
-                "Après votre accord et l’autorisation administrateur, seule l’entrée du prochain démarrage change. Aucune clé USB n’est nécessaire.",
-                "Vous redémarrez quand vous êtes prêt. Le moteur Computy vérifie la RAM avant Linux ; Échap permet de quitter et redémarrer.",
-                "Le démarrage suivant revient au système habituel. Les résultats Linux ne sont pas importés automatiquement : notez le résultat affiché. Une absence de rapport ne devient jamais un succès.",
-            ]).into_any_element());
+            body.push(
+                steps(&[
+                    "offline.computy_checks_built_engine_secure",
+                    "offline.after_agreement_admin_authorization_only",
+                    "offline.restart_when_ready_computy_engine",
+                    "offline.next_start_usual_system_linux",
+                ])
+                .into_any_element(),
+            );
             if status.pending {
                 body.push(
                     notice(
                         NoticeTone::Info,
-                        vec![tx(if linux_status.returned {
-                            "Vous êtes revenu dans le système. Computy n’a pas de preuve automatique du résultat affiché avant démarrage."
-                        } else {
-                            "Une préparation est enregistrée. Vous pouvez encore l’annuler."
-                        })
-                        .into_any_element()],
+                        vec![
+                            tx(if linux_status.returned {
+                                "offline.have_returned_system_computy_has"
+                            } else {
+                                "offline.preparation_registered_still_cancel"
+                            })
+                            .into_any_element(),
+                        ],
                     )
                     .mt(px(18.))
                     .into_any_element(),
@@ -550,7 +569,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                 ButtonKind::Secondary,
                                 false,
                                 None,
-                                tx("Annuler la préparation"),
+                                tx("offline.cancel_preparation"),
                                 busy,
                             )
                             .on_click(cx.listener(
@@ -566,7 +585,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                         |this, _, cx| {
                                             refresh(this, cx, None);
                                             this.notify(
-                                                tx("Préparation du prochain démarrage annulée."),
+                                                tx("offline.next_boot_preparation_cancelled"),
                                                 false,
                                                 cx,
                                             );
@@ -582,7 +601,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                     ButtonKind::Primary,
                                     false,
                                     Some(icon("power", 16., "2", primary).into_any_element()),
-                                    tx("Redémarrer maintenant"),
+                                    tx("offline.restart_now"),
                                     !can_reboot,
                                 )
                                 .on_click(cx.listener(
@@ -608,7 +627,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             "confirm-reboot",
                             confirmed,
                             false,
-                            "J’ai enregistré mon travail et je confirme le redémarrage de ce PC.",
+                            "offline.i_saved_my_work_confirmed",
                             cx,
                             |s| s.confirmed = !s.confirmed,
                         )
@@ -621,17 +640,27 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         "reopen",
                         reopen,
                         false,
-                        "Rouvrir Computy à la connexion pour retrouver le résultat",
+                        "offline.reopen_computy_connection_find_result",
                         cx,
                         |s| s.reopen = !s.reopen,
                     )
                     .into_any_element(),
                 );
-                body.push(checkbox_row("confirm-prepare", confirmed, blocked || !desktop, "J’autorise Computy à préparer un seul démarrage de test. Cela ne redémarre pas le PC maintenant.", cx, |s| s.confirmed = !s.confirmed).into_any_element());
+                body.push(
+                    checkbox_row(
+                        "confirm-prepare",
+                        confirmed,
+                        blocked || !desktop,
+                        "offline.i_ll_allow_computy_prepare",
+                        cx,
+                        |s| s.confirmed = !s.confirmed,
+                    )
+                    .into_any_element(),
+                );
                 body.push(
                     launch_button(
                         app,
-                        "Préparer le prochain démarrage",
+                        "offline.prepare_next_boot",
                         "shield-check",
                         blocked || busy || !confirmed || !desktop,
                         cx,
@@ -640,12 +669,15 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 );
             }
         } else if linux {
-            body.push(steps(&[
-                "Branchez une clé USB déjà formatée en FAT32. Computy recherche uniquement les volumes USB montés et exclut le disque qui contient le système.",
-                "Choisissez la clé, vérifiez son nom et son emplacement, puis confirmez. Computy copie son moteur sans formater la clé ni remplacer un chargeur existant.",
-                "Après confirmation, redémarrez et choisissez la clé dans le menu de démarrage du firmware. La touche dépend du modèle du PC ; elle est souvent indiquée à l’allumage.",
-                "Le moteur affiche ses résultats. F6 peut enregistrer un rapport sur une clé FAT32 ; Échap quitte le test. Le retour dans Computy ne signifie pas automatiquement que le test a réussi.",
-            ]).into_any_element());
+            body.push(
+                steps(&[
+                    "offline.plug_usb_drive_already_formatted",
+                    "offline.choose_key_check_name_location",
+                    "offline.after_confirmation_restart_select_key",
+                    "offline.engine_displays_results_f6_record",
+                ])
+                .into_any_element(),
+            );
             let searching = action == Some("usb-search");
             body.push(
                 div()
@@ -657,7 +689,11 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             ButtonKind::Secondary,
                             false,
                             Some(small_icon(searching, "refresh-cw", 16., secondary)),
-                            tx(if searching { "Recherche des clés USB…" } else { "Rechercher les clés compatibles" }),
+                            tx(if searching {
+                                "offline.searching_usb_drives"
+                            } else {
+                                "offline.search_compatible_usb_drives"
+                            }),
                             busy || !desktop,
                         )
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -669,20 +705,30 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             s.targets.clear();
                             s.selected.clear();
                             s.confirmed = false;
-                            act(this, "usb-search", cx, platform::usb_targets, |this, value, cx| {
-                                let found: Vec<UsbTarget> = serde_json::from_value(value).unwrap_or_default();
-                                let count = found.len();
-                                state(this).targets = found;
-                                this.notify(
-                                    if count > 0 {
-                                        tp("Clés USB compatibles trouvées : {{count}}", &[("count", count.into())])
-                                    } else {
-                                        tx("Aucune clé USB compatible trouvée. Branchez et montez une clé FAT32, puis réessayez.")
-                                    },
-                                    false,
-                                    cx,
-                                );
-                            });
+                            act(
+                                this,
+                                "usb-search",
+                                cx,
+                                platform::usb_targets,
+                                |this, value, cx| {
+                                    let found: Vec<UsbTarget> =
+                                        serde_json::from_value(value).unwrap_or_default();
+                                    let count = found.len();
+                                    state(this).targets = found;
+                                    this.notify(
+                                        if count > 0 {
+                                            tp(
+                                                "offline.compatible_usb_drives_found",
+                                                &[("count", count.into())],
+                                            )
+                                        } else {
+                                            tx("offline.no_compatible_usb_drive_found")
+                                        },
+                                        false,
+                                        cx,
+                                    );
+                                },
+                            );
                         })),
                     )
                     .into_any_element(),
@@ -752,21 +798,30 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
             );
             if targets.is_empty() {
                 body.push(
-                    text(tx("Si aucune clé n’apparaît, montez une clé FAT32 ou utilisez le parcours sans clé. Computy ne formate aucun disque automatiquement."), 12., 400., c((0x7d9268, 0xadc29a)))
-                        .line_height(px(22.2))
-                        .mt(px(12.))
-                        .into_any_element(),
+                    text(
+                        tx("offline.if_no_key_appears_mount"),
+                        12.,
+                        400.,
+                        c((0x7d9268, 0xadc29a)),
+                    )
+                    .line_height(px(22.2))
+                    .mt(px(12.))
+                    .into_any_element(),
                 );
             }
             if let Some(target) = targets.iter().find(|t| t.id == selected).cloned() {
-                let destination = format!("{} : ", tx("Destination vérifiée"));
+                let destination = format!("{} : ", tx("offline.destination_verified"));
                 let tail = format!(" — {}", target.mount);
                 body.push(
                     notice(
                         NoticeTone::Info,
                         vec![
-                            crate::components::rich(&[(&destination, false), (&target.label, true), (&tail, false)], notice_bold(NoticeTone::Info)).into_any_element(),
-                            tx("Fichier ajouté : EFI/BOOT/BOOTX64.EFI. Les autres fichiers restent en place. Une clé avec un chargeur existant est refusée.").into_any_element(),
+                            crate::components::rich(
+                                &[(&destination, false), (&target.label, true), (&tail, false)],
+                                notice_bold(NoticeTone::Info),
+                            )
+                            .into_any_element(),
+                            tx("offline.added_file_efi_boot_bootx64").into_any_element(),
                         ],
                     )
                     .mt(px(18.))
@@ -777,7 +832,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         "confirm-usb",
                         confirmed,
                         blocked,
-                        "Je confirme l’écriture du moteur Computy sur cette clé USB.",
+                        "offline.i_confirm_engine_writing_computy",
                         cx,
                         |s| s.confirmed = !s.confirmed,
                     )
@@ -790,33 +845,58 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .mt(px(14.))
                         .flex()
                         .child(
-                            button_with("prepare-usb", ButtonKind::Primary, false, Some(small_icon(busy, "usb", 16., primary)), tx("Préparer cette clé USB"), disabled)
-                                .on_click(cx.listener(move |this, _, _, cx| {
+                            button_with(
+                                "prepare-usb",
+                                ButtonKind::Primary,
+                                false,
+                                Some(small_icon(busy, "usb", 16., primary)),
+                                tx("offline.prepare_usb_flash_drive"),
+                                disabled,
+                            )
+                            .on_click(cx.listener(
+                                move |this, _, _, cx| {
                                     if disabled {
                                         return;
                                     }
                                     let id = id.clone();
-                                    act(this, "operation", cx, move || platform::prepare_usb(&id), |this, _, cx| {
-                                        state(this).usb_ready = true;
-                                        this.notify(tx("Clé USB préparée. Vous pouvez maintenant l’éjecter proprement."), false, cx);
-                                    });
-                                })),
+                                    act(
+                                        this,
+                                        "operation",
+                                        cx,
+                                        move || platform::prepare_usb(&id),
+                                        |this, _, cx| {
+                                            state(this).usb_ready = true;
+                                            this.notify(
+                                                tx("offline.usb_drive_prepared_now_safely"),
+                                                false,
+                                                cx,
+                                            );
+                                        },
+                                    );
+                                },
+                            )),
                         )
                         .into_any_element(),
                 );
             }
             if usb_ready {
                 body.push(
-                    notice(NoticeTone::Info, vec![tx("Clé préparée. Éjectez-la proprement, puis choisissez-la dans le menu de démarrage de votre PC. Aucun redémarrage n’a été déclenché.").into_any_element()])
-                        .mt(px(18.))
-                        .into_any_element(),
+                    notice(
+                        NoticeTone::Info,
+                        vec![tx("offline.prepared_key_eject_cleanly_choose").into_any_element()],
+                    )
+                    .mt(px(18.))
+                    .into_any_element(),
                 );
             }
         } else {
             body.push(
-                notice(NoticeTone::Info, vec![tx("Sur Mac, Apple Diagnostics doit être lancé avec les commandes de démarrage du modèle. Cette version ne programme pas ce parcours et n’importe pas les résultats Apple.").into_any_element()])
-                    .mt(px(18.))
-                    .into_any_element(),
+                notice(
+                    NoticeTone::Info,
+                    vec![tx("offline.mac_apple_diagnostics_must_launched").into_any_element()],
+                )
+                .mt(px(18.))
+                .into_any_element(),
             );
         }
     }
@@ -849,19 +929,49 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .max_w(px(810.))
                 .flex()
                 .flex_col()
-                .child(spaced(tx("TEST AVANT DÉMARRAGE"), 10., 650., hex(0x899582), 1.75, 13.).mt(px(6.)))
-                .child(spaced(tx("Tester la mémoire avant le lancement du système"), 20., 650., c(theme::HEADING), -0.6, 26.).mt(px(2.)))
                 .child(
-                    text(tx("Computy prépare le parcours. Vous choisissez le support et le moment du redémarrage. Aucun test au démarrage ne part depuis un profil de session."), 12., 400., c((0x7d9268, 0xadc29a)))
-                        .line_height(px(22.2))
-                        .mt(px(12.)),
+                    spaced(
+                        tx("offline.preboot_test_eyebrow"),
+                        10.,
+                        650.,
+                        hex(0x899582),
+                        1.75,
+                        13.,
+                    )
+                    .mt(px(6.)),
+                )
+                .child(
+                    spaced(
+                        tx("offline.test_memory_before_system_starts"),
+                        20.,
+                        650.,
+                        c(theme::HEADING),
+                        -0.6,
+                        26.,
+                    )
+                    .mt(px(2.)),
+                )
+                .child(
+                    text(
+                        tx("offline.computy_prepares_course_choose_support"),
+                        12.,
+                        400.,
+                        c((0x7d9268, 0xadc29a)),
+                    )
+                    .line_height(px(22.2))
+                    .mt(px(12.)),
                 )
                 .children(body)
                 .child(
-                    text(tx("Moteur avant démarrage intégré : dérivé de Memtest86+ 9.00, sous GPLv2. Les sources correspondantes sont fournies avec le paquet Computy."), 12., 400., c((0x7d9268, 0xadc29a)))
-                        .line_height(px(22.2))
-                        .max_w(px(650.))
-                        .mt(px(13.)),
+                    text(
+                        tx("offline.integrated_pre_start_engine_derived"),
+                        12.,
+                        400.,
+                        c((0x7d9268, 0xadc29a)),
+                    )
+                    .line_height(px(22.2))
+                    .max_w(px(650.))
+                    .mt(px(13.)),
                 ),
         )
         .into_any_element()
@@ -886,20 +996,37 @@ fn launch_button(
         icon(icon_name, 16., "2", primary).into_any_element()
     };
     div().mt(px(14.)).flex().child(
-        button_with("prepare-boot", ButtonKind::Primary, false, Some(lead), tx(label), disabled).on_click(cx.listener(move |this, _, _, cx| {
+        button_with(
+            "prepare-boot",
+            ButtonKind::Primary,
+            false,
+            Some(lead),
+            tx(label),
+            disabled,
+        )
+        .on_click(cx.listener(move |this, _, _, cx| {
             if disabled {
                 return;
             }
-            let Some(service) = this.backend.service().cloned() else { return };
+            let Some(service) = this.backend.service().cloned() else {
+                return;
+            };
             let reopen = state(this).reopen;
-            let windows = state(this).status.as_ref().is_some_and(|s| s.platform == "windows");
+            let windows = state(this)
+                .status
+                .as_ref()
+                .is_some_and(|s| s.platform == "windows");
             act(
                 this,
                 "operation",
                 cx,
                 move || {
                     platform::open_offline_tool(&service)?;
-                    let startup = if reopen { platform::set_startup(&service, true).err() } else { None };
+                    let startup = if reopen {
+                        platform::set_startup(&service, true).err()
+                    } else {
+                        None
+                    };
                     Ok(json!({ "startup_error": startup }))
                 },
                 move |this, value, cx| {
@@ -910,9 +1037,9 @@ fn launch_button(
                     state(this).confirmed = false;
                     this.notify(
                         tx(if windows {
-                            "Le dialogue Windows est ouvert. Choisissez vous-même quand redémarrer."
+                            "offline.windows_dialog_open_choose_when"
                         } else {
-                            "Le prochain démarrage sélectionnera Computy une seule fois. Le système par défaut reste inchangé."
+                            "offline.next_boot_select_computy_only"
                         }),
                         false,
                         cx,

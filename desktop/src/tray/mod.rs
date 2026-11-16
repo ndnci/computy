@@ -145,16 +145,16 @@ fn linux_menu_rows(
             format!(
                 "{:.1} {}",
                 n as f64 / 1048576.0,
-                message(preferences, "Mio")
+                message(preferences, "common.unit_mio")
             )
         })
         .unwrap_or_else(|| "—".into())
     };
     let metric_name = match value.metric.as_str() {
-        "memory" => "Mémoire vive",
-        "cpu" => "Processeur",
-        "gpu" => "Processeur graphique",
-        _ => "Stockage",
+        "memory" => "common.memory",
+        "cpu" => "common.processor",
+        "gpu" => "common.graphics_processor",
+        _ => "common.storage",
     };
     let png = encode_rgba(
         &icon::render_style(value.label, value.value, &preferences.tray_style, false),
@@ -182,7 +182,7 @@ fn linux_menu_rows(
         },
         Row {
             id: 3,
-            label: message(preferences, "Processus les plus consommateurs"),
+            label: message(preferences, "common.top_resource_consumers"),
             ..Default::default()
         },
     ];
@@ -218,7 +218,7 @@ fn linux_menu_rows(
     if rows.len() == 3 {
         rows.push(Row {
             id: 10,
-            label: message(preferences, "Aucune mesure par processus disponible."),
+            label: message(preferences, "common.no_per_process_measurement_available"),
             ..Default::default()
         });
     }
@@ -228,10 +228,10 @@ fn linux_menu_rows(
         ..Default::default()
     });
     for (id, key, action, icon) in [
-        (30, "Voir tout", "processes", "view-list-details"),
-        (31, "Préférences", "settings", "preferences-system"),
-        (32, "Ouvrir Computy", "overview", "window-new"),
-        (33, "Quitter Computy", "quit", "application-exit"),
+        (30, "common.view_all", "processes", "view-list-details"),
+        (31, "common.preferences", "settings", "preferences-system"),
+        (32, "common.open_computy", "overview", "window-new"),
+        (33, "common.quit_computy", "quit", "application-exit"),
     ] {
         rows.push(Row {
             id,
@@ -492,10 +492,10 @@ mod native {
                 if !self.items.contains_key(&v.id) {
                     let menu = Menu::new();
                     for (action, key) in [
-                        ("panel", "Processus les plus consommateurs"),
-                        ("settings", "Préférences"),
-                        ("overview", "Ouvrir Computy"),
-                        ("quit", "Quitter Computy"),
+                        ("panel", "common.top_resource_consumers"),
+                        ("settings", "common.preferences"),
+                        ("overview", "common.open_computy"),
+                        ("quit", "common.quit_computy"),
                     ] {
                         let _ = menu.append(&MenuItem::with_id(
                             format!("{}:{action}", v.id),

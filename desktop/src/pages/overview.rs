@@ -39,7 +39,7 @@ fn cards(app: &Computy) -> Vec<Card> {
     vec![
         Card {
             page: Page::Memory,
-            name: "Mémoire vive",
+            name: "common.memory",
             caption: "RAM",
             icon: "memory-stick",
             color: "sage",
@@ -53,15 +53,15 @@ fn cards(app: &Computy) -> Vec<Card> {
                         }
                     }
                     tp(
-                        "{{v0}} × {{v2}}",
+                        "overview.module_count_size",
                         &[
                             ("v0", m.modules.len().into()),
                             ("v2", kinds.join(" / ").as_str().into()),
                         ],
                     )
                 }
-                Some(_) => tx("Détails des modules non exposés"),
-                None => tx("Inventaire en cours"),
+                Some(_) => tx("overview.details_non_exposed_modules"),
+                None => tx("overview.inventory_progress"),
             },
             used: Some(memory.map_or(0., |m| {
                 if m.total_bytes > 0. {
@@ -70,49 +70,49 @@ fn cards(app: &Computy) -> Vec<Card> {
                     0.
                 }
             })),
-            foot: memory.map_or(tx("Données du système"), |m| {
+            foot: memory.map_or(tx("overview.system_data"), |m| {
                 tp(
-                    "{{v0}} disponibles",
+                    "overview.available",
                     &[("v0", bytes(m.available_bytes).as_str().into())],
                 )
             }),
         },
         Card {
             page: Page::Storage,
-            name: "Stockage",
-            caption: "DISQUES",
+            name: "common.storage",
+            caption: "overview.disks_caption",
             icon: "hard-drive",
             color: "sand",
             value: disk.map_or("—".into(), |d| bytes(d.total_bytes)),
-            detail: disk.map_or(tx("Aucun volume accessible"), |d| {
+            detail: disk.map_or(tx("overview.no_accessible_volume"), |d| {
                 tx(&format!(
                     "{} · {} · {}",
                     match d.kind.as_str() {
                         "SSD" => "SSD",
-                        "HDD" => "Disque dur",
-                        _ => "Volume",
+                        "HDD" => "overview.hard_drive",
+                        _ => "overview.volume",
                     },
                     d.file_system.to_uppercase(),
                     d.mount_point
                 ))
             }),
             used: Some(disk.map_or(0., |d| 1. - d.available_bytes / d.total_bytes)),
-            foot: disk.map_or(tx("Volumes montés"), |d| {
+            foot: disk.map_or(tx("common.mounted_volumes"), |d| {
                 tp(
-                    "{{v0}} libres",
+                    "overview.free",
                     &[("v0", bytes(d.available_bytes).as_str().into())],
                 )
             }),
         },
         Card {
             page: Page::Cpu,
-            name: "Processeur",
+            name: "common.processor",
             caption: "CPU",
             icon: "cpu",
             color: "lilac",
             value: match inventory {
                 Some(i) if i.cpu.physical_cores.is_some() => tp(
-                    "{{v0}} cœurs",
+                    "overview.cores",
                     &[("v0", (i.cpu.physical_cores.unwrap_or(0) as f64).into())],
                 ),
                 Some(i) => tx(&format!("{} threads", i.cpu.logical_cores)),
@@ -121,9 +121,9 @@ fn cards(app: &Computy) -> Vec<Card> {
             detail: inventory
                 .map(|i| i.cpu.name.clone())
                 .filter(|n| !n.is_empty())
-                .unwrap_or_else(|| tx("Identification en cours")),
+                .unwrap_or_else(|| tx("overview.identification_progress")),
             used: None,
-            foot: inventory.map_or(tx("Données du système"), |i| {
+            foot: inventory.map_or(tx("overview.system_data"), |i| {
                 tx(&format!("{} threads · {}", i.cpu.logical_cores, i.arch))
             }),
         },
@@ -377,9 +377,7 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                                 .child(icon("sparkles", 12., "2", c((0x78924e, 0xa3c17f)))),
                         )
                         .child(spaced(
-                            tx(" UN PEU D’ATTENTION, BEAUCOUP DE SÉRÉNITÉ")
-                                .trim()
-                                .to_owned(),
+                            tx(" overview.attention_serenity_eyebrow").trim().to_owned(),
                             8.,
                             650.,
                             c((0x7a8e60, 0x9eb87e)),
@@ -393,7 +391,7 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .flex()
                         .flex_col()
                         .child(spaced(
-                            tx("Un check-up."),
+                            tx("overview.one_check_up"),
                             crate::layout::pick((25., 27., 31., 37.)),
                             600.,
                             c((0x2e4834, 0xd6e7bd)),
@@ -404,7 +402,7 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                             div()
                                 .flex()
                                 .child(spaced(
-                                    tx("L’esprit plus léger"),
+                                    tx("overview.little_peace_mind"),
                                     crate::layout::pick((25., 27., 31., 37.)),
                                     600.,
                                     c((0x2e4834, 0xd6e7bd)),
@@ -427,12 +425,10 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .text_size(px(13.))
                         .line_height(px(crate::layout::pick((19.8, 21.6, 23.4, 23.4))))
                         .text_color(c((0x728264, 0xb5c7a0)))
-                        .child(tx("RAM, disques, processeur : faites le point"))
+                        .child(tx("overview.ram_drives_processor_check_components"))
                         .child(
                             div().child(
-                                tx(" sur ce qui fait tourner votre quotidien.")
-                                    .trim()
-                                    .to_owned(),
+                                tx(" overview.keep_everyday_life_running").trim().to_owned(),
                             ),
                         ),
                 )
@@ -444,9 +440,9 @@ fn hero(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                             false,
                             Some("scan-line"),
                             tx(if running {
-                                "Voir le diagnostic"
+                                "overview.see_diagnostic"
                             } else {
-                                "Lancer un diagnostic"
+                                "overview.launch_diagnostic"
                             }),
                             false,
                         )
@@ -489,7 +485,7 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                 .justify_between()
                 .mb(px(13.))
                 .child(spaced(
-                    tx("VOTRE DERNIER BILAN"),
+                    tx("overview.last_report_eyebrow"),
                     9.,
                     600.,
                     hex(0x96a08e),
@@ -502,13 +498,13 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
             Some(latest) => {
                 let outcome = check_outcome(&latest.checks, latest.completed).status;
                 let title = if latest.summary.status == Status::Failed {
-                    "Une anomalie à examiner"
+                    "overview.issue_to_review"
                 } else if outcome == Status::Warning {
-                    "Un bilan à compléter"
+                    "overview.incomplete_report"
                 } else if latest.completed {
-                    "Vos contrôles sont conformes"
+                    "overview.checks_passed"
                 } else {
-                    "Un bilan interrompu"
+                    "overview.interrupted_report"
                 };
                 let report = latest.clone();
                 d.child(health_ring(
@@ -523,7 +519,7 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                             tn(latest.summary.checked as f64),
                             tx("/"),
                             tn(latest.summary.total as f64),
-                            tx(" contrôles exploitables · "),
+                            tx(" overview.usable_checks_separator "),
                             intl::date(locale, latest.created_at as i64, true)
                         ),
                         12.,
@@ -537,7 +533,7 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                     div().mt(px(11.)).child(
                         text_button(
                             "understand",
-                            tx("Comprendre mon résultat "),
+                            tx("overview.understand_my_result "),
                             Some(("arrow-right", 15.)),
                         )
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -550,7 +546,7 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
             None => d
                 .child(health_ring(None, None))
                 .child(spaced(
-                    tx("Faisons connaissance."),
+                    tx("overview.let_get_know_each_other"),
                     15.,
                     650.,
                     c(theme::HEADING),
@@ -566,8 +562,8 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .text_size(px(12.))
                         .line_height(px(21.6))
                         .text_color(hex(0x7b896e))
-                        .child(tx("Votre premier diagnostic révélera"))
-                        .child(tx("ce que votre matériel a à vous dire.")),
+                        .child(tx("overview.first_diagnostic_reveal"))
+                        .child(tx("overview.what_hardware_has_tell")),
                 )
                 .child(
                     div()
@@ -587,7 +583,7 @@ fn health_card(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .rounded(px(5.))
                         .child(icon("clock-3", 13., "2", c((0x8e9b7d, 0xa3c17f))))
                         .child(text(
-                            tx(" En attente du premier bilan").trim().to_owned(),
+                            tx(" overview.pending_first_assessment").trim().to_owned(),
                             9.,
                             400.,
                             c((0x8e9b7d, 0xa3c17f)),
@@ -742,12 +738,18 @@ fn recent_panel(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
         .min_w_0()
         .overflow_hidden()
         .child(components::panel_header(
-            "Votre historique",
-            Some(tx("Les petits changements méritent d’être suivis.")),
+            "overview.your_history",
+            Some(tx("overview.small_changes_deserve_followed")),
             Some(
-                text_button("history-all", tx("Tout voir "), Some(("arrow-right", 15.)))
-                    .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)))
-                    .into_any_element(),
+                text_button(
+                    "history-all",
+                    tx("overview.view_all "),
+                    Some(("arrow-right", 15.)),
+                )
+                .on_click(
+                    cx.listener(|this, _, window, cx| this.navigate(Page::History, window, cx)),
+                )
+                .into_any_element(),
             ),
         ))
         .map(|d| {
@@ -761,83 +763,113 @@ fn recent_panel(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
                         .px(px(30.))
                         .pb(px(40.))
                         .min_h(px(176.))
-                        .child(div().relative().w(px(83.)).h(px(65.)).flex_none().child(
-                            art("history-stack", 131., 113.).absolute().top(px(-24.)).left(px(-24.)),
-                        ))
+                        .child(
+                            div().relative().w(px(83.)).h(px(65.)).flex_none().child(
+                                art("history-stack", 131., 113.)
+                                    .absolute()
+                                    .top(px(-24.))
+                                    .left(px(-24.)),
+                            ),
+                        )
                         .child(
                             div()
                                 .flex()
                                 .flex_col()
-                                .child(text(tx("Le début d’une belle histoire."), 12., 650., c(theme::HEADING)).mb(px(7.)))
+                                .child(
+                                    text(
+                                        tx("overview.beginning_beautiful_story"),
+                                        12.,
+                                        650.,
+                                        c(theme::HEADING),
+                                    )
+                                    .mb(px(7.)),
+                                )
                                 .child(
                                     div()
                                         .text_size(px(10.))
                                         .line_height(px(18.5))
                                         .text_color(hex(0xa0a895))
                                         .mb(px(10.))
-                                        .child(tx("Vos diagnostics seront enregistrés ici."))
-                                        .child(tx("Parfait pour comparer avant et après une mise à niveau.")),
+                                        .child(tx("overview.diagnostics_recorded_here"))
+                                        .child(tx(
+                                            "overview.perfect_comparing_before_after_upgrade",
+                                        )),
                                 )
-                                .child(div().flex().child(
-                                    text_button("first-report", tx("Créer mon premier bilan "), Some(("arrow-right", 15.)))
-                                        .on_click(cx.listener(|this, _, window, cx| {
-                                            this.navigate(Page::Diagnostics, window, cx)
-                                        })),
-                                )),
+                                .child(
+                                    div().flex().child(
+                                        text_button(
+                                            "first-report",
+                                            tx("history.create_my_first_review "),
+                                            Some(("arrow-right", 15.)),
+                                        )
+                                        .on_click(
+                                            cx.listener(|this, _, window, cx| {
+                                                this.navigate(Page::Diagnostics, window, cx)
+                                            }),
+                                        ),
+                                    ),
+                                ),
                         ),
                 )
             } else {
-                d.child(div().pb(px(12.)).px(px(22.)).flex().flex_col().children(reports.into_iter().map(|item| {
-                    let report = item.clone();
-                    div()
-                        .id(SharedString::from(format!("recent-{}", item.id)))
-                        .flex()
-                        .items_center()
-                        .gap(px(12.))
-                        .py(px(13.))
-                        .border_t_1()
-                        .border_color(c(theme::BORDER))
-                        .cursor_pointer()
-                        .child(
-                            div()
-                                .size(px(33.))
-                                .flex_none()
-                                .rounded(px(9.))
-                                .bg(c((0xf1f5ea, 0x304129)))
-                                .border_1()
-                                .border_color(c((0xe8eee0, 0x405333)))
-                                .flex()
-                                .items_center()
-                                .justify_center()
-                                .child(icon("activity", 18., "2", c((0x8da270, 0xa4c580)))),
-                        )
-                        .child(
-                            div()
-                                .flex_1()
-                                .min_w_0()
-                                .flex()
-                                .flex_col()
-                                .gap(px(5.))
-                                .child(one_line(item.label.clone(), 11., 550., c(theme::TEXT)))
-                                .child(text(
-                                    format!(
-                                        "{} {} {}",
-                                        intl::date(locale, item.created_at as i64, true),
-                                        tx("·"),
-                                        intl::duration(locale, item.duration_ms)
-                                    ),
-                                    9.,
-                                    400.,
-                                    hex(0xa0aa92),
-                                )),
-                        )
-                        .child(score(item.summary.score, item.summary.status, false))
-                        .child(div().ml(px(6.)).child(icon("chevron-right", 17., "2", hex(0xb2bda4))))
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.report = Some(report.clone());
-                            cx.notify();
-                        }))
-                })))
+                d.child(div().pb(px(12.)).px(px(22.)).flex().flex_col().children(
+                    reports.into_iter().map(|item| {
+                        let report = item.clone();
+                        div()
+                            .id(SharedString::from(format!("recent-{}", item.id)))
+                            .flex()
+                            .items_center()
+                            .gap(px(12.))
+                            .py(px(13.))
+                            .border_t_1()
+                            .border_color(c(theme::BORDER))
+                            .cursor_pointer()
+                            .child(
+                                div()
+                                    .size(px(33.))
+                                    .flex_none()
+                                    .rounded(px(9.))
+                                    .bg(c((0xf1f5ea, 0x304129)))
+                                    .border_1()
+                                    .border_color(c((0xe8eee0, 0x405333)))
+                                    .flex()
+                                    .items_center()
+                                    .justify_center()
+                                    .child(icon("activity", 18., "2", c((0x8da270, 0xa4c580)))),
+                            )
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .min_w_0()
+                                    .flex()
+                                    .flex_col()
+                                    .gap(px(5.))
+                                    .child(one_line(item.label.clone(), 11., 550., c(theme::TEXT)))
+                                    .child(text(
+                                        format!(
+                                            "{} {} {}",
+                                            intl::date(locale, item.created_at as i64, true),
+                                            tx("·"),
+                                            intl::duration(locale, item.duration_ms)
+                                        ),
+                                        9.,
+                                        400.,
+                                        hex(0xa0aa92),
+                                    )),
+                            )
+                            .child(score(item.summary.score, item.summary.status, false))
+                            .child(div().ml(px(6.)).child(icon(
+                                "chevron-right",
+                                17.,
+                                "2",
+                                hex(0xb2bda4),
+                            )))
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                this.report = Some(report.clone());
+                                cx.notify();
+                            }))
+                    }),
+                ))
             }
         })
 }
@@ -874,7 +906,7 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
                     .flex()
                     .items_baseline()
                     .child(text(if before { "16" } else { "32" }, 13., 500., color))
-                    .child(text(tx("Gio"), 7., 500., color).ml(px(3.))),
+                    .child(text(tx("common.unit_gio"), 7., 500., color).ml(px(3.))),
             )
     };
     div()
@@ -899,18 +931,39 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
                 .gap(px(7.))
                 .mb(px(13.))
                 .child(icon("sparkles", 14., "2", hex(0x97a17e)))
-                .child(spaced(tx(" LE BON RÉFLEXE").trim().to_owned(), 9., 600., hex(0x97a17e), 1.3, 12.)),
+                .child(spaced(
+                    tx(" overview.good_habit_eyebrow").trim().to_owned(),
+                    9.,
+                    600.,
+                    hex(0x97a17e),
+                    1.3,
+                    12.,
+                )),
         )
         .child(
             div()
                 .flex()
                 .flex_col()
-                .child(spaced(tx("De nouvelles barrettes ?"), 17., 600., c(theme::HEADING), -0.2, 25.5))
-                .child(spaced(tx("Gardez un point de repère."), 17., 600., c(theme::HEADING), -0.2, 25.5)),
+                .child(spaced(
+                    tx("overview.new_memory_modules"),
+                    17.,
+                    600.,
+                    c(theme::HEADING),
+                    -0.2,
+                    25.5,
+                ))
+                .child(spaced(
+                    tx("overview.keep_a_reference"),
+                    17.,
+                    600.,
+                    c(theme::HEADING),
+                    -0.2,
+                    25.5,
+                )),
         )
         .child(
             text(
-                tx("Lancez un diagnostic avant le remplacement, puis un autre après. Computy met vos deux configurations côte à côte."),
+                tx("overview.start_diagnostic_before_replacement_another"),
                 12.,
                 400.,
                 c((0x7a8b69, 0xb5c7a0)),
@@ -921,8 +974,14 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
         )
         .child(
             div().mt(px(15.)).flex().child(
-                text_button("discover-compare", tx("Découvrir la comparaison "), Some(("arrow-up-right", 16.)))
-                    .on_click(cx.listener(|this, _, window, cx| this.navigate(Page::Compare, window, cx))),
+                text_button(
+                    "discover-compare",
+                    tx("overview.discover_comparison "),
+                    Some(("arrow-up-right", 16.)),
+                )
+                .on_click(
+                    cx.listener(|this, _, window, cx| this.navigate(Page::Compare, window, cx)),
+                ),
             ),
         )
         .child(
@@ -932,9 +991,9 @@ fn tip_card(cx: &mut Context<Computy>) -> impl IntoElement {
                 .items_center()
                 .justify_end()
                 .gap(px(if crate::layout::compact() { 8. } else { 13. }))
-                .child(side("AVANT", true))
+                .child(side("overview.before_label", true))
                 .child(icon("arrow-right", 18., "2", hex(0xb1bb9a)))
-                .child(side("APRÈS", false)),
+                .child(side("overview.after_label", false)),
         )
 }
 
@@ -944,16 +1003,16 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("BIENVENUE DANS COMPUTY"),
-            "Votre matériel, en clair.",
-            Some("Comprenez votre ordinateur. Prenez-en soin, au bon moment."),
+            Some("overview.welcome_eyebrow"),
+            "common.hardware_clearly",
+            Some("overview.understand_computer_take_care_right"),
             Some(
                 button(
                     "new-diagnostic",
                     ButtonKind::Secondary,
                     false,
                     Some("plus"),
-                    tx("Nouveau diagnostic"),
+                    tx("common.new_diagnostic"),
                     false,
                 )
                 .on_click(
@@ -983,7 +1042,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .items_center()
                         .gap(px(10.))
                         .child(spaced(
-                            tx("À l’intérieur de votre PC ").trim().to_owned(),
+                            tx("overview.inside_pc ").trim().to_owned(),
                             16.,
                             650.,
                             c(theme::HEADING),
@@ -997,7 +1056,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                                 .rounded(px(4.))
                                 .bg(c((0xedf1e6, 0x303d29)))
                                 .child(text(
-                                    tx("3 composants"),
+                                    tx("overview.three_components"),
                                     10.,
                                     500.,
                                     c((0x8a947e, 0x9bb086)),
@@ -1007,7 +1066,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 .child(div().flex().items_center().gap(px(6.)).map(|d| {
                     if app.loading {
                         d.child(components::spinner(13., hex(0x9aa48e))).child(text(
-                            tx(" Lecture du matériel").trim().to_owned(),
+                            tx(" overview.reading_hardware").trim().to_owned(),
                             10.,
                             400.,
                             hex(0x9aa48e),
@@ -1015,7 +1074,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                     } else {
                         d.child(div().size(px(4.)).rounded_full().bg(hex(0x87a66e)))
                             .child(text(
-                                tx(" Données système").trim().to_owned(),
+                                tx(" overview.system_data_short").trim().to_owned(),
                                 10.,
                                 400.,
                                 hex(0x9aa48e),
@@ -1054,7 +1113,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .flex()
                         .gap(px(4.))
                         .child(text(
-                            tx("Des résultats utiles, des limites claires. ")
+                            tx("overview.useful_results_clear_limits ")
                                 .trim()
                                 .to_owned(),
                             10.,
@@ -1062,7 +1121,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                             hex(0x7e8f6e),
                         ))
                         .child(text(
-                            tx("Un diagnostic sans erreur ne garantit pas l’absence de panne."),
+                            tx("overview.error_free_diagnostic_does_not"),
                             10.,
                             400.,
                             hex(0xb1b8a9),
@@ -1076,7 +1135,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                         .gap(px(3.))
                         .cursor_pointer()
                         .child(text(
-                            tx("Notre méthode ").trim().to_owned(),
+                            tx("overview.our_method ").trim().to_owned(),
                             10.,
                             400.,
                             hex(0x8c9b78),

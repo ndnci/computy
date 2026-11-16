@@ -38,7 +38,7 @@ impl DiagnosticsState {
             disk_mib: p.disk_mib,
             cpu_seconds: p.cpu_seconds,
             label: cx.new(|cx| {
-                InputState::new(window, cx).placeholder(tx("Ex. Avant remplacement de la RAM"))
+                InputState::new(window, cx).placeholder(tx("diagnostics.label_placeholder"))
             }),
             show_configuration: !running,
             advanced_open: false,
@@ -49,20 +49,20 @@ impl DiagnosticsState {
 const COMPONENTS: [(&str, &str, &str, &str); 3] = [
     (
         "memory",
-        "Mémoire vive",
-        "Motifs, inversions mobiles et compteurs ECC accessibles.",
+        "common.memory",
+        "diagnostics.patterns_moving_inversions_available_ecc",
         "memory-stick",
     ),
     (
         "storage",
-        "Stockage",
-        "SMART / NVMe et intégrité d’un fichier temporaire.",
+        "common.storage",
+        "diagnostics.smart_nvme_temporary_file_integrity",
         "hard-drive",
     ),
     (
         "cpu",
-        "Processeur",
-        "Calculs parallèles comparés à des réponses connues.",
+        "common.processor",
+        "diagnostics.parallel_calculations_checked_against_known",
         "cpu",
     ),
 ];
@@ -75,13 +75,13 @@ fn mode_choice(app: &Computy, mode: DiagnosticMode, cx: &mut Context<Computy>) -
     let selected = app.diagnostic_mode == mode;
     let (name, detail, icon_name) = match mode {
         DiagnosticMode::Session => (
-            "Dans ma session",
-            "RAM, stockage et processeur · sans redémarrage",
+            "diagnostics.my_session",
+            "diagnostics.ram_storage_processor_without_restart",
             "activity",
         ),
         DiagnosticMode::Boot => (
-            "Avant démarrage",
-            "Mémoire seule · redémarrage choisi et confirmé",
+            "diagnostics.before_system_startup",
+            "diagnostics.memory_only_reboot_selected_confirmed",
             "power",
         ),
     };
@@ -169,10 +169,21 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                             .min_w_0()
                             .flex()
                             .flex_col()
-                            .child(spaced(tx("LE MOTEUR RUST EST AU TRAVAIL"), 8., 650., hex(0x899582), 1.75, 10.))
+                            .child(spaced(
+                                tx("diagnostics.rust_engine_working_eyebrow"),
+                                8.,
+                                650.,
+                                hex(0x899582),
+                                1.75,
+                                10.,
+                            ))
                             .child(
                                 spaced(
-                                    tx(if job.cancel_requested { "Arrêt du diagnostic…" } else { "On regarde tout ça de plus près." }),
+                                    tx(if job.cancel_requested {
+                                        "diagnostics.stopping_diagnostic"
+                                    } else {
+                                        "diagnostics.we_re_looking_all"
+                                    }),
                                     23.,
                                     600.,
                                     c(theme::HEADING),
@@ -181,14 +192,32 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                                 )
                                 .mt(px(10.)),
                             )
-                            .child(text(tx(&job.phase), 11., 400., hex(0x8b9f74)).line_height(px(18.15)).mt(px(9.))),
+                            .child(
+                                text(tx(&job.phase), 11., 400., hex(0x8b9f74))
+                                    .line_height(px(18.15))
+                                    .mt(px(9.)),
+                            ),
                     )
                     .child(
                         div()
                             .flex()
                             .items_baseline()
-                            .child(spaced(tn(percent), 43., 500., c((0x628446, 0xa8c989)), -1., 56.))
-                            .child(spaced(tx("%"), 16., 500., c((0x628446, 0xa8c989)), -1., 21.)),
+                            .child(spaced(
+                                tn(percent),
+                                43.,
+                                500.,
+                                c((0x628446, 0xa8c989)),
+                                -1.,
+                                56.,
+                            ))
+                            .child(spaced(
+                                tx("%"),
+                                16.,
+                                500.,
+                                c((0x628446, 0xa8c989)),
+                                -1.,
+                                21.,
+                            )),
                     ),
             )
             .child(
@@ -201,10 +230,25 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                             .flex()
                             .justify_between()
                             .mb(px(9.))
-                            .child(text(tx("Progression mesurée"), 10., 400., hex(0x99aa86)))
-                            .child(text(format!("{}{}", tn(percent), tx(" %")), 10., 500., hex(0x809964))),
+                            .child(text(
+                                tx("diagnostics.measured_progression"),
+                                10.,
+                                400.,
+                                hex(0x99aa86),
+                            ))
+                            .child(text(
+                                format!("{}{}", tn(percent), tx(" %")),
+                                10.,
+                                500.,
+                                hex(0x809964),
+                            )),
                     )
-                    .child(components::progress_bar(job.progress, 6., c((0xe2ebd8, 0x39492f)), hex(0x91ae6e))),
+                    .child(components::progress_bar(
+                        job.progress,
+                        6.,
+                        c((0xe2ebd8, 0x39492f)),
+                        hex(0x91ae6e),
+                    )),
             )
             .child(
                 div()
@@ -219,7 +263,12 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                             .items_center()
                             .gap(px(7.))
                             .child(icon("lock-keyhole", 14., "2", hex(0x9bad88)))
-                            .child(text(tx("Vos fichiers personnels ne sont pas modifiés."), 10., 400., hex(0x9bad88))),
+                            .child(text(
+                                tx("diagnostics.personal_files_not_modified"),
+                                10.,
+                                400.,
+                                hex(0x9bad88),
+                            )),
                     )
                     .child({
                         let color = c((0x65715f, 0xb1c699));
@@ -233,7 +282,11 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                             ButtonKind::Secondary,
                             true,
                             Some(lead),
-                            tx(if job.cancel_requested { "Arrêt en cours" } else { "Arrêter le diagnostic" }),
+                            tx(if job.cancel_requested {
+                                "diagnostics.stopping"
+                            } else {
+                                "diagnostics.stop_diagnostic"
+                            }),
                             job.cancel_requested,
                         )
                         .on_click(cx.listener(|this, _, _, cx| this.cancel(cx)))
@@ -245,8 +298,8 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
             .flex()
             .flex_col()
             .child(components::panel_header(
-                "Les résultats arrivent au fil des contrôles",
-                Some(tx("La progression suit les opérations réellement exécutées.")),
+                "diagnostics.results_arrive_over_checks",
+                Some(tx("diagnostics.progress_follows_actual_operations")),
                 None,
             ))
             .child(if checks.is_empty() {
@@ -257,15 +310,27 @@ fn running(app: &Computy, cx: &mut Context<Computy>) -> Vec<AnyElement> {
                     .px(px(23.))
                     .pb(px(23.))
                     .child(spinner(18., c(theme::MUTED)))
-                    .child(text(tx("Préparation de l’inventaire et du premier contrôle…"), 12., 400., c(theme::MUTED)))
+                    .child(text(
+                        tx("diagnostics.preparation_inventory_first_check"),
+                        12.,
+                        400.,
+                        c(theme::MUTED),
+                    ))
                     .into_any_element()
             } else {
-                div().flex().flex_col().gap(px(12.)).px(px(23.)).pb(px(23.)).children(checks).into_any_element()
+                div()
+                    .flex()
+                    .flex_col()
+                    .gap(px(12.))
+                    .px(px(23.))
+                    .pb(px(23.))
+                    .children(checks)
+                    .into_any_element()
             })
             .into_any_element(),
         notice(
             NoticeTone::Info,
-            vec![tx("Vous pouvez continuer à parcourir Computy. L’arrêt libère les ressources et conserve les résultats partiels ; un contrôle interrompu ne reçoit pas de note de réussite.").into_any_element()],
+            vec![tx("diagnostics.continue_browse_computy_stop_releases").into_any_element()],
         )
         .text_size(px(12.))
         .line_height(px(21.))
@@ -351,24 +416,29 @@ fn component_option(
 fn profile_card(app: &Computy, id: &'static str, cx: &mut Context<Computy>) -> impl IntoElement {
     let p = &app.preferences;
     let (name, icon_name, detail, tag) = match id {
-        "quick" => ("Premier regard", "zap", tx("64 Mio · 1 passe"), "LÉGER"),
+        "quick" => (
+            "diagnostics.quick_check",
+            "zap",
+            tx("64 Mio · 1 passe"),
+            "diagnostics.light_badge",
+        ),
         "standard" => (
-            "L’essentiel",
+            "diagnostics.essentials",
             "scan-line",
             tp(
-                "{{v0}} Mio · {{v1}} passes",
+                "diagnostics.mio_passes",
                 &[
                     ("v0", (p.memory_mib as f64).into()),
                     ("v1", (p.passes as f64).into()),
                 ],
             ),
-            "CONSEILLÉ",
+            "diagnostics.recommended_badge",
         ),
         _ => (
-            "Session approfondie",
+            "diagnostics.thorough_session",
             "check-check",
             tx("512 Mio · 4 passes"),
-            "APPROFONDI",
+            "diagnostics.thorough_badge",
         ),
     };
     let selected = app
@@ -466,7 +536,13 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
         || app.error.is_some()
         || app.inventory.is_none()
         || exceeds;
-    let mib = |v: u64| format!("{}{}", crate::intl::plain(locale, v as f64), tx(" Mio"));
+    let mib = |v: u64| {
+        format!(
+            "{}{}",
+            crate::intl::plain(locale, v as f64),
+            tx(" common.unit_mio")
+        )
+    };
     let edit = |key: &'static str| {
         move |this: &mut Computy, value: String, _: &mut Window, _: &mut Context<Computy>| {
             let value: u64 = value.parse().unwrap_or(0);
@@ -508,8 +584,8 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                 .flex()
                 .flex_col()
                 .child(components::panel_header(
-                    "01. Que souhaitez-vous vérifier ?",
-                    Some(tx("Chaque composant conserve ses résultats et ses limites.")),
+                    "diagnostics.step1_what_to_check",
+                    Some(tx("diagnostics.each_component_retains_results_limits")),
                     None,
                 ))
                 .child(
@@ -519,7 +595,11 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                         .gap(px(11.))
                         .px(px(22.))
                         .pb(px(22.))
-                        .children(COMPONENTS.iter().map(|entry| component_option(app, *entry, cx).into_any_element())),
+                        .children(
+                            COMPONENTS
+                                .iter()
+                                .map(|entry| component_option(app, *entry, cx).into_any_element()),
+                        ),
                 ),
         )
         .child(
@@ -528,8 +608,8 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                 .flex()
                 .flex_col()
                 .child(components::panel_header(
-                    "02. Choisissez votre profondeur de test",
-                    Some(tx("Tous ces profils s’exécutent dans votre session. Aucun ne redémarre le PC.")),
+                    "diagnostics.step2_choose_depth",
+                    Some(tx("diagnostics.all_these_profiles_run_session")),
                     None,
                 ))
                 .child(
@@ -555,9 +635,18 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                                 .justify_between()
                                 .py(px(15.))
                                 .cursor_pointer()
-                                .child(text(tx("Personnaliser les paramètres "), 12., 400., hex(0x8b9d77)))
                                 .child(text(
-                                    tx(if state.profile == "custom" { "Paramètres personnalisés" } else { "Optionnel" }),
+                                    tx("diagnostics.customize_settings "),
+                                    12.,
+                                    400.,
+                                    hex(0x8b9d77),
+                                ))
+                                .child(text(
+                                    tx(if state.profile == "custom" {
+                                        "diagnostics.custom_settings"
+                                    } else {
+                                        "diagnostics.optional"
+                                    }),
                                     10.,
                                     400.,
                                     hex(0xb0bba4),
@@ -580,22 +669,28 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                                             .flex()
                                             .gap(px(17.))
                                             .child(field(
-                                                "Mémoire à allouer",
+                                                "common.memory_to_allocate",
                                                 select(
                                                     "memory_mib",
                                                     &state.memory_mib.to_string(),
-                                                    [16, 32, 64, 128, 256, 512, 1024, 2048].map(|v| option(v, mib(v))).into_iter().collect(),
+                                                    [16, 32, 64, 128, 256, 512, 1024, 2048]
+                                                        .map(|v| option(v, mib(v)))
+                                                        .into_iter()
+                                                        .collect(),
                                                     app,
                                                     cx,
                                                     edit("memory_mib"),
                                                 ),
                                             ))
                                             .child(field(
-                                                "Passes mémoire",
+                                                "common.memory_passes",
                                                 select(
                                                     "passes",
                                                     &state.passes.to_string(),
-                                                    [1, 2, 3, 4, 6, 8].map(|v| option(v, tn(v as f64))).into_iter().collect(),
+                                                    [1, 2, 3, 4, 6, 8]
+                                                        .map(|v| option(v, tn(v as f64)))
+                                                        .into_iter()
+                                                        .collect(),
                                                     app,
                                                     cx,
                                                     edit("passes"),
@@ -607,23 +702,35 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                                             .flex()
                                             .gap(px(17.))
                                             .child(field(
-                                                "Fichier d’intégrité",
+                                                "diagnostics.integrity_file",
                                                 select(
                                                     "disk_mib",
                                                     &state.disk_mib.to_string(),
-                                                    [16, 32, 64, 128, 256, 512].map(|v| option(v, mib(v))).into_iter().collect(),
+                                                    [16, 32, 64, 128, 256, 512]
+                                                        .map(|v| option(v, mib(v)))
+                                                        .into_iter()
+                                                        .collect(),
                                                     app,
                                                     cx,
                                                     edit("disk_mib"),
                                                 ),
                                             ))
                                             .child(field(
-                                                "Durée des calculs CPU",
+                                                "diagnostics.duration_cpu_calculations",
                                                 select(
                                                     "cpu_seconds",
                                                     &state.cpu_seconds.to_string(),
                                                     [1, 2, 5, 10, 15, 30, 60]
-                                                        .map(|v| option(v, format!("{}{}", tn(v as f64), tx(" secondes"))))
+                                                        .map(|v| {
+                                                            option(
+                                                                v,
+                                                                format!(
+                                                                    "{}{}",
+                                                                    tn(v as f64),
+                                                                    tx(" common.seconds")
+                                                                ),
+                                                            )
+                                                        })
                                                         .into_iter()
                                                         .collect(),
                                                     app,
@@ -642,8 +749,8 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                 .flex()
                 .flex_col()
                 .child(components::panel_header(
-                    "03. Donnez un nom à ce moment",
-                    Some(tx("Un repère simple pour vos futures comparaisons.")),
+                    "diagnostics.step3_name_moment",
+                    Some(tx("diagnostics.simple_benchmark_future_comparisons")),
                     None,
                 ))
                 .child(
@@ -653,8 +760,18 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                         .items_center()
                         .gap(px(7.))
                         .mb(px(10.))
-                        .child(text(tx("Nom du diagnostic "), 12., 400., hex(0x8d9e79)))
-                        .child(text(tx("facultatif"), 9., 400., hex(0xb2bca7))),
+                        .child(text(
+                            tx("history.diagnostic_name "),
+                            12.,
+                            400.,
+                            hex(0x8d9e79),
+                        ))
+                        .child(text(
+                            tx("diagnostics.optional_lowercase"),
+                            9.,
+                            400.,
+                            hex(0xb2bca7),
+                        )),
                 )
                 .child(div().px(px(23.)).child(text_input(&state.label))),
         );
@@ -684,11 +801,26 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                         .justify_center()
                         .child(icon("shield-check", 25., "2", c((0x91a978, 0xa4c580)))),
                 )
-                .child(spaced(tx("Prêt à faire le point ?"), 18., 650., c(theme::HEADING), -0.5, 24.).mt(px(19.)))
                 .child(
-                    text(tx("Un instantané du matériel et des résultats sera enregistré sur cet ordinateur."), 12., 400., hex(0x7c9068))
-                        .line_height(px(22.8))
-                        .mt(px(10.)),
+                    spaced(
+                        tx("diagnostics.ready_take_stock"),
+                        18.,
+                        650.,
+                        c(theme::HEADING),
+                        -0.5,
+                        24.,
+                    )
+                    .mt(px(19.)),
+                )
+                .child(
+                    text(
+                        tx("diagnostics.snapshot_hardware_results_recorded_computer"),
+                        12.,
+                        400.,
+                        hex(0x7c9068),
+                    )
+                    .line_height(px(22.8))
+                    .mt(px(10.)),
                 )
                 .child(
                     div()
@@ -697,16 +829,28 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                         .border_color(c(theme::BORDER))
                         .flex()
                         .flex_col()
-                        .child(summary_row("Composants", tn(selected.len() as f64)))
+                        .child(summary_row(
+                            "diagnostics.components",
+                            tn(selected.len() as f64),
+                        ))
                         .when(selected.contains(&"memory"), |d| {
-                            d.child(summary_row("Mémoire testée", mib(state.memory_mib)))
-                                .child(summary_row("Passes mémoire", tn(state.passes as f64)))
+                            d.child(summary_row(
+                                "diagnostics.tested_memory",
+                                mib(state.memory_mib),
+                            ))
+                            .child(summary_row("common.memory_passes", tn(state.passes as f64)))
                         })
-                        .when(selected.contains(&"storage"), |d| d.child(summary_row("Fichier temporaire", mib(state.disk_mib))))
+                        .when(selected.contains(&"storage"), |d| {
+                            d.child(summary_row("common.temporary_file", mib(state.disk_mib)))
+                        })
                         .when(selected.contains(&"cpu"), |d| {
                             d.child(summary_row(
-                                "Calculs CPU",
-                                format!("{}{}", tn(state.cpu_seconds as f64), tx(" s · jusqu’à 4 threads")),
+                                "diagnostics.cpu_calculations",
+                                format!(
+                                    "{}{}",
+                                    tn(state.cpu_seconds as f64),
+                                    tx(" diagnostics.up_4_threads")
+                                ),
                             ))
                         }),
                 )
@@ -714,13 +858,15 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                     d.child(
                         notice(
                             NoticeTone::Warn,
-                            vec![format!(
-                                "{}{}{}",
-                                tx("Allocation trop élevée pour la mémoire disponible. Choisissez au maximum "),
-                                tn(budget as f64),
-                                tx(" Mio dans les paramètres.")
-                            )
-                            .into_any_element()],
+                            vec![
+                                format!(
+                                    "{}{}{}",
+                                    tx("diagnostics.too_high_allowance_available_memory "),
+                                    tn(budget as f64),
+                                    tx(" diagnostics.mib_in_settings")
+                                )
+                                .into_any_element(),
+                            ],
                         )
                         .mt(px(18.)),
                     )
@@ -736,7 +882,11 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                             } else {
                                 icon("play", 17., "2", hex(0xffffff)).into_any_element()
                             }),
-                            tx(if app.launching { "Préparation…" } else { "Lancer le diagnostic" }),
+                            tx(if app.launching {
+                                "diagnostics.preparation"
+                            } else {
+                                "diagnostics.run_diagnostic"
+                            }),
                             disabled,
                         )
                         .w_full()
@@ -772,17 +922,34 @@ fn configuration(app: &Computy, cx: &mut Context<Computy>) -> AnyElement {
                         .items_center()
                         .gap(px(10.))
                         .child(icon("circle-help", 20., "2", hex(0xa0ae8f)))
-                        .child(spaced(tx("Ce qu’on peut vraiment vérifier"), 11., 600., hex(0x8e9f78), -0.2, 14.)),
+                        .child(spaced(
+                            tx("diagnostics.what_we_actually_verify"),
+                            11.,
+                            600.,
+                            hex(0x8e9f78),
+                            -0.2,
+                            14.,
+                        )),
                 )
                 .child(
-                    text(tx("Dans l’OS, le test mémoire couvre une allocation limitée. Pour aller plus loin, complétez-le par un test au démarrage."), 12., 400., hex(0x7c9068))
-                        .line_height(px(22.8))
-                        .mt(px(12.)),
+                    text(
+                        tx("diagnostics.os_memory_test_covers_limited"),
+                        12.,
+                        400.,
+                        hex(0x7c9068),
+                    )
+                    .line_height(px(22.8))
+                    .mt(px(12.)),
                 )
                 .child(
-                    text(tx("La note résume les contrôles observés, sans promettre une fiabilité absolue."), 12., 400., hex(0x7c9068))
-                        .line_height(px(22.8))
-                        .mt(px(10.)),
+                    text(
+                        tx("diagnostics.note_summarizes_observed_controls_without"),
+                        12.,
+                        400.,
+                        hex(0x7c9068),
+                    )
+                    .line_height(px(22.8))
+                    .mt(px(10.)),
                 ),
         );
     div()
@@ -826,9 +993,9 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                 .flex_col()
                 .child(components::panel_header(
                     if report.completed {
-                        "Votre bilan est prêt."
+                        "diagnostics.report_ready"
                     } else {
-                        "Votre diagnostic a été interrompu."
+                        "diagnostics.diagnostic_was_interrupted"
                     },
                     None,
                     Some(
@@ -837,7 +1004,7 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
                             ButtonKind::Primary,
                             true,
                             Some("rotate-ccw"),
-                            tx("Nouveau diagnostic"),
+                            tx("common.new_diagnostic"),
                             false,
                         )
                         .on_click(cx.listener(|this, _, _, cx| {
@@ -869,9 +1036,9 @@ pub fn render(app: &mut Computy, window: &mut Window, cx: &mut Context<Computy>)
         .flex()
         .flex_col()
         .child(components::section_title(
-            Some("PRENDRE SOIN DE SON PC"),
-            "Un diagnostic qui a du sens.",
-            Some("Des contrôles réels, des résultats expliqués et un historique pour avancer."),
+            Some("diagnostics.take_care_eyebrow"),
+            "diagnostics.diagnostics_make_sense",
+            Some("diagnostics.real_controls_explained_results_history"),
             None,
         ))
         .when(!running && !app.launching, |d| {

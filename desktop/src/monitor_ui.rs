@@ -30,7 +30,7 @@ pub fn metric_icon(metric: &str) -> &'static str {
 pub fn percent_label(value: Option<f64>) -> String {
     value.map_or_else(
         || "—".to_owned(),
-        |v| tp("{{value}} %", &[("value", v.round().into())]),
+        |v| tp("common.percent_value", &[("value", v.round().into())]),
     )
 }
 
