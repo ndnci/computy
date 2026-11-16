@@ -8,6 +8,11 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+### Fixed
+
+- The desktop application builds on Windows again: embedded icon and artwork
+  paths are now escaped correctly in the generated asset table.
+
 ## [0.3.1] - 2026-11-16
 
 ### Added

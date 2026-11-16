@@ -17,9 +17,9 @@ fn main() {
     entries.sort();
     let mut code = String::from("pub const ICONS: &[(&str, &[u8])] = &[\n");
     for name in &entries {
-        code.push_str(&format!(
-            "    (\"{name}\", include_bytes!(\"{root}/assets/{name}\")),\n"
-        ));
+        // Debug formatting escapes Windows backslashes in the generated literal.
+        let path = Path::new(&root).join("assets").join(name);
+        code.push_str(&format!("    ({name:?}, include_bytes!({path:?})),\n"));
     }
     code.push_str("];\n");
     code.push_str(
