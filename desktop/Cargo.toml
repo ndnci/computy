@@ -1,6 +1,6 @@
 [package]
 name = "computy-desktop"
-version = "0.3.1"
+version = "0.4.0"
 license = "GPL-3.0-only"
 description = "Votre matériel, en clair."
 authors = ["NDNCI"]

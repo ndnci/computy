@@ -312,6 +312,114 @@ pub fn uninstall(service: &AppService) -> Result<(), String> {
     Ok(())
 }
 
+/// Install a downloaded, checksum-verified release. Returns `true` when the
+/// installer was opened for the user to finish (macOS disk image).
+pub fn install_update(path: &Path) -> Result<bool, String> {
+    let (kind, executable) = installation()?;
+    #[cfg(target_os = "linux")]
+    {
+        let _ = executable;
+        if kind != "deb" {
+            return Err(
+                "Cette copie n’a pas été installée par paquet : téléchargez la nouvelle version."
+                    .into(),
+            );
+        }
+        // apt-get resolves new dependencies; pkexec asks for the system password.
+        let status = Command::new("/usr/bin/pkexec")
+            .args(["/usr/bin/apt-get", "install", "--yes", "--reinstall"])
+            .arg(path)
+            .status()
+            .map_err(|e| e.to_string())?;
+        if !status.success() {
+            return Err("Mise à jour annulée ou refusée.".into());
+        }
+        Ok(false)
+    }
+    #[cfg(target_os = "windows")]
+    {
+        let _ = kind;
+        // Extract next to the executable, then swap: a running executable can
+        // be renamed but not overwritten.
+        let directory = path.with_extension("");
+        let _ = std::fs::remove_dir_all(&directory);
+        std::fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
+        let tar = std::env::var_os("SystemRoot")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| "C:\\Windows".into())
+            .join("System32\\tar.exe");
+        let status = Command::new(tar)
+            .arg("-xf")
+            .arg(path)
+            .arg("-C")
+            .arg(&directory)
+            .status()
+            .map_err(|e| e.to_string())?;
+        let fresh = directory.join("Computy.exe");
+        if !status.success() || !fresh.is_file() {
+            return Err("Archive de mise à jour illisible.".into());
+        }
+        let previous = executable.with_extension("old.exe");
+        let _ = std::fs::remove_file(&previous);
+        std::fs::rename(&executable, &previous).map_err(|e| e.to_string())?;
+        if let Err(error) = std::fs::copy(&fresh, &executable) {
+            let _ = std::fs::rename(&previous, &executable);
+            return Err(error.to_string());
+        }
+        Ok(false)
+    }
+    #[cfg(target_os = "macos")]
+    {
+        let _ = (kind, executable);
+        Command::new("/usr/bin/open")
+            .arg(path)
+            .status()
+            .map_err(|e| e.to_string())?;
+        Ok(true)
+    }
+    #[cfg(not(any(target_os = "linux", target_os = "windows", target_os = "macos")))]
+    {
+        let _ = (kind, executable, path);
+        Err("Mises à jour indisponibles pour cette plateforme.".into())
+    }
+}
+
+/// Start the installed executable after this process exits (single instance).
+pub fn relaunch_after_exit() -> Result<(), String> {
+    let executable = std::env::current_exe().map_err(|e| e.to_string())?;
+    // Linux reports the replaced binary as "<path> (deleted)".
+    let executable = PathBuf::from(
+        executable
+            .to_string_lossy()
+            .trim_end_matches(" (deleted)")
+            .to_owned(),
+    );
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        Command::new("/bin/sh")
+            .args(["-c", "sleep 2; exec \"$0\""])
+            .arg(&executable)
+            .process_group(0)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::process::CommandExt;
+        let shell = std::env::var_os("ComSpec").unwrap_or_else(|| "cmd.exe".into());
+        Command::new(shell)
+            .raw_arg(format!(
+                "/C timeout /T 2 /NOBREAK >NUL & start \"\" \"{}\"",
+                executable.display()
+            ))
+            .creation_flags(0x08000000)
+            .spawn()
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 /// Application icon for a process, resolved locally from its executable.
 pub fn process_icon(pid: u32) -> Option<PathBuf> {
     use std::{collections::HashMap, sync::Mutex, sync::OnceLock};

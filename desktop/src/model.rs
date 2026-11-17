@@ -182,6 +182,38 @@ pub struct Preferences {
     pub tray_disks: Vec<String>,
     pub battery_enabled: bool,
     pub battery_devices: Vec<BatteryDevice>,
+    pub update_check: bool,
+}
+
+/// Installer of a release for this platform (engine `updates::Asset`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct UpdateAsset {
+    pub name: String,
+    pub url: String,
+    pub size: u64,
+    pub sha256: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct Release {
+    pub version: String,
+    pub notes: String,
+    pub page: String,
+    pub published_at: String,
+    pub asset: Option<UpdateAsset>,
+}
+
+/// Result of the last update check (engine `updates::Status`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct UpdateStatus {
+    pub current: String,
+    pub checked_at: u64,
+    pub latest: Option<Release>,
+    pub available: bool,
+    pub error: Option<String>,
 }
 
 /// Tray choice for one wireless peripheral, remembered while disconnected.
@@ -247,6 +279,7 @@ impl Default for Preferences {
             tray_disks: vec![],
             battery_enabled: false,
             battery_devices: vec![],
+            update_check: true,
         }
     }
 }

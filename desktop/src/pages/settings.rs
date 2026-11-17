@@ -1083,6 +1083,198 @@ fn battery_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
         })
 }
 
+/// Current version, update status and actions. Checking and installing act
+/// immediately; the automatic check is a saved preference.
+fn update_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
+    use crate::updater::{Phase, Updates};
+    let draft = app.pages.settings.as_ref().unwrap().draft.clone();
+    let locale = crate::i18n::locale();
+    let note = |content: String| {
+        text(content, 12., 400., c(theme::TEXT))
+            .line_height(px(20.4))
+            .opacity(0.82)
+    };
+    let busy_line = |key: &str| {
+        div()
+            .flex()
+            .items_center()
+            .gap(px(8.))
+            .child(spinner(16., c(theme::MUTED)))
+            .child(text(tx(key), 12., 400., c(theme::MUTED)))
+            .into_any_element()
+    };
+    let update = cx
+        .try_global::<Updates>()
+        .map(|u| (u.status.clone(), u.phase, u.error.clone(), u.manual));
+    let current = computy_engine::updates::CURRENT;
+    let mut body = div().px(px(28.)).pb(px(25.)).flex().flex_col().gap(px(12.));
+    match &update {
+        None => {
+            body = body.child(note(tx("settings.updates_unavailable_here")));
+        }
+        Some((status, phase, error, manual)) => {
+            let idle = *phase == Phase::Idle;
+            body = match phase {
+                Phase::Checking => body.child(busy_line("settings.checking_updates")),
+                Phase::Downloading => body.child(busy_line("settings.downloading_update")),
+                Phase::Installing => body.child(busy_line("settings.installing_update")),
+                Phase::Idle => body,
+            };
+            let latest = status.latest.clone();
+            if idle {
+                if let Some(release) = latest.as_ref().filter(|_| status.available) {
+                    // Release notes are Markdown: drop heading markers.
+                    let notes: String = release
+                        .notes
+                        .lines()
+                        .map(|l| l.trim_start_matches('#').trim_start())
+                        .collect::<Vec<_>>()
+                        .join("\n")
+                        .chars()
+                        .take(600)
+                        .collect();
+                    let has_installer = release.asset.is_some();
+                    let page = release.page.clone();
+                    body =
+                        body.child(
+                            div()
+                                .p(px(16.))
+                                .rounded(px(10.))
+                                .border_1()
+                                .border_color(c(theme::GREEN))
+                                .bg(c((0xeaf1e7, 0x2a3e24)))
+                                .flex()
+                                .flex_col()
+                                .gap(px(10.))
+                                .child(text(
+                                    tp(
+                                        "settings.update_available",
+                                        &[("version", (&release.version).into())],
+                                    ),
+                                    14.,
+                                    650.,
+                                    c(theme::HEADING),
+                                ))
+                                .when(!notes.trim().is_empty(), |d| d.child(note(notes)))
+                                .when(!has_installer, |d| {
+                                    d.child(note(tx("settings.update_no_installer")))
+                                })
+                                .child(
+                                    div()
+                                        .flex()
+                                        .flex_wrap()
+                                        .gap(px(10.))
+                                        .when(has_installer, |d| {
+                                            d.child(
+                                                button(
+                                                    "update-install",
+                                                    ButtonKind::Primary,
+                                                    true,
+                                                    Some("arrow-down-to-line"),
+                                                    tp(
+                                                        "settings.update_to_version",
+                                                        &[("version", (&release.version).into())],
+                                                    ),
+                                                    false,
+                                                )
+                                                .on_click(cx.listener(|_, _, _, cx| {
+                                                    crate::updater::install(cx)
+                                                })),
+                                            )
+                                        })
+                                        .when(!page.is_empty(), |d| {
+                                            d.child(
+                                                button(
+                                                    "update-notes",
+                                                    ButtonKind::Secondary,
+                                                    true,
+                                                    Some("external-link"),
+                                                    tx("settings.release_notes"),
+                                                    false,
+                                                )
+                                                .on_click(move |_, _, cx| {
+                                                    platform::open_external(&page, cx)
+                                                }),
+                                            )
+                                        }),
+                                ),
+                        );
+                } else if let Some(error) = &status.error {
+                    body = body.child(notice(NoticeTone::Warn, vec![tx(error).into_any_element()]));
+                } else if status.checked_at > 0 {
+                    body = body.child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap(px(8.))
+                            .child(icon("check", 16., "2", c(theme::GREEN)))
+                            .child(text(tx("settings.up_to_date"), 12., 600., c(theme::TEXT))),
+                    );
+                }
+            }
+            if let Some(error) = error.as_ref().filter(|_| idle) {
+                body = body.child(notice(NoticeTone::Warn, vec![tx(error).into_any_element()]));
+            }
+            if *manual {
+                body = body.child(notice(
+                    NoticeTone::Info,
+                    vec![tx("settings.update_installer_opened").into_any_element()],
+                ));
+            }
+            body = body
+                .child(note(if status.checked_at > 0 {
+                    tp(
+                        "settings.last_update_check",
+                        &[(
+                            "date",
+                            (&crate::intl::date(locale, status.checked_at as i64, false)).into(),
+                        )],
+                    )
+                } else {
+                    tx("settings.never_checked_updates")
+                }))
+                .child(
+                    div().flex().child(
+                        button(
+                            "update-check",
+                            ButtonKind::Secondary,
+                            true,
+                            Some("refresh-cw"),
+                            tx("settings.check_updates_now"),
+                            !idle,
+                        )
+                        .on_click(cx.listener(|_, _, _, cx| crate::updater::check_now(cx))),
+                    ),
+                );
+        }
+    }
+    panel()
+        .mb(px(20.))
+        .flex()
+        .flex_col()
+        .child(components::panel_header(
+            "settings.updates",
+            Some(tp(
+                "settings.installed_version",
+                &[("version", current.into())],
+            )),
+            None,
+        ))
+        .child(setting_row(
+            "refresh-cw",
+            "settings.automatic_update_check",
+            "settings.automatic_update_check_hint",
+            toggle_switch("update-check-enabled", draft.update_check, false).on_click(cx.listener(
+                |this, _, _, cx| {
+                    let d = &mut state(this).draft;
+                    d.update_check = !d.update_check;
+                    cx.notify();
+                },
+            )),
+        ))
+        .child(body)
+}
+
 pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>) -> AnyElement {
     if app.pages.settings.is_none() {
         let state = SettingsState::new(app, cx);
@@ -1349,6 +1541,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
         )
         .child(monitor_settings(app, cx))
         .child(battery_settings(app, cx))
+        .child(update_settings(app, cx))
         .child(
             div()
                 .flex()

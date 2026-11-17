@@ -16,6 +16,7 @@ pub mod repository;
 pub mod service;
 pub mod startup;
 pub mod transport;
+pub mod updates;
 pub mod usb_boot;
 
 pub mod applications;

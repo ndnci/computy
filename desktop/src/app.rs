@@ -553,6 +553,7 @@ impl Computy {
             Page::Diagnostics if self.job.as_ref().is_some_and(|j| j.running) => Some(None),
             Page::History if !self.reports.is_empty() => Some(Some(self.reports.len())),
             Page::Compare if !self.selected_ids.is_empty() => Some(Some(self.selected_ids.len())),
+            Page::Settings if crate::updater::available(cx) => Some(None),
             _ => None,
         };
         let (size, icon_size, stroke, height, gap) = if bottom {

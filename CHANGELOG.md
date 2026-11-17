@@ -8,8 +8,18 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-17
+
 ### Added
 
+- Preferences → **Updates**: Computy checks the releases published on GitHub
+  once a day (an anonymous request, its only network connection; it can be
+  turned off), shows the new version and its notes, and **Update to …**
+  downloads the installer, verifies its published SHA-256 and installs it. On
+  Linux the package is installed with the system password prompt and Computy
+  restarts; on Windows the portable executable is replaced; on macOS the disk
+  image opens. A dot on **Preferences** signals an available update. The CLI
+  adds `update` and `settings set --update-check`.
 - Preferences → **Wireless device batteries**, disabled by default: one system
   tray indicator per selected mouse, keyboard, headset or other wireless
   peripheral, using the same tray style as the metric indicators. The device

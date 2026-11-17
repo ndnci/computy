@@ -97,6 +97,8 @@ pub enum Commands {
     },
     /// Battery of connected wireless peripherals (mice, keyboards, headsets…).
     Peripherals,
+    /// Check GitHub for a newer Computy release (one anonymous request).
+    Update,
     /// Run bounded RAM/storage/CPU checks. Ctrl+C cancels and saves partial results.
     Diagnose {
         #[arg(long, value_delimiter = ',', default_value = "memory,storage,cpu")]
@@ -232,6 +234,9 @@ pub enum SettingsAction {
         /// devices are hidden. An empty string hides every device.
         #[arg(long)]
         battery_devices: Option<String>,
+        /// Check for a newer release at most once a day.
+        #[arg(long)]
+        update_check: Option<bool>,
     },
 }
 #[derive(Debug, Subcommand)]
@@ -326,6 +331,10 @@ pub fn run(cli: Cli) -> Result<i32, String> {
             if cli.json {
                 println!("{{\"erased\":true}}");
             }
+            0
+        }
+        Commands::Update => {
+            print_json(&crate::updates::check(&root))?;
             0
         }
         Commands::Peripherals => {
@@ -584,6 +593,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                     tray_disks,
                     battery_enabled,
                     battery_devices,
+                    update_check,
                 } => {
                     let mut current = preferences::load(&root)?;
                     if let Some(list) = battery_devices {
@@ -605,6 +615,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                         ),
                         ("tray_style", tray_style.map(|v| json!(v))),
                         ("battery_enabled", battery_enabled.map(|v| json!(v))),
+                        ("update_check", update_check.map(|v| json!(v))),
                         (
                             "tray_components",
                             tray_components.map(|v| {

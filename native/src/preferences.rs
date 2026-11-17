@@ -18,6 +18,8 @@ pub struct Preferences {
     /// Show the battery of wireless peripherals in the system tray.
     pub battery_enabled: bool,
     pub battery_devices: Vec<BatteryDevice>,
+    /// Check GitHub for a newer release at most once a day.
+    pub update_check: bool,
 }
 /// Per-device tray choice, remembered while the device is disconnected.
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
@@ -52,6 +54,7 @@ impl Default for Preferences {
             tray_disks: vec![],
             battery_enabled: false,
             battery_devices: vec![],
+            update_check: true,
         }
     }
 }

@@ -83,3 +83,13 @@ Screenshots, benchmarks and fixtures are recorded on contributors' machines, so 
 - `npm run check:privacy` (`scripts/check-privacy.mjs`) fails on absolute `/home/…`, `/Users/…` or `C:\Users\…` paths that are not placeholders, on the local host name, and on terms listed in an untracked `.privacy-terms` file (one per line) or in `COMPUTY_PRIVATE_TERMS`. It also reads PNG text metadata. It runs in CI; enable it before each commit with `git config core.hooksPath .githooks`.
 
 The check cannot read text drawn inside images: review new screenshots before committing them.
+
+## Update checks
+
+Update checks are Computy's only outgoing network connection. They are anonymous
+GitHub API requests made at most once a day (can be disabled in Preferences or
+with `settings set --update-check false`) or when the user asks. An installer is
+installed only after its SHA-256 matches the manifest published with the release
+and only from `https://github.com/ndnci/computy/releases/download/`. Installation
+uses the operating system's own elevation prompt (`pkexec` on Linux); Computy
+never stores or receives the password.

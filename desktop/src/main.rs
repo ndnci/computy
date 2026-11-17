@@ -17,6 +17,7 @@ mod popover;
 mod theme;
 mod tray;
 mod ui;
+mod updater;
 
 use backend::Backend;
 use gpui::*;
@@ -232,9 +233,12 @@ fn main() {
                 if let Some(service) = backend.service().cloned() {
                     platform::start_housekeeping(service.clone());
                     platform::sync_login_startup(&service);
-                    tray::start(service, cx);
+                    tray::start(service.clone(), cx);
+                    updater::start(service, cx);
                 }
                 instance::listen(cx);
+            } else if let Ok(status) = backend.typed("update_status", serde_json::json!({})) {
+                updater::show(status, cx);
             }
             if let Some(scenario) = CAPTURE.get().filter(|s| s.popover.is_some()) {
                 popover::open(

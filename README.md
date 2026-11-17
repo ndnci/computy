@@ -17,6 +17,7 @@ Created by **[NDNCI](https://www.ndnci.com)**. No account or usage tracking. You
 - Keep a hardware snapshot for each report, rename it, export JSON, and compare **2–4 reports**.
 - **Rerun a diagnostic** from its history row or report. The same settings create a new diagnostic while preserving the original. The whole row opens the report; checkboxes and actions work independently. Rerunning a Windows preboot report opens the wizard and requires fresh confirmation.
 - Monitor RAM/CPU/GPU through configurable **system tray indicators**, enabled by default, with optional volume indicators and optional **wireless device battery** indicators (mouse, keyboard, headset…). Open the **top 10 processes**, then **View all** for the complete searchable, sortable list. Missing measurements remain explicit. See [monitoring behavior and limits](docs/MONITORING.md).
+- Optional **in-app updates**: a daily anonymous check of GitHub releases, then a checksum-verified install from Preferences. See [in-app updates](docs/DISTRIBUTION.md#in-app-updates).
 - **Clean up with a mandatory dry run**: review individual files, combine AND/OR/NOT
   filters, inspect unused Docker objects and authorize bounded recurring file
   cleanup. [Safety, scope and CLI examples](docs/MAINTENANCE.md).

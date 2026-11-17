@@ -59,7 +59,21 @@ The publishing job alone has `contents: write`; pull-request build jobs cannot
 publish. Download URLs are versioned. Existing assets are not overwritten on
 reruns: publish a new version for changed binaries, especially after submitting
 an installer URL to a store. SHA-256 files detect download corruption but do not
-replace publisher signatures. The header's hardware refresh is not an updater.
+replace publisher signatures.
+
+## In-app updates
+
+Preferences → **Updates** reads `https://api.github.com/repos/ndnci/computy/releases/latest`
+once a day (when enabled) or on demand, with a generic `Computy/<version>` user
+agent and no identifier. It offers the installer named for the current platform
+(`Computy_<version>_amd64.deb`, `Computy_<version>_windows-x86_64.zip`,
+`Computy_<version>_macos-<arch>.dmg`) only when the release's
+`SHA256SUMS_<platform>.txt` lists its digest. Downloads must come from this
+repository's release URLs, are size-limited, and are deleted on checksum
+mismatch. Linux installs the `.deb` with `pkexec apt-get install`, then restarts
+Computy; the portable Windows executable is swapped in place; macOS opens the
+disk image for the user to finish. Drafts and pre-releases are never offered, so
+the version in `package.json` and the release tag must match (`v<version>`).
 
 References: [GitHub hosted runner architectures](https://docs.github.com/en/actions/reference/runners/github-hosted-runners).
 
