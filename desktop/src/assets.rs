@@ -15,6 +15,11 @@ fn bytes(path: &str) -> Option<&'static [u8]> {
     })
 }
 
+/// Embedded asset bytes, for rasterizing icons outside GPUI (tray indicators).
+pub fn embedded(path: &str) -> Option<&'static [u8]> {
+    bytes(path)
+}
+
 impl AssetSource for Assets {
     fn load(&self, path: &str) -> anyhow::Result<Option<Cow<'static, [u8]>>> {
         Ok(bytes(path).map(Cow::Borrowed))

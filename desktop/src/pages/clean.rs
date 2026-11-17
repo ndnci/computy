@@ -418,7 +418,7 @@ fn rule_view(
                     .child(
                         div().w(px(206.)).child(
                             select(
-                                Box::leak(format!("rule-op-{p}").into_boxed_str()),
+                                format!("rule-op-{p}"),
                                 &op,
                                 vec![option("all", tx("clean.all_conditions")), option("any", tx("clean.any_condition"))],
                                 app,
@@ -503,7 +503,7 @@ fn rule_view(
         .child(
             div().w(px(179.)).child(
                 select(
-                    Box::leak(format!("rule-field-{p}").into_boxed_str()),
+                    format!("rule-field-{p}"),
                     &op,
                     FIELDS.iter().map(|(id, label)| option(*id, tx(label))).collect(),
                     app,

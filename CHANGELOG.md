@@ -8,6 +8,21 @@ commits and locally built packages, not from previously published store releases
 
 ## [Unreleased]
 
+### Added
+
+- Preferences → **Wireless device batteries**, disabled by default: one system
+  tray indicator per selected mouse, keyboard, headset or other wireless
+  peripheral, using the same tray style as the metric indicators. The device
+  type and its icon are detected automatically and can be changed per device.
+  A disconnected device's indicator is hidden and returns on reconnection.
+  Devices that only report a coarse level (Low, Normal, Full) show that level
+  instead of an invented percentage. Clicking an indicator lists every
+  connected wireless device. Values are read from the system (UPower and BlueZ
+  on Linux, Bluetooth device properties on Windows, the Bluetooth profile on
+  macOS) without contacting the device. The CLI adds `peripherals` and
+  `settings set --battery-enabled/--battery-devices`; MCP adds the read-only
+  `computy_peripherals` tool.
+
 ### Fixed
 
 - The desktop application builds on Windows again: embedded icon and artwork

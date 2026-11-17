@@ -95,6 +95,8 @@ pub enum Commands {
         #[arg(long)]
         watch: bool,
     },
+    /// Battery of connected wireless peripherals (mice, keyboards, headsets…).
+    Peripherals,
     /// Run bounded RAM/storage/CPU checks. Ctrl+C cancels and saves partial results.
     Diagnose {
         #[arg(long, value_delimiter = ',', default_value = "memory,storage,cpu")]
@@ -192,6 +194,8 @@ pub enum Profile {
     Standard,
     Extended,
 }
+// Parsed once from the command line: boxing the options would add nothing.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Subcommand)]
 pub enum SettingsAction {
     Show,
@@ -221,6 +225,13 @@ pub enum SettingsAction {
         /// Comma-separated mount points; an empty string clears selected volumes.
         #[arg(long)]
         tray_disks: Option<String>,
+        /// Show the battery of wireless peripherals in the system tray.
+        #[arg(long)]
+        battery_enabled: Option<bool>,
+        /// Comma-separated `id[:icon]` from `peripherals`; other remembered
+        /// devices are hidden. An empty string hides every device.
+        #[arg(long)]
+        battery_devices: Option<String>,
     },
 }
 #[derive(Debug, Subcommand)]
@@ -315,6 +326,10 @@ pub fn run(cli: Cli) -> Result<i32, String> {
             if cli.json {
                 println!("{{\"erased\":true}}");
             }
+            0
+        }
+        Commands::Peripherals => {
+            print_json(&service.peripherals(true))?;
             0
         }
         Commands::Monitor { watch } => {
@@ -567,9 +582,15 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                     tray_style,
                     tray_components,
                     tray_disks,
+                    battery_enabled,
+                    battery_devices,
                 } => {
-                    let mut value = serde_json::to_value(preferences::load(&root)?)
-                        .map_err(|e| e.to_string())?;
+                    let mut current = preferences::load(&root)?;
+                    if let Some(list) = battery_devices {
+                        current.battery_devices =
+                            battery_selection(&current.battery_devices, &list, &service)?;
+                    }
+                    let mut value = serde_json::to_value(current).map_err(|e| e.to_string())?;
                     for (key, item) in [
                         ("memory_mib", memory_mib.map(|v| json!(v))),
                         ("passes", passes.map(|v| json!(v))),
@@ -583,6 +604,7 @@ pub fn run(cli: Cli) -> Result<i32, String> {
                             keep_running_on_close.map(|v| json!(v)),
                         ),
                         ("tray_style", tray_style.map(|v| json!(v))),
+                        ("battery_enabled", battery_enabled.map(|v| json!(v))),
                         (
                             "tray_components",
                             tray_components.map(|v| {
@@ -810,4 +832,45 @@ fn serve_rpc(service: &Arc<AppService>) -> Result<(), String> {
             .map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+
+/// Apply `id[:icon],…` to the remembered devices: listed ones are shown,
+/// the others stay remembered but hidden.
+fn battery_selection(
+    current: &[preferences::BatteryDevice],
+    list: &str,
+    service: &AppService,
+) -> Result<Vec<preferences::BatteryDevice>, String> {
+    let mut devices: Vec<_> = current
+        .iter()
+        .cloned()
+        .map(|mut d| {
+            d.shown = false;
+            d
+        })
+        .collect();
+    let connected = service.peripherals(true);
+    for item in list.split(',').map(str::trim).filter(|s| !s.is_empty()) {
+        let (id, icon) = item.split_once(':').unwrap_or((item, "auto"));
+        let name = connected
+            .iter()
+            .find(|p| p.id == id)
+            .map(|p| p.name.clone());
+        match devices.iter_mut().find(|d| d.id == id) {
+            Some(device) => {
+                device.shown = true;
+                device.icon = icon.into();
+                if let Some(name) = name {
+                    device.name = name;
+                }
+            }
+            None => devices.push(preferences::BatteryDevice {
+                id: id.into(),
+                name: name.ok_or_else(|| format!("Unknown peripheral: {id}"))?,
+                shown: true,
+                icon: icon.into(),
+            }),
+        }
+    }
+    Ok(devices)
 }

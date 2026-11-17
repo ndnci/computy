@@ -56,6 +56,9 @@ pub fn dispatch(service: &Arc<AppService>, method: &str, params: &Value) -> Resu
         ),
         "fans" => Ok(json!(crate::fans::inventory())),
         "monitor" => Ok(json!(service.monitor(true))),
+        "peripherals" => Ok(json!(
+            service.peripherals(params["refresh"].as_bool().unwrap_or(false))
+        )),
         "inventory" => Ok(json!(
             service.inventory(params["refresh"].as_bool().unwrap_or(false))
         )),

@@ -6,8 +6,11 @@ use crate::{
     components::spinner,
     i18n::{tp, tx},
     intl,
-    model::{MonitorSnapshot, Preferences, ProcessSample, ranked_processes},
-    monitor_ui::{metric_icon, metric_visual, usage_color},
+    model::{MonitorSnapshot, Peripheral, Preferences, ProcessSample, ranked_processes},
+    monitor_ui::{
+        battery_color, battery_label, battery_visual, device_icon, metric_icon, metric_visual,
+        usage_color,
+    },
     pages::processes::avatar,
     theme::{self, c, hex},
     ui::{icon, one_line, shadow, spaced, text},
@@ -21,6 +24,9 @@ pub struct Popover {
     metric: String,
     volume: String,
     snapshot: Option<MonitorSnapshot>,
+    /// Wireless peripherals, polled instead of the snapshot for a battery.
+    peripherals: Option<Vec<Peripheral>>,
+    preferences: Option<Preferences>,
     problem: bool,
     icons: HashMap<u32, Option<std::sync::Arc<RenderImage>>>,
     _poll: Task<()>,
@@ -34,6 +40,36 @@ impl Popover {
                     break;
                 };
                 let fixture = backend.is_fixture();
+                let Ok(battery) = this.read_with(cx, |this, _| this.metric == "battery") else {
+                    break;
+                };
+                if battery {
+                    let (peripherals, preferences) = cx
+                        .background_executor()
+                        .spawn(async move {
+                            (
+                                backend.typed::<Vec<Peripheral>>("peripherals", json!({})),
+                                backend.typed::<Preferences>("preferences", json!({})).ok(),
+                            )
+                        })
+                        .await;
+                    let alive = this.update(cx, |this, cx| {
+                        if let Some(preferences) = &preferences {
+                            crate::i18n::set_language(&preferences.language);
+                        }
+                        this.problem = peripherals.is_err();
+                        if let Ok(peripherals) = peripherals {
+                            this.peripherals = Some(peripherals);
+                        }
+                        this.preferences = preferences;
+                        cx.notify();
+                    });
+                    if alive.is_err() || fixture {
+                        break;
+                    }
+                    cx.background_executor().timer(Duration::from_secs(2)).await;
+                    continue;
+                }
                 let result = cx
                     .background_executor()
                     .spawn(async move {
@@ -79,6 +115,8 @@ impl Popover {
             metric,
             volume,
             snapshot: None,
+            peripherals: None,
+            preferences: None,
             problem: false,
             icons: HashMap::new(),
             _poll: poll,
@@ -186,6 +224,183 @@ fn action_row(
             d.child(icon("arrow-up-right", size, "2", hex(0x6d7c70)))
         })
         .on_click(cx.listener(move |this, _, window, cx| this.action(destination, window, cx)))
+}
+
+impl Popover {
+    /// Selected peripheral, then every connected wireless peripheral.
+    fn battery_content(&self) -> AnyElement {
+        let Some(peripherals) = &self.peripherals else {
+            return div()
+                .flex_1()
+                .flex()
+                .justify_center()
+                .py(px(30.))
+                .child(spinner(18., c(theme::MUTED)))
+                .into_any_element();
+        };
+        let preferences = self.preferences.clone().unwrap_or_default();
+        let selected = peripherals.iter().find(|p| p.id == self.volume);
+        let remembered = preferences
+            .battery_devices
+            .iter()
+            .find(|d| d.id == self.volume)
+            .map(|d| d.name.clone())
+            .unwrap_or_default();
+        let hero = match selected {
+            Some(p) => {
+                let kind = p.icon_kind(&preferences);
+                div()
+                    .flex()
+                    .items_center()
+                    .gap(px(21.))
+                    .pt(px(16.))
+                    .px(px(23.))
+                    .pb(px(22.))
+                    .border_b_1()
+                    .border_color(c(theme::BORDER))
+                    .child(battery_visual(p, device_icon(kind), "ring", 96., 60.))
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_w_0()
+                            .flex()
+                            .flex_col()
+                            .child(
+                                div()
+                                    .flex()
+                                    .items_center()
+                                    .gap(px(8.))
+                                    .child(icon(device_icon(kind), 22., "2", hex(0x6d7c70)))
+                                    .child(spaced(
+                                        tx(&format!("battery.kind_{kind}")),
+                                        11.,
+                                        650.,
+                                        hex(0x6d7c70),
+                                        1.,
+                                        22.,
+                                    )),
+                            )
+                            .child(
+                                spaced(p.name.clone(), 19., 650., c(theme::HEADING), -0.6, 28.5)
+                                    .family("Sora")
+                                    .mt(px(4.)),
+                            )
+                            .child(
+                                text(
+                                    match p.charging {
+                                        Some(true) => tx("battery.charging"),
+                                        Some(false) => tx("battery.on_battery"),
+                                        None => tx("battery.wireless_peripheral"),
+                                    },
+                                    11.,
+                                    400.,
+                                    hex(0x6d7c70),
+                                )
+                                .line_height(px(18.15))
+                                .mt(px(4.)),
+                            )
+                            .child(
+                                text(
+                                    if p.percent.is_none() && !p.level.is_empty() {
+                                        tp(
+                                            "battery.level_reported",
+                                            &[("level", (&battery_label(p)).into())],
+                                        )
+                                    } else {
+                                        tp(
+                                            "battery.charge",
+                                            &[("value", (&battery_label(p)).into())],
+                                        )
+                                    },
+                                    11.,
+                                    600.,
+                                    battery_color(p.gauge()),
+                                )
+                                .mt(px(10.)),
+                            ),
+                    )
+                    .into_any_element()
+            }
+            None => div()
+                .flex()
+                .items_center()
+                .gap(px(10.))
+                .p(px(23.))
+                .border_b_1()
+                .border_color(c(theme::BORDER))
+                .child(icon("bluetooth", 22., "2", c(theme::MUTED)))
+                .child(text(
+                    tp(
+                        "battery.device_disconnected",
+                        &[("name", (&remembered).into())],
+                    ),
+                    12.,
+                    400.,
+                    c(theme::MUTED),
+                ))
+                .into_any_element(),
+        };
+        let rows = peripherals.iter().map(|p| {
+            let kind = p.icon_kind(&preferences);
+            let color = battery_color(p.gauge());
+            div()
+                .flex()
+                .items_center()
+                .gap(px(10.))
+                .py(px(8.))
+                .px(px(6.))
+                .rounded(px(9.))
+                .when(p.id == self.volume, |d| d.bg(c((0xeaf1e7, 0x2a3e24))))
+                .child(icon(device_icon(kind), 18., "2", c(theme::TEXT)))
+                .child(
+                    one_line(p.name.clone(), 11., 600., c(theme::TEXT))
+                        .flex_1()
+                        .min_w_0(),
+                )
+                .when(p.charging == Some(true), |d| {
+                    d.child(icon("zap", 13., "2", color))
+                })
+                .child(text(battery_label(p), 11., 600., color))
+                .into_any_element()
+        });
+        div()
+            .flex_1()
+            .min_h_0()
+            .flex()
+            .flex_col()
+            .child(hero)
+            .child(
+                div()
+                    .flex_1()
+                    .min_h_0()
+                    .flex()
+                    .flex_col()
+                    .pt(px(16.))
+                    .px(px(15.))
+                    .pb(px(12.))
+                    .child(
+                        spaced(
+                            tx("battery.wireless_devices"),
+                            12.,
+                            600.,
+                            c(theme::HEADING),
+                            -0.4,
+                            19.2,
+                        )
+                        .px(px(5.))
+                        .pb(px(10.)),
+                    )
+                    .child(
+                        div()
+                            .id("popover-devices")
+                            .flex_1()
+                            .min_h_0()
+                            .overflow_y_scroll()
+                            .children(rows),
+                    ),
+            )
+            .into_any_element()
+    }
 }
 
 impl Render for Popover {
@@ -305,6 +520,7 @@ impl Render for Popover {
                 }))
                 .into_any_element()
         };
+        let battery_content = (metric == "battery").then(|| self.battery_content());
         let capture = crate::capture_mode();
         div()
             .size_full()
@@ -361,172 +577,183 @@ impl Render for Popover {
                                     })),
                             ),
                     )
-                    .child(
-                        div()
-                            .flex()
-                            .items_center()
-                            .gap(px(21.))
-                            .pt(px(16.))
-                            .px(px(23.))
-                            .pb(px(22.))
-                            .border_b_1()
-                            .border_color(c(theme::BORDER))
-                            .child(metric_visual(value, metric, "ring", 96., 60.))
-                            .child(
-                                div()
-                                    .flex_1()
-                                    .min_w_0()
-                                    .flex()
-                                    .flex_col()
-                                    .child(
-                                        div()
-                                            .flex()
-                                            .items_center()
-                                            .gap(px(8.))
-                                            .child(icon(
-                                                metric_icon(metric),
-                                                22.,
-                                                "2",
-                                                hex(0x6d7c70),
-                                            ))
-                                            .child(spaced(
-                                                device,
-                                                11.,
-                                                650.,
-                                                hex(0x6d7c70),
-                                                1.,
-                                                22.,
-                                            )),
-                                    )
-                                    .child(
-                                        spaced(tx(name), 19., 650., c(theme::HEADING), -0.6, 28.5)
-                                            .family("Sora")
-                                            .mt(px(4.)),
-                                    )
-                                    .child(
-                                        text(
-                                            if self.volume.is_empty() {
-                                                tx("common.my_computer")
-                                            } else {
-                                                self.volume.clone()
-                                            },
-                                            11.,
-                                            400.,
-                                            hex(0x6d7c70),
-                                        )
-                                        .line_height(px(18.15))
-                                        .mt(px(4.)),
-                                    )
-                                    .child(
-                                        text(
-                                            value.map_or_else(
-                                                || tx("common.unavailable"),
-                                                |v| {
-                                                    tp(
-                                                        "common.usage",
-                                                        &[("value", v.round().into())],
-                                                    )
-                                                },
-                                            ),
-                                            11.,
-                                            600.,
-                                            usage_color(value),
-                                        )
-                                        .mt(px(10.)),
-                                    ),
-                            ),
-                    )
-                    .child(
-                        div()
-                            .flex_1()
-                            .min_h_0()
-                            .flex()
-                            .flex_col()
-                            .pt(px(16.))
-                            .px(px(15.))
-                            .overflow_hidden()
+                    .map(|d| match battery_content {
+                        Some(content) => d.child(content),
+                        None => d
                             .child(
                                 div()
                                     .flex()
                                     .items_center()
-                                    .justify_between()
-                                    .gap(px(10.))
-                                    .px(px(5.))
-                                    .pb(px(10.))
-                                    .child(spaced(
-                                        tx("common.top_resource_consumers"),
-                                        12.,
-                                        600.,
-                                        c(theme::HEADING),
-                                        -0.4,
-                                        19.2,
-                                    ))
+                                    .gap(px(21.))
+                                    .pt(px(16.))
+                                    .px(px(23.))
+                                    .pb(px(22.))
+                                    .border_b_1()
+                                    .border_color(c(theme::BORDER))
+                                    .child(metric_visual(value, metric, "ring", 96., 60.))
                                     .child(
                                         div()
-                                            .py(px(3.))
-                                            .px(px(7.))
-                                            .rounded(px(8.))
-                                            .bg(c((0xeaf1e7, 0x2a3e24)))
-                                            .child(text(
-                                                top.len().to_string(),
-                                                9.,
-                                                400.,
-                                                c(theme::TEXT),
-                                            )),
+                                            .flex_1()
+                                            .min_w_0()
+                                            .flex()
+                                            .flex_col()
+                                            .child(
+                                                div()
+                                                    .flex()
+                                                    .items_center()
+                                                    .gap(px(8.))
+                                                    .child(icon(
+                                                        metric_icon(metric),
+                                                        22.,
+                                                        "2",
+                                                        hex(0x6d7c70),
+                                                    ))
+                                                    .child(spaced(
+                                                        device,
+                                                        11.,
+                                                        650.,
+                                                        hex(0x6d7c70),
+                                                        1.,
+                                                        22.,
+                                                    )),
+                                            )
+                                            .child(
+                                                spaced(
+                                                    tx(name),
+                                                    19.,
+                                                    650.,
+                                                    c(theme::HEADING),
+                                                    -0.6,
+                                                    28.5,
+                                                )
+                                                .family("Sora")
+                                                .mt(px(4.)),
+                                            )
+                                            .child(
+                                                text(
+                                                    if self.volume.is_empty() {
+                                                        tx("common.my_computer")
+                                                    } else {
+                                                        self.volume.clone()
+                                                    },
+                                                    11.,
+                                                    400.,
+                                                    hex(0x6d7c70),
+                                                )
+                                                .line_height(px(18.15))
+                                                .mt(px(4.)),
+                                            )
+                                            .child(
+                                                text(
+                                                    value.map_or_else(
+                                                        || tx("common.unavailable"),
+                                                        |v| {
+                                                            tp(
+                                                                "common.usage",
+                                                                &[("value", v.round().into())],
+                                                            )
+                                                        },
+                                                    ),
+                                                    11.,
+                                                    600.,
+                                                    usage_color(value),
+                                                )
+                                                .mt(px(10.)),
+                                            ),
                                     ),
                             )
                             .child(
                                 div()
-                                    .id("popover-list")
                                     .flex_1()
                                     .min_h_0()
-                                    .overflow_y_scroll()
-                                    .child(list),
+                                    .flex()
+                                    .flex_col()
+                                    .pt(px(16.))
+                                    .px(px(15.))
+                                    .overflow_hidden()
+                                    .child(
+                                        div()
+                                            .flex()
+                                            .items_center()
+                                            .justify_between()
+                                            .gap(px(10.))
+                                            .px(px(5.))
+                                            .pb(px(10.))
+                                            .child(spaced(
+                                                tx("common.top_resource_consumers"),
+                                                12.,
+                                                600.,
+                                                c(theme::HEADING),
+                                                -0.4,
+                                                19.2,
+                                            ))
+                                            .child(
+                                                div()
+                                                    .py(px(3.))
+                                                    .px(px(7.))
+                                                    .rounded(px(8.))
+                                                    .bg(c((0xeaf1e7, 0x2a3e24)))
+                                                    .child(text(
+                                                        top.len().to_string(),
+                                                        9.,
+                                                        400.,
+                                                        c(theme::TEXT),
+                                                    )),
+                                            ),
+                                    )
+                                    .child(
+                                        div()
+                                            .id("popover-list")
+                                            .flex_1()
+                                            .min_h_0()
+                                            .overflow_y_scroll()
+                                            .child(list),
+                                    )
+                                    .when(metric == "gpu", |d| {
+                                        d.child(
+                                            text(
+                                                tx("popover.nvidia_compute_process_gpu_memory"),
+                                                10.,
+                                                400.,
+                                                hex(0x6d7c70),
+                                            )
+                                            .px(px(5.))
+                                            .pt(px(8.)),
+                                        )
+                                    })
+                                    .when(metric == "storage", |d| {
+                                        d.child(
+                                            text(
+                                                tx("popover.per_process_activity_all_volumes"),
+                                                10.,
+                                                400.,
+                                                hex(0x6d7c70),
+                                            )
+                                            .px(px(5.))
+                                            .pt(px(8.)),
+                                        )
+                                    })
+                                    .child(div().mt(px(9.)).mb(px(12.)).child(action_row(
+                                        "popover-all",
+                                        "external-link",
+                                        "common.view_all",
+                                        Some(16.),
+                                        true,
+                                        cx,
+                                    ))),
                             )
-                            .when(metric == "gpu", |d| {
+                            .when(self.problem, |d| {
                                 d.child(
                                     text(
-                                        tx("popover.nvidia_compute_process_gpu_memory"),
+                                        tx("common.live_measurements_unavailable_computy_retries"),
                                         10.,
                                         400.,
                                         hex(0x6d7c70),
                                     )
-                                    .px(px(5.))
-                                    .pt(px(8.)),
+                                    .px(px(20.))
+                                    .pb(px(8.)),
                                 )
-                            })
-                            .when(metric == "storage", |d| {
-                                d.child(
-                                    text(
-                                        tx("popover.per_process_activity_all_volumes"),
-                                        10.,
-                                        400.,
-                                        hex(0x6d7c70),
-                                    )
-                                    .px(px(5.))
-                                    .pt(px(8.)),
-                                )
-                            })
-                            .child(div().mt(px(9.)).mb(px(12.)).child(action_row(
-                                "popover-all",
-                                "external-link",
-                                "common.view_all",
-                                Some(16.),
-                                true,
-                                cx,
-                            ))),
-                    )
-                    .when(self.problem, |d| {
-                        d.child(
-                            text(
-                                tx("common.live_measurements_unavailable_computy_retries"),
-                                10.,
-                                400.,
-                                hex(0x6d7c70),
-                            )
-                            .px(px(20.))
-                            .pb(px(8.)),
-                        )
+                            }),
                     })
                     .child(
                         div()
@@ -581,7 +808,7 @@ pub fn open(metric: String, volume: String, anchor: Option<(i32, i32)>, cx: &mut
     };
     let capture = crate::capture_mode();
     let display = cx.primary_display();
-    let size = size(px(420.), px(720.));
+    let size = size(px(420.), px(if metric == "battery" { 480. } else { 720. }));
     let bounds = match (anchor, display.as_ref()) {
         (Some((x, y)), Some(display)) => {
             let screen = display.bounds();

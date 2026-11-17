@@ -16,6 +16,22 @@ Closing the window keeps monitoring active if at least one icon exists. **Quit C
 
 Logging out or restarting the PC also stops Computy. To restore indicators at the next login without manually opening the application, **Show indicators at login** is enabled by default in installed builds; you can disable it in preferences. The OS startup entry uses `--background`: only enabled indicators appear, and the main window stays hidden. A normal launch or an indicator action opens the existing window. Background launches with all indicators disabled exit without opening a window. Startup preserves an explicit opt-out and does not run diagnostics. Legacy `--return-from-diagnostic` entries follow the same background policy. On macOS, background startup uses accessory mode to keep the Dock unobtrusive. After a package upgrade, choose **Quit Computy**, then reopen the application: closing only the window keeps the previous process and its version in memory.
 
+## Wireless device batteries
+
+**Preferences → Wireless device batteries** is disabled by default. Once enabled, it lists connected wireless peripherals that report a battery, along with remembered devices that are currently disconnected. Each device has its own checkbox to show an indicator, and an icon chooser: **Automatic** uses the detected type (mouse, keyboard, headphones, headset, speaker, game controller, phone, tablet, stylus, watch or other device). These indicators use the same **system tray style** as the metrics. When the metric monitor is disabled, the style and **Keep running in the background when closed** are shown in this section instead.
+
+Colors encode remaining charge, not usage: blue above 30%, yellow from 16% to 30%, red at 15% and below. A disconnected device's indicator is hidden and comes back on reconnection; its settings remain saved (16 devices at most). Clicking an indicator shows the device, its charging state and every connected wireless device.
+
+| Platform | Source |
+|---|---|
+| Linux | UPower devices (Bluetooth, Logitech Unifying/Bolt receivers and other HID batteries) merged with BlueZ `Device1`/`Battery1` by address. |
+| Windows | Plug and Play Bluetooth devices exposing the Bluetooth battery property, through PowerShell. Classic and LE devices are supported when the driver publishes this property. |
+| macOS | `system_profiler SPBluetoothDataType` battery levels (main, or the lower of left/right earbuds). |
+
+Values are read from what the operating system already holds: Computy never contacts the device, so reading does not affect its battery. On Linux, UPower and BlueZ change signals trigger a new read, with a five-minute fallback (ten seconds if signals are unavailable). Windows and macOS spawn a system tool, so they re-read every two minutes on mains power and every five minutes on battery.
+
+Some firmware only reports a coarse level (Critical, Low, Normal, High, Full). Computy displays that level rather than a percentage, and the tray draws four blocks instead of digits. A percentage from the Bluetooth battery service is used only when it agrees with the level the device reports; some devices publish a stale or rounded value there. When UPower exposes a battery voltage, Computy estimates the charge from a lithium discharge curve and marks it `≈`. Headset batteries over hands-free profiles depend on BlueZ and the audio server exposing them. Hardware addresses are never shown or stored: devices are identified by a truncated hash. Windows and macOS support has not been physically validated yet.
+
 ## Meaning of measurements
 
 | Measurement | Source and scope |
@@ -52,9 +68,11 @@ computy-cli settings set --tray-enabled false
 computy-cli settings set --tray-enabled true --tray-components memory,cpu,gpu
 computy-cli settings set --tray-disks '/,/home'
 computy-cli settings set --tray-disks ''
+computy-cli --json peripherals
+computy-cli settings set --battery-enabled true --battery-devices '0123456789abcdef,fedcba9876543210:headset'
 ```
 
-`monitor --watch` emits JSON snapshots until Ctrl+C. The read-only MCP tool `computy_monitor` exposes the same snapshot, with unknown values set to `null`. The first call initializes the CPU counter; wait at least one second before the next. Preferences remain shared with the application.
+`monitor --watch` emits JSON snapshots until Ctrl+C. `peripherals` lists connected wireless devices with an opaque `id`, `kind`, `percent` or coarse `level`; `--battery-devices` takes `id[:icon]` values from that list and hides the other remembered devices. The read-only MCP tools `computy_monitor` and `computy_peripherals` expose the same data; `computy_monitor` returns the snapshot, with unknown values set to `null`. The first call initializes the CPU counter; wait at least one second before the next. Preferences remain shared with the application.
 
 ## References and validation
 

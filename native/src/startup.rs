@@ -16,9 +16,7 @@ pub fn launch_mode(arguments: &[String], preferences: &Preferences) -> LaunchMod
     if !is_background(arguments) {
         return LaunchMode::Window;
     }
-    if preferences.tray_enabled
-        && (!preferences.tray_components.is_empty() || !preferences.tray_disks.is_empty())
-    {
+    if preferences.has_indicators() {
         LaunchMode::Monitor
     } else {
         LaunchMode::Exit

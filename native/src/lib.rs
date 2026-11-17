@@ -10,6 +10,7 @@ pub mod maintenance;
 pub mod mcp;
 pub mod monitor;
 pub mod offline;
+pub mod peripherals;
 pub mod preferences;
 pub mod repository;
 pub mod service;

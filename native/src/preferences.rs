@@ -15,6 +15,26 @@ pub struct Preferences {
     pub tray_style: String,
     pub tray_components: Vec<String>,
     pub tray_disks: Vec<String>,
+    /// Show the battery of wireless peripherals in the system tray.
+    pub battery_enabled: bool,
+    pub battery_devices: Vec<BatteryDevice>,
+}
+/// Per-device tray choice, remembered while the device is disconnected.
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq)]
+#[serde(default, deny_unknown_fields)]
+pub struct BatteryDevice {
+    pub id: String,
+    pub name: String,
+    pub shown: bool,
+    /// `auto` or one of [`crate::peripherals::KINDS`].
+    pub icon: String,
+}
+impl Preferences {
+    /// At least one indicator (metric, volume or peripheral) is requested.
+    pub fn has_indicators(&self) -> bool {
+        (self.tray_enabled && (!self.tray_components.is_empty() || !self.tray_disks.is_empty()))
+            || (self.battery_enabled && self.battery_devices.iter().any(|d| d.shown))
+    }
 }
 impl Default for Preferences {
     fn default() -> Self {
@@ -30,6 +50,8 @@ impl Default for Preferences {
             tray_style: "icon_text".into(),
             tray_components: vec!["memory".into(), "cpu".into(), "gpu".into()],
             tray_disks: vec![],
+            battery_enabled: false,
+            battery_devices: vec![],
         }
     }
 }
@@ -77,6 +99,26 @@ pub fn validate(preferences: &Preferences) -> Result<(), String> {
         })
     {
         return Err("Indicateurs de la barre système invalides.".into());
+    }
+    if preferences.battery_devices.len() > 16
+        || preferences
+            .battery_devices
+            .iter()
+            .enumerate()
+            .any(|(i, device)| {
+                device.id.is_empty()
+                    || device.id.len() > 32
+                    || !device.id.chars().all(|c| c.is_ascii_alphanumeric())
+                    || device.name.chars().count() > 64
+                    || device.name.chars().any(char::is_control)
+                    || !(device.icon == "auto"
+                        || crate::peripherals::KINDS.contains(&device.icon.as_str()))
+                    || preferences.battery_devices[..i]
+                        .iter()
+                        .any(|d| d.id == device.id)
+            })
+    {
+        return Err("Appareils sans fil invalides.".into());
     }
     crate::domain::validate_options(&crate::domain::RunOptions {
         memory_mib: preferences.memory_mib,

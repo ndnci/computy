@@ -180,6 +180,55 @@ pub struct Preferences {
     pub tray_style: String,
     pub tray_components: Vec<String>,
     pub tray_disks: Vec<String>,
+    pub battery_enabled: bool,
+    pub battery_devices: Vec<BatteryDevice>,
+}
+
+/// Tray choice for one wireless peripheral, remembered while disconnected.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct BatteryDevice {
+    pub id: String,
+    pub name: String,
+    pub shown: bool,
+    pub icon: String,
+}
+
+/// Battery of a connected wireless peripheral (engine `peripherals`).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
+#[serde(default)]
+pub struct Peripheral {
+    pub id: String,
+    pub name: String,
+    pub kind: String,
+    pub percent: Option<f64>,
+    pub level: String,
+    pub approximate: bool,
+    pub charging: Option<bool>,
+    pub connected: bool,
+}
+
+impl Peripheral {
+    /// Gauge value; a coarse level maps to the middle of its range.
+    pub fn gauge(&self) -> Option<f64> {
+        self.percent.or(match self.level.as_str() {
+            "critical" => Some(5.),
+            "low" => Some(20.),
+            "normal" => Some(55.),
+            "high" => Some(80.),
+            "full" => Some(100.),
+            _ => None,
+        })
+    }
+
+    /// Icon kind: the user's choice, otherwise the detected kind.
+    pub fn icon_kind<'a>(&'a self, preferences: &'a Preferences) -> &'a str {
+        preferences
+            .battery_devices
+            .iter()
+            .find(|d| d.id == self.id && d.icon != "auto")
+            .map_or(self.kind.as_str(), |d| d.icon.as_str())
+    }
 }
 
 impl Default for Preferences {
@@ -196,6 +245,8 @@ impl Default for Preferences {
             tray_style: "icon_text".into(),
             tray_components: vec!["memory".into(), "cpu".into(), "gpu".into()],
             tray_disks: vec![],
+            battery_enabled: false,
+            battery_devices: vec![],
         }
     }
 }

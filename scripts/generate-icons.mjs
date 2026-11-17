@@ -21,6 +21,9 @@ const names = new Set([
   'arrow-right',
   'arrow-up',
   'arrow-up-right',
+  'battery',
+  'battery-charging',
+  'bluetooth',
   'book-open',
   'brush-cleaning',
   'calendar-clock',
@@ -39,10 +42,14 @@ const names = new Set([
   'folder',
   'folder-open',
   'frown',
+  'gamepad-2',
   'hard-drive',
+  'headphones',
+  'headset',
   'heart',
   'history',
   'info',
+  'keyboard',
   'laptop',
   'layers',
   'layout-dashboard',
@@ -56,8 +63,10 @@ const names = new Set([
   'monitor',
   'monitor-up',
   'moon',
+  'mouse',
   'package',
   'package-minus',
+  'pen-tool',
   'pencil',
   'pin',
   'play',
@@ -72,19 +81,40 @@ const names = new Set([
   'settings-2',
   'shield-check',
   'sliders-horizontal',
+  'smartphone',
   'smile',
   'sparkles',
+  'speaker',
   'square',
   'sun',
+  'tablet',
   'thermometer',
   'timer',
   'trash-2',
   'triangle-alert',
   'usb',
+  'watch',
   'wrench',
   'x',
   'zap',
 ]);
+const filled = [
+  'memory-stick',
+  'cpu',
+  'monitor',
+  'hard-drive',
+  'bluetooth',
+  'gamepad-2',
+  'headphones',
+  'headset',
+  'keyboard',
+  'mouse',
+  'pen-tool',
+  'smartphone',
+  'speaker',
+  'tablet',
+  'watch',
+];
 const attributes = (props) =>
   Object.entries(props)
     .filter(([key]) => key !== 'key')
@@ -113,8 +143,8 @@ for (const name of [...names].sort()) {
   const body = module.__iconData.node
     .map(([tag, props]) => `<${tag} ${attributes(props)}/>`)
     .join('');
-  // The tray "fill" style paints these glyphs filled with the usage color.
-  if (['memory-stick', 'cpu', 'monitor', 'hard-drive'].includes(name)) {
+  // The tray "fill" style paints these glyphs filled with the usage or charge color.
+  if (filled.includes(name)) {
     await writeFile(
       path.join(output, `${name}@1.8-fill.svg`),
       `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#000" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${body}</svg>\n`,

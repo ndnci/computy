@@ -18,6 +18,65 @@ pub fn usage_color(value: Option<f64>) -> Hsla {
     }
 }
 
+/// Remaining charge (never health): red at 15 % and below, yellow up to 30 %.
+pub fn battery_color(value: Option<f64>) -> Hsla {
+    match value.filter(|v| v.is_finite()) {
+        None => hex(0x8b9b9d),
+        Some(v) if v <= 15. => hex(0xe96565),
+        Some(v) if v <= 30. => hex(0xdca842),
+        _ => hex(0x429feb),
+    }
+}
+
+/// Lucide icon for a peripheral kind (`computy_engine::peripherals::KINDS`).
+pub fn device_icon(kind: &str) -> &'static str {
+    match kind {
+        "mouse" => "mouse",
+        "keyboard" => "keyboard",
+        "headphones" => "headphones",
+        "headset" => "headset",
+        "speaker" => "speaker",
+        "gamepad" => "gamepad-2",
+        "phone" => "smartphone",
+        "tablet" => "tablet",
+        "pen" => "pen-tool",
+        "watch" => "watch",
+        _ => "bluetooth",
+    }
+}
+
+/// Exact percentage, `≈` for an estimate, or the coarse level's name.
+pub fn battery_label(peripheral: &crate::model::Peripheral) -> String {
+    match peripheral.percent {
+        Some(v) if peripheral.approximate => format!("≈{}", percent_label(Some(v))),
+        Some(v) => percent_label(Some(v)),
+        None if !peripheral.level.is_empty() => {
+            crate::i18n::tx(&format!("battery.level_{}", peripheral.level))
+        }
+        None => "—".to_owned(),
+    }
+}
+
+/// Battery visual in the same three styles as the metrics.
+pub fn battery_visual(
+    peripheral: &crate::model::Peripheral,
+    icon_name: &str,
+    style: &str,
+    ring_size: f32,
+    min_height: f32,
+) -> AnyElement {
+    let value = peripheral.gauge();
+    visual(
+        value,
+        battery_label(peripheral),
+        icon_name,
+        battery_color(value),
+        style,
+        ring_size,
+        min_height,
+    )
+}
+
 pub fn metric_icon(metric: &str) -> &'static str {
     match metric {
         "memory" => "memory-stick",
@@ -43,8 +102,26 @@ pub fn metric_visual(
     ring_size: f32,
     min_height: f32,
 ) -> AnyElement {
-    let color = usage_color(value);
-    let label = percent_label(value);
+    visual(
+        value,
+        percent_label(value),
+        metric_icon(metric),
+        usage_color(value),
+        style,
+        ring_size,
+        min_height,
+    )
+}
+
+fn visual(
+    value: Option<f64>,
+    label: String,
+    name: &str,
+    color: Hsla,
+    style: &str,
+    ring_size: f32,
+    min_height: f32,
+) -> AnyElement {
     match style {
         "ring" => div()
             .relative()
@@ -85,7 +162,6 @@ pub fn metric_visual(
             .into_any_element(),
         "fill" => {
             let fill = value.unwrap_or(0.).clamp(0., 100.) as f32 / 100.;
-            let name = metric_icon(metric);
             div()
                 .relative()
                 .size(px(58.))
@@ -117,7 +193,7 @@ pub fn metric_visual(
             .justify_center()
             .gap(px(9.))
             .min_h(px(min_height))
-            .child(icon(metric_icon(metric), 25., "1.8", color))
+            .child(icon(name, 25., "1.8", color))
             .child(spaced(label, 25., 720., color, -1., 33.).nowrap())
             .into_any_element(),
     }
@@ -135,6 +211,22 @@ mod tests {
     use super::*;
     use crate::model::{ProcessSample, ranked_processes};
     use std::prelude::v1::test;
+
+    #[test]
+    fn battery_palette_and_labels() {
+        assert_eq!(battery_color(Some(15.)), hex(0xe96565));
+        assert_eq!(battery_color(Some(30.)), hex(0xdca842));
+        assert_eq!(battery_color(Some(31.)), hex(0x429feb));
+        assert_eq!(battery_color(None), hex(0x8b9b9d));
+        assert_eq!(device_icon("gamepad"), "gamepad-2");
+        assert_eq!(device_icon("unknown"), "bluetooth");
+        let level = crate::model::Peripheral {
+            level: "normal".into(),
+            ..Default::default()
+        };
+        assert!(!battery_label(&level).contains('%'));
+        assert_eq!(level.gauge(), Some(55.));
+    }
 
     #[test]
     fn usage_palette_and_ranking() {

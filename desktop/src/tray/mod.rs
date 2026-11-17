@@ -7,7 +7,9 @@ mod linux_indicator;
 #[cfg(target_os = "linux")]
 mod linux_menu;
 
-use computy_engine::{monitor::Snapshot, preferences::Preferences, service::AppService};
+use computy_engine::{
+    monitor::Snapshot, peripherals::PeripheralSample, preferences::Preferences, service::AppService,
+};
 use futures::{StreamExt, channel::mpsc};
 use gpui::App;
 use std::{
@@ -73,13 +75,106 @@ struct Value {
     volume: String,
     label: &'static str,
     value: Option<f64>,
+    battery: Option<Battery>,
 }
 
-fn values(preferences: &Preferences, snapshot: &Snapshot) -> Vec<Value> {
-    if !preferences.tray_enabled {
-        return vec![];
+/// Wireless peripheral shown instead of a metric.
+struct Battery {
+    icon: &'static str,
+    /// False for a coarse level, which is never drawn as a number.
+    exact: bool,
+    name: String,
+    /// Percentage, `≈` estimate or translated level.
+    text: String,
+    charging: Option<bool>,
+}
+
+impl Value {
+    fn text(&self) -> String {
+        match &self.battery {
+            Some(battery) => battery.text.clone(),
+            None => self
+                .value
+                .map(|n| format!("{n:.0}%"))
+                .unwrap_or_else(|| "—".into()),
+        }
     }
+
+    fn title(&self) -> String {
+        match &self.battery {
+            Some(battery) => format!(
+                "Computy · {} · {}{}",
+                battery.name,
+                battery.text,
+                if battery.charging == Some(true) {
+                    " ⚡"
+                } else {
+                    ""
+                }
+            ),
+            None => format!("Computy · {} · {} {}", self.label, self.text(), self.volume),
+        }
+    }
+
+    fn pixels(&self, style: &str, compact_text: bool) -> Vec<u8> {
+        match &self.battery {
+            Some(battery) => {
+                icon::render_battery(battery.icon, self.value, battery.exact, style, compact_text)
+            }
+            None => icon::render_style(self.label, self.value, style, compact_text),
+        }
+    }
+}
+
+fn values(
+    preferences: &Preferences,
+    snapshot: &Snapshot,
+    peripherals: &[PeripheralSample],
+) -> Vec<Value> {
     let mut values = vec![];
+    if preferences.battery_enabled {
+        for device in preferences.battery_devices.iter().filter(|d| d.shown) {
+            // A disconnected device has no indicator; it returns on reconnection.
+            let Some(sample) = peripherals
+                .iter()
+                .find(|p| p.id == device.id && p.connected)
+            else {
+                continue;
+            };
+            let kind = if device.icon == "auto" {
+                sample.kind.as_str()
+            } else {
+                device.icon.as_str()
+            };
+            let text = match sample.percent {
+                Some(v) if sample.approximate => format!("≈{v:.0}%"),
+                Some(v) => format!("{v:.0}%"),
+                None => message(preferences, &format!("battery.level_{}", sample.level)),
+            };
+            values.push(Value {
+                id: format!("computy-battery-{}", device.id),
+                metric: "battery".into(),
+                volume: device.id.clone(),
+                label: "BAT",
+                value: sample.gauge(),
+                battery: Some(Battery {
+                    icon: crate::monitor_ui::device_icon(kind),
+                    exact: sample.percent.is_some(),
+                    name: sample
+                        .name
+                        .chars()
+                        .filter(|c| !c.is_control())
+                        .take(45)
+                        .collect(),
+                    text,
+                    charging: sample.charging,
+                }),
+            });
+        }
+    }
+    if !preferences.tray_enabled {
+        return values;
+    }
     for component in &preferences.tray_components {
         let (label, value) = match component.as_str() {
             "memory" => ("RAM", snapshot.memory_percent),
@@ -93,6 +188,7 @@ fn values(preferences: &Preferences, snapshot: &Snapshot) -> Vec<Value> {
             volume: String::new(),
             label,
             value,
+            battery: None,
         });
     }
     for id in &preferences.tray_disks {
@@ -106,6 +202,7 @@ fn values(preferences: &Preferences, snapshot: &Snapshot) -> Vec<Value> {
                 .iter()
                 .find(|d| &d.id == id)
                 .and_then(|d| d.used_percent),
+            battery: None,
         });
     }
     values
@@ -132,6 +229,61 @@ fn process_png(pid: u32) -> Vec<u8> {
         .unwrap_or_default()
 }
 
+/// Actions shared by every indicator menu: (id, key, action, freedesktop icon).
+#[cfg(target_os = "linux")]
+const ACTIONS: [(i32, &str, &str, &str); 3] = [
+    (31, "common.preferences", "settings", "preferences-system"),
+    (32, "common.open_computy", "overview", "window-new"),
+    (33, "common.quit_computy", "quit", "application-exit"),
+];
+
+#[cfg(target_os = "linux")]
+fn linux_battery_rows(
+    preferences: &Preferences,
+    value: &Value,
+    battery: &Battery,
+) -> Vec<linux_menu::Row> {
+    use linux_menu::Row;
+    let png =
+        encode_rgba(&value.pixels(&preferences.tray_style, false), 64, 64).unwrap_or_default();
+    let mut rows = vec![Row {
+        id: 1,
+        label: format!("{} · {}", battery.name, battery.text),
+        png,
+        action: "panel".into(),
+        ..Default::default()
+    }];
+    if let Some(charging) = battery.charging {
+        rows.push(Row {
+            id: 2,
+            label: message(
+                preferences,
+                if charging {
+                    "battery.charging"
+                } else {
+                    "battery.on_battery"
+                },
+            ),
+            ..Default::default()
+        });
+    }
+    rows.push(Row {
+        id: 29,
+        separator: true,
+        ..Default::default()
+    });
+    for (id, key, action, icon) in ACTIONS {
+        rows.push(Row {
+            id,
+            label: message(preferences, key),
+            action: action.into(),
+            icon: icon.into(),
+            ..Default::default()
+        });
+    }
+    rows
+}
+
 #[cfg(target_os = "linux")]
 fn linux_menu_rows(
     preferences: &Preferences,
@@ -139,6 +291,9 @@ fn linux_menu_rows(
     value: &Value,
 ) -> Vec<linux_menu::Row> {
     use linux_menu::Row;
+    if let Some(battery) = &value.battery {
+        return linux_battery_rows(preferences, value, battery);
+    }
     let percent = |n: Option<f64>| n.map(|n| format!("{n:.1}%")).unwrap_or_else(|| "—".into());
     let bytes = |n: Option<u64>| {
         n.map(|n| {
@@ -156,12 +311,8 @@ fn linux_menu_rows(
         "gpu" => "common.graphics_processor",
         _ => "common.storage",
     };
-    let png = encode_rgba(
-        &icon::render_style(value.label, value.value, &preferences.tray_style, false),
-        64,
-        64,
-    )
-    .unwrap_or_default();
+    let png =
+        encode_rgba(&value.pixels(&preferences.tray_style, false), 64, 64).unwrap_or_default();
     let mut rows = vec![
         Row {
             id: 1,
@@ -227,12 +378,9 @@ fn linux_menu_rows(
         separator: true,
         ..Default::default()
     });
-    for (id, key, action, icon) in [
-        (30, "common.view_all", "processes", "view-list-details"),
-        (31, "common.preferences", "settings", "preferences-system"),
-        (32, "common.open_computy", "overview", "window-new"),
-        (33, "common.quit_computy", "quit", "application-exit"),
-    ] {
+    for (id, key, action, icon) in
+        std::iter::once((30, "common.view_all", "processes", "view-list-details")).chain(ACTIONS)
+    {
         rows.push(Row {
             id,
             label: message(preferences, key),
@@ -327,14 +475,23 @@ fn run(
     let mut was_active = false;
     while !STOPPED.load(Ordering::Relaxed) {
         if let Ok(preferences) = computy_engine::preferences::load(&service.data_root()) {
-            let monitoring = preferences.tray_enabled
+            let monitoring = preferences.has_indicators();
+            let metrics = preferences.tray_enabled
                 && (!preferences.tray_components.is_empty() || !preferences.tray_disks.is_empty());
-            let snapshot = if monitoring {
+            let snapshot = if metrics {
                 service.monitor(preferences.tray_components.iter().any(|c| c == "gpu"))
             } else {
                 Snapshot::default()
             };
-            let values = values(&preferences, &snapshot);
+            // Cached: re-read only on a system change notification or interval.
+            let peripherals = if preferences.battery_enabled
+                && preferences.battery_devices.iter().any(|d| d.shown)
+            {
+                service.peripherals(false)
+            } else {
+                vec![]
+            };
+            let values = values(&preferences, &snapshot, &peripherals);
             #[cfg(target_os = "linux")]
             {
                 if indicators.is_none() && !values.is_empty() {
@@ -357,30 +514,21 @@ fn run(
                     let data = values
                         .into_iter()
                         .map(|v| {
-                            let text = v
-                                .value
-                                .map(|n| format!("{n:.0}%"))
-                                .unwrap_or_else(|| "—".into());
                             let menu = linux_menu_rows(&preferences, &snapshot, &v);
                             linux_indicator::ItemData {
-                                id: v.id,
-                                metric: v.metric,
-                                volume: v.volume.clone(),
-                                title: format!("Computy · {} · {text} {}", v.label, v.volume),
+                                title: v.title(),
                                 label: if preferences.tray_style == "icon_text" {
-                                    text
+                                    v.text()
                                 } else {
                                     String::new()
                                 },
                                 active: true,
-                                pixels: icon::render_style(
-                                    v.label,
-                                    v.value,
-                                    &preferences.tray_style,
-                                    false,
-                                ),
+                                pixels: v.pixels(&preferences.tray_style, false),
                                 menu,
                                 revision: 0,
+                                id: v.id,
+                                metric: v.metric,
+                                volume: v.volume,
                             }
                         })
                         .collect();
@@ -414,7 +562,7 @@ fn run(
 #[cfg(not(target_os = "linux"))]
 mod native {
     //! Windows and macOS indicators through the `tray-icon` crate.
-    use super::{Activation, Value, icon, message};
+    use super::{Activation, Value, message};
     use computy_engine::preferences::Preferences;
     use futures::channel::mpsc::UnboundedSender;
     use std::collections::BTreeMap;
@@ -478,21 +626,17 @@ mod native {
                 }
             }
             for v in values {
-                let text = v
-                    .value
-                    .map(|n| format!("{n:.0}%"))
-                    .unwrap_or_else(|| "—".into());
-                let pixels = icon::render_style(
-                    v.label,
-                    v.value,
-                    &preferences.tray_style,
-                    cfg!(target_os = "windows"),
-                );
+                let pixels = v.pixels(&preferences.tray_style, cfg!(target_os = "windows"));
                 let image = Icon::from_rgba(pixels, 64, 64).ok();
                 if !self.items.contains_key(&v.id) {
                     let menu = Menu::new();
+                    let details = if v.battery.is_some() {
+                        "battery.details"
+                    } else {
+                        "common.top_resource_consumers"
+                    };
                     for (action, key) in [
-                        ("panel", "common.top_resource_consumers"),
+                        ("panel", details),
                         ("settings", "common.preferences"),
                         ("overview", "common.open_computy"),
                         ("quit", "common.quit_computy"),
@@ -526,12 +670,10 @@ mod native {
                 }
                 let item = self.items.get_mut(&v.id).unwrap();
                 let _ = item.0.set_icon(image);
-                let _ = item
-                    .0
-                    .set_tooltip(Some(format!("Computy · {} · {text} {}", v.label, v.volume)));
+                let _ = item.0.set_tooltip(Some(v.title()));
                 #[cfg(target_os = "macos")]
                 item.0.set_title(if preferences.tray_style == "icon_text" {
-                    Some(text)
+                    Some(v.text())
                 } else {
                     None
                 });
@@ -547,6 +689,8 @@ mod native {
     fn parse_id(id: &str) -> (String, String) {
         if let Some(volume) = id.strip_prefix("computy-disk-") {
             ("storage".into(), volume.into())
+        } else if let Some(device) = id.strip_prefix("computy-battery-") {
+            ("battery".into(), device.into())
         } else {
             (id.trim_start_matches("computy-").into(), String::new())
         }

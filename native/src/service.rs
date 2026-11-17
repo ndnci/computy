@@ -49,6 +49,7 @@ pub struct AppService {
     worker: Mutex<Option<thread::JoinHandle<()>>>,
     cached_inventory: Mutex<Option<Inventory>>,
     monitor: Mutex<crate::monitor::Sampler>,
+    peripherals: Mutex<crate::peripherals::Reader>,
 }
 impl AppService {
     pub fn data_root(&self) -> PathBuf {
@@ -68,6 +69,7 @@ impl AppService {
             worker: Mutex::new(None),
             cached_inventory: Mutex::new(None),
             monitor: Mutex::new(crate::monitor::Sampler::default()),
+            peripherals: Mutex::new(crate::peripherals::Reader::default()),
         })
     }
     pub fn inventory(&self, refresh: bool) -> Inventory {
@@ -85,6 +87,14 @@ impl AppService {
             .lock()
             .unwrap_or_else(|e| e.into_inner())
             .sample(gpu_enabled)
+    }
+    /// Battery of connected wireless peripherals, from the system's cache.
+    /// `force` bypasses the refresh interval (explicit CLI/MCP requests).
+    pub fn peripherals(&self, force: bool) -> Vec<crate::peripherals::PeripheralSample> {
+        self.peripherals
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .sample(force)
     }
     pub fn job(&self, id: &str) -> Result<Job, String> {
         self.job

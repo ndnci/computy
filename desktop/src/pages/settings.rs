@@ -7,8 +7,8 @@ use crate::{
     },
     forms::{field, native_checkbox, option, select},
     i18n::{LANGUAGES, tp, tx},
-    model::{MonitorSnapshot, Preferences},
-    monitor_ui::metric_visual,
+    model::{BatteryDevice, MonitorSnapshot, Peripheral, Preferences},
+    monitor_ui::{battery_color, battery_label, battery_visual, device_icon, metric_visual},
     platform,
     theme::{self, c, hex},
     ui::{icon, panel, spaced, text},
@@ -29,6 +29,8 @@ pub struct SettingsState {
     startup_busy: bool,
     snapshot: Option<MonitorSnapshot>,
     problem: bool,
+    /// Connected wireless peripherals while the battery section is enabled.
+    peripherals: Option<Vec<Peripheral>>,
     kind: String,
     pub action: Option<Maintenance>,
     confirmed: bool,
@@ -44,18 +46,35 @@ impl SettingsState {
     pub fn new(app: &Computy, cx: &mut Context<Computy>) -> Self {
         let poll = cx.spawn(async move |this, cx| {
             loop {
-                let Ok((backend, enabled)) = this.read_with(cx, |this, _| {
+                let Ok((backend, enabled, batteries)) = this.read_with(cx, |this, _| {
+                    let draft = this.pages.settings.as_ref().map(|s| &s.draft);
                     (
                         this.backend.clone(),
-                        this.pages
-                            .settings
-                            .as_ref()
-                            .is_some_and(|s| s.draft.tray_enabled),
+                        draft.is_some_and(|d| d.tray_enabled),
+                        draft.is_some_and(|d| d.battery_enabled),
                     )
                 }) else {
                     break;
                 };
                 let fixture = backend.is_fixture();
+                if batteries {
+                    let reader = backend.clone();
+                    let result =
+                        cx.background_executor()
+                            .spawn(async move {
+                                reader.typed::<Vec<Peripheral>>("peripherals", json!({}))
+                            })
+                            .await;
+                    let alive = this.update(cx, |this, cx| {
+                        if let Some(s) = this.pages.settings.as_mut() {
+                            s.peripherals = Some(result.unwrap_or_default());
+                        }
+                        cx.notify();
+                    });
+                    if alive.is_err() {
+                        break;
+                    }
+                }
                 if enabled {
                     let result = cx
                         .background_executor()
@@ -78,9 +97,12 @@ impl SettingsState {
                         }
                         cx.notify();
                     });
-                    if alive.is_err() || fixture {
+                    if alive.is_err() {
                         break;
                     }
+                }
+                if fixture && (enabled || batteries) {
+                    break;
                 }
                 cx.background_executor().timer(Duration::from_secs(2)).await;
             }
@@ -105,6 +127,7 @@ impl SettingsState {
             startup_busy: false,
             snapshot: None,
             problem: false,
+            peripherals: None,
             kind,
             action: None,
             confirmed: false,
@@ -331,14 +354,12 @@ fn theme_option(
         }))
 }
 
-fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
-    let s = app.pages.settings.as_ref().unwrap();
-    let draft = s.draft.clone();
-    let snapshot = s.snapshot.clone();
-    let note = |content: String| {
-        text(content, 12., 400., c(theme::TEXT))
-            .line_height(px(20.4))
-            .opacity(0.82)
+/// The three tray styles, shared by metric and battery indicators. Previews
+/// show a mouse battery in the battery section, RAM usage otherwise.
+fn style_options(draft: &Preferences, battery: bool, cx: &mut Context<Computy>) -> Div {
+    let sample = Peripheral {
+        percent: Some(80.),
+        ..Default::default()
     };
     let style_option = |id: &'static str, label: &str, cx: &mut Context<Computy>| {
         let selected = draft.tray_style == id;
@@ -387,7 +408,11 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                         d.child(div().size(px(7.)).rounded_full().bg(c(theme::GREEN)))
                     }),
             )
-            .child(metric_visual(Some(42.), "memory", id, 65., 65.))
+            .child(if battery {
+                battery_visual(&sample, "mouse", id, 65., 65.)
+            } else {
+                metric_visual(Some(42.), "memory", id, 65., 65.)
+            })
             .child(text(tx(label), 12., 700., c(theme::TEXT)))
             .when(id == "icon_text", |d| {
                 d.child(
@@ -403,6 +428,24 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                 state(this).draft.tray_style = id.into();
                 cx.notify();
             }))
+    };
+    div()
+        .mt(px(14.))
+        .flex()
+        .gap(px(12.))
+        .child(style_option("icon_text", "settings.icon_percentage", cx))
+        .child(style_option("ring", "settings.ring", cx))
+        .child(style_option("fill", "settings.filled_icon", cx))
+}
+
+fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
+    let s = app.pages.settings.as_ref().unwrap();
+    let draft = s.draft.clone();
+    let snapshot = s.snapshot.clone();
+    let note = |content: String| {
+        text(content, 12., 400., c(theme::TEXT))
+            .line_height(px(20.4))
+            .opacity(0.82)
     };
     let metric_option =
         |id: &'static str, name: &str, value: Option<f64>, cx: &mut Context<Computy>| {
@@ -530,15 +573,7 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                         )
                         .px(px(2.)),
                     )
-                    .child(
-                        div()
-                            .mt(px(14.))
-                            .flex()
-                            .gap(px(12.))
-                            .child(style_option("icon_text", "settings.icon_percentage", cx))
-                            .child(style_option("ring", "settings.ring", cx))
-                            .child(style_option("fill", "settings.filled_icon", cx)),
-                    )
+                    .child(style_options(&draft, false, cx))
                     .child(
                         div()
                             .mt(px(12.))
@@ -734,6 +769,316 @@ fn monitor_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElemen
                         ))
                         .mt(px(14.)),
                     ),
+            )
+        })
+}
+
+/// Battery of wireless peripherals: one indicator per selected device.
+fn battery_settings(app: &Computy, cx: &mut Context<Computy>) -> impl IntoElement {
+    let s = app.pages.settings.as_ref().unwrap();
+    let draft = s.draft.clone();
+    let enabled = draft.battery_enabled;
+    let note = |content: String| {
+        text(content, 12., 400., c(theme::TEXT))
+            .line_height(px(20.4))
+            .opacity(0.82)
+    };
+    // Connected devices first, then remembered ones that are disconnected.
+    let mut devices: Vec<(Peripheral, bool)> = s
+        .peripherals
+        .iter()
+        .flatten()
+        .map(|p| (p.clone(), true))
+        .collect();
+    for device in &draft.battery_devices {
+        if !devices.iter().any(|(p, _)| p.id == device.id) {
+            devices.push((
+                Peripheral {
+                    id: device.id.clone(),
+                    name: device.name.clone(),
+                    kind: if device.icon == "auto" {
+                        "other".into()
+                    } else {
+                        device.icon.clone()
+                    },
+                    ..Default::default()
+                },
+                false,
+            ));
+        }
+    }
+    let mut icon_options = vec![option("auto", tx("settings.icon_automatic"))];
+    icon_options.extend(
+        [
+            "mouse",
+            "keyboard",
+            "headphones",
+            "headset",
+            "speaker",
+            "gamepad",
+            "phone",
+            "tablet",
+            "pen",
+            "watch",
+            "other",
+        ]
+        .iter()
+        .map(|kind| option(kind, tx(&format!("battery.kind_{kind}")))),
+    );
+    let rows = devices.into_iter().map(|(peripheral, connected)| {
+        let saved = draft
+            .battery_devices
+            .iter()
+            .find(|d| d.id == peripheral.id)
+            .cloned();
+        let checked = saved.as_ref().is_some_and(|d| d.shown);
+        let disabled = saved.is_none() && draft.battery_devices.len() >= 16;
+        let choice = saved
+            .as_ref()
+            .map_or_else(|| "auto".to_owned(), |d| d.icon.clone());
+        let kind = if choice == "auto" {
+            peripheral.kind.clone()
+        } else {
+            choice.clone()
+        };
+        let toggle = peripheral.clone();
+        let chosen = peripheral.clone();
+        let status = if connected {
+            format!(
+                "{} · {}",
+                tx(&format!("battery.kind_{}", peripheral.kind)),
+                match peripheral.charging {
+                    Some(true) => tx("battery.charging"),
+                    _ => tx("battery.connected"),
+                }
+            )
+        } else {
+            tx("battery.disconnected")
+        };
+        div()
+            .flex()
+            .items_center()
+            .gap(px(12.))
+            .py(px(10.))
+            .px(px(15.))
+            .border_1()
+            .border_color(c(theme::BORDER))
+            .rounded(px(10.))
+            .child(
+                div()
+                    .id(SharedString::from(format!("battery-{}", peripheral.id)))
+                    .flex_1()
+                    .min_w_0()
+                    .flex()
+                    .items_center()
+                    .gap(px(12.))
+                    .cursor_pointer()
+                    .child(native_checkbox(checked, disabled, hex(0x5f803c)))
+                    .child(icon(
+                        device_icon(&kind),
+                        22.,
+                        "2",
+                        if connected {
+                            battery_color(peripheral.gauge())
+                        } else {
+                            c(theme::MUTED)
+                        },
+                    ))
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_w_0()
+                            .flex()
+                            .flex_col()
+                            .child(text(peripheral.name.clone(), 12., 700., c(theme::TEXT)))
+                            .child(text(status, 10., 400., c(theme::TEXT)).opacity(0.82)),
+                    )
+                    .when(connected, |d| {
+                        d.child(text(battery_label(&peripheral), 12., 600., c(theme::TEXT)))
+                    })
+                    .on_click(cx.listener(move |this, _, _, cx| {
+                        if disabled {
+                            return;
+                        }
+                        let d = &mut state(this).draft;
+                        match d.battery_devices.iter_mut().find(|d| d.id == toggle.id) {
+                            Some(device) => {
+                                device.shown = !device.shown;
+                                if !toggle.name.is_empty() && toggle.connected {
+                                    device.name = toggle.name.clone();
+                                }
+                            }
+                            None => d.battery_devices.push(BatteryDevice {
+                                id: toggle.id.clone(),
+                                name: toggle.name.chars().take(64).collect(),
+                                shown: true,
+                                icon: "auto".into(),
+                            }),
+                        }
+                        cx.notify();
+                    })),
+            )
+            .child(div().w(px(170.)).flex_none().child(select(
+                format!("battery-icon-{}", peripheral.id),
+                &choice,
+                icon_options.clone(),
+                app,
+                cx,
+                move |this, value, _, cx| {
+                    let devices = &mut state(this).draft.battery_devices;
+                    if let Some(device) = devices.iter_mut().find(|d| d.id == chosen.id) {
+                        device.icon = value;
+                    } else if devices.len() < 16 {
+                        devices.push(BatteryDevice {
+                            id: chosen.id.clone(),
+                            name: chosen.name.chars().take(64).collect(),
+                            shown: false,
+                            icon: value,
+                        });
+                    }
+                    cx.notify();
+                },
+            )))
+            .into_any_element()
+    });
+    let rows: Vec<AnyElement> = rows.collect();
+    let loading = enabled && s.peripherals.is_none();
+    let legend = |color: u32, label: String| {
+        div()
+            .flex()
+            .items_center()
+            .gap(px(7.))
+            .child(div().ml(px(8.)).size(px(8.)).rounded_full().bg(hex(color)))
+            .child(label)
+    };
+    panel()
+        .mb(px(20.))
+        .flex()
+        .flex_col()
+        .child(components::panel_header(
+            "settings.wireless_batteries",
+            Some(tx("settings.wireless_batteries_hint")),
+            None,
+        ))
+        .child(setting_row(
+            "bluetooth",
+            "settings.show_wireless_batteries",
+            "settings.show_wireless_batteries_hint",
+            toggle_switch("battery-enabled", enabled, false).on_click(cx.listener(
+                |this, _, _, cx| {
+                    let d = &mut state(this).draft;
+                    d.battery_enabled = !d.battery_enabled;
+                    cx.notify();
+                },
+            )),
+        ))
+        // Without the metric monitor, its shared settings are shown here.
+        .when(enabled && !draft.tray_enabled, |d| {
+            d.child(setting_row(
+                "app-window",
+                "settings.keep_running_on_close",
+                "settings.keep_running_on_close_hint",
+                toggle_switch("battery-keep-running", draft.keep_running_on_close, false).on_click(
+                    cx.listener(|this, _, _, cx| {
+                        let d = &mut state(this).draft;
+                        d.keep_running_on_close = !d.keep_running_on_close;
+                        cx.notify();
+                    }),
+                ),
+            ))
+        })
+        .when(enabled, |d| {
+            d.child(
+                div()
+                    .px(px(28.))
+                    .pb(px(25.))
+                    .flex()
+                    .flex_col()
+                    .map(|d| {
+                        if draft.tray_enabled {
+                            d.child(note(tx("settings.battery_style_shared")))
+                        } else {
+                            d.child(
+                                text(
+                                    tx("settings.system_tray_style"),
+                                    14.,
+                                    650.,
+                                    c(theme::HEADING),
+                                )
+                                .px(px(2.)),
+                            )
+                            .child(style_options(&draft, true, cx))
+                        }
+                    })
+                    .child(
+                        div()
+                            .mt(px(12.))
+                            .flex()
+                            .flex_wrap()
+                            .items_center()
+                            .gap(px(7.))
+                            .opacity(0.82)
+                            .text_size(px(12.))
+                            .line_height(px(20.4))
+                            .text_color(c(theme::TEXT))
+                            .child(legend(0x429feb, format!("{} > 30 %", tx("settings.blue"))))
+                            .child(legend(
+                                0xdca842,
+                                format!("{} 16–30 %", tx("settings.yellow")),
+                            ))
+                            .child(legend(0xe96565, format!("{} ≤ 15 %", tx("settings.red")))),
+                    )
+                    .child(
+                        div()
+                            .mt(px(24.))
+                            .flex()
+                            .items_center()
+                            .gap(px(9.))
+                            .child(icon("bluetooth", 17., "2", c(theme::HEADING)))
+                            .child(spaced(
+                                tx("battery.wireless_devices"),
+                                15.,
+                                650.,
+                                c(theme::HEADING),
+                                -0.2,
+                                20.,
+                            )),
+                    )
+                    .child(note(tx("settings.one_indicator_per_device")).mt(px(6.)))
+                    .when(loading, |d| {
+                        d.child(
+                            div()
+                                .mt(px(12.))
+                                .flex()
+                                .items_center()
+                                .gap(px(6.))
+                                .child(spinner(16., c(theme::MUTED)))
+                                .child(text(
+                                    tx("settings.searching_wireless_devices"),
+                                    12.,
+                                    400.,
+                                    c(theme::MUTED),
+                                )),
+                        )
+                    })
+                    .when(!loading && rows.is_empty(), |d| {
+                        d.child(
+                            notice(
+                                NoticeTone::Info,
+                                vec![tx("settings.no_wireless_devices").into_any_element()],
+                            )
+                            .mt(px(12.)),
+                        )
+                    })
+                    .child(
+                        div()
+                            .mt(px(15.))
+                            .flex()
+                            .flex_col()
+                            .gap(px(8.))
+                            .children(rows),
+                    )
+                    .child(note(tx("settings.battery_sources_note")).mt(px(14.))),
             )
         })
 }
@@ -1003,6 +1348,7 @@ pub fn render(app: &mut Computy, _window: &mut Window, cx: &mut Context<Computy>
                 )),
         )
         .child(monitor_settings(app, cx))
+        .child(battery_settings(app, cx))
         .child(
             div()
                 .flex()

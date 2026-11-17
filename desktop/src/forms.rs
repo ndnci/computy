@@ -9,6 +9,7 @@ use crate::{
 use gpui::{prelude::FluentBuilder, *};
 use gpui_component::input::{Input, InputState};
 
+#[derive(Clone)]
 pub struct SelectOption {
     pub value: String,
     pub label: String,
@@ -23,26 +24,28 @@ pub fn option(value: impl ToString, label: impl Into<String>) -> SelectOption {
 
 /// `<select>`: a bordered box; clicking opens an anchored option list.
 pub fn select(
-    id: &'static str,
+    id: impl Into<SharedString>,
     current: &str,
     options: Vec<SelectOption>,
     app: &Computy,
     cx: &mut Context<Computy>,
     on_change: impl Fn(&mut Computy, String, &mut Window, &mut Context<Computy>) + 'static,
 ) -> Stateful<Div> {
+    let id: SharedString = id.into();
     let open = app
         .pages
         .open_select
         .as_ref()
-        .is_some_and(|open| open.as_ref() == id);
+        .is_some_and(|open| *open == id);
     let label = options
         .iter()
         .find(|o| o.value == current)
         .map(|o| o.label.clone())
         .unwrap_or_else(|| current.to_owned());
     let on_change = std::rc::Rc::new(on_change);
+    let toggle = id.clone();
     div()
-        .id(id)
+        .id(id.clone())
         .relative()
         .w_full()
         .h(px(40.))
@@ -58,7 +61,7 @@ pub fn select(
         .child(text(label, 13., 400., c((0x263d34, 0xb1c699))))
         .child(icon("chevron-down", 14., "2", c((0x263d34, 0xb1c699))))
         .on_click(cx.listener(move |this, _, _, cx| {
-            this.pages.open_select = if open { None } else { Some(id.into()) };
+            this.pages.open_select = if open { None } else { Some(toggle.clone()) };
             cx.notify();
         }))
         .when(open, |d| {
