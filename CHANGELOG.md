@@ -25,6 +25,11 @@ commits and locally built packages, not from previously published store releases
 
 ### Fixed
 
+- Garbled percentages and labels in several languages: Japanese showed
+  "ツイート" (tweet) instead of "%" and as the "Quit Computy" label, Arabic,
+  Bengali, Chinese, Hebrew, Korean, Swahili, Turkish, Ukrainian, Urdu and
+  Vietnamese showed broken percent signs or machine-translation artifacts.
+  A catalog test now rejects such artifacts.
 - The desktop application builds on Windows again: embedded icon and artwork
   paths are now escaped correctly in the generated asset table.
 - Documentation screenshots and benchmark results no longer show the host name

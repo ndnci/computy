@@ -40,6 +40,19 @@ test('every locale contains every message with intact interpolation variables', 
   }
 });
 
+test('percent signs survive translation without printf artifacts', () => {
+  for (const [language, catalog] of Object.entries(catalogs)) {
+    for (const [key, value] of Object.entries(catalog))
+      assert.doesNotMatch(value, /%%|%[sd]\b/, `${language} printf artifact in ${key}`);
+    for (const key of ['common.percent_value', 'common.usage', 'settings.space_used'])
+      assert.match(
+        catalog[key],
+        /^[^%٪]*(%\{\{value\}\}|\{\{value\}\}\s?[%٪])[^%٪]*$/,
+        `${language} ${key} must show one percent sign next to the value`,
+      );
+  }
+});
+
 test('French messages are unique so engine text maps back to one key', () => {
   const values = Object.values(source);
   assert.equal(new Set(values).size, values.length);

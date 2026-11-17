@@ -270,7 +270,7 @@
   "common.unknown": "Desconocida",
   "common.unverified_count": "Unverified: {{count}}",
   "common.usable_checks": "Controles operacionales",
-  "common.usage": "Usage: {{value}}%",
+  "common.usage": "Uso: {{value}}%",
   "common.verified_calculations": "Cálculos verificados",
   "common.view_all": "Ver todo",
   "common.writing_syncing_ms": "Escritura + sincronización (ms)",

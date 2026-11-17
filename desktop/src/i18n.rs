@@ -454,6 +454,12 @@ mod tests {
     use super::*;
     use std::prelude::v1::test;
 
+    /// The selected language is global: tests that change it run one at a time.
+    fn language_lock() -> std::sync::MutexGuard<'static, ()> {
+        static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+        LOCK.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
     #[test]
     fn resolves_like_the_web_interface() {
         assert_eq!(resolve("system", &["fr-FR".into()]), "fr");
@@ -465,6 +471,7 @@ mod tests {
 
     #[test]
     fn translates_and_interpolates() {
+        let _language = language_lock();
         set_language("en");
         assert_eq!(tx("common.overview"), "Overview");
         assert_eq!(tx(" common.overview "), " Overview ");
@@ -478,6 +485,7 @@ mod tests {
 
     #[test]
     fn engine_and_saved_report_text_is_translated_from_french() {
+        let _language = language_lock();
         set_language("en");
         assert_eq!(
             tx("Aucune incohérence dans la zone testée."),
@@ -506,6 +514,7 @@ mod tests {
 
     #[test]
     fn dynamic_templates_capture_values() {
+        let _language = language_lock();
         set_language("fr");
         let mut values = Vec::new();
         assert!(capture(
